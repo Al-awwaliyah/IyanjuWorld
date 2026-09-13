@@ -1170,5 +1170,3 @@ $$;
 
 drop trigger if exists business_earnings_sync_compatibility on public.business_earnings;
 create trigger business_earnings_sync_compatibility before insert or update on public.business_earnings for each row execute function public.sync_business_earning_compatibility();
-
-commit;
