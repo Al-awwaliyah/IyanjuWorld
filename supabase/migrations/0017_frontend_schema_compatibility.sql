@@ -685,11 +685,19 @@ grant select, update on public.delivery_requests to authenticated;
 grant select, update on public.delivery_assignments to authenticated;
 
 -- Keep updated_at current on the new operational tables.
+-- Keep updated_at current on the new operational tables.
 do $$
 declare
   table_name text;
 begin
-  foreach table_name in array ['business_earnings','rider_earnings','payouts','delivery_requests','delivery_assignments','conversations'] loop
+  foreach table_name in array array[
+    'business_earnings',
+    'rider_earnings',
+    'payouts',
+    'delivery_requests',
+    'delivery_assignments',
+    'conversations'
+  ] loop
     execute format('drop trigger if exists %I_set_updated_at on public.%I', table_name, table_name);
     execute format('create trigger %I_set_updated_at before update on public.%I for each row execute function public.set_updated_at()', table_name, table_name);
   end loop;
