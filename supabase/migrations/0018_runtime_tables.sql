@@ -7,6 +7,29 @@ create table if not exists public.business_earnings(id uuid primary key default 
 create table if not exists public.rider_earnings(id uuid primary key default gen_random_uuid(),rider_id uuid references public.riders(id) on delete cascade,order_id uuid references public.orders(id) on delete set null,amount numeric(14,2) not null default 0,status text not null default 'pending',available_at timestamptz,created_at timestamptz not null default now(),updated_at timestamptz not null default now());
 create table if not exists public.payouts(id uuid primary key default gen_random_uuid(),business_id uuid references public.businesses(id) on delete set null,rider_id uuid references public.riders(id) on delete set null,amount numeric(14,2) not null,status text not null default 'pending',reference text,created_at timestamptz not null default now(),updated_at timestamptz not null default now());
 create table if not exists public.audit_logs(id uuid primary key default gen_random_uuid(),actor_id uuid references auth.users(id) on delete set null,action text not null,entity_type text,entity_id uuid,metadata jsonb not null default '{}'::jsonb,created_at timestamptz not null default now());
-create or replace view public.cart_item_details as select ci.id,ci.cart_id,ci.product_id,ci.quantity,ci.unit_price,ci.subtotal,p.name product_name,(select pi.storage_path from public.product_images pi where pi.product_id=p.id order by pi.sort_order,pi.created_at limit 1) product_image,p.business_id,b.name business_name,p.stock_quantity available_stock from public.cart_items ci join public.products p on p.id=ci.product_id left join public.businesses b on b.id=p.business_id;
+create or replace view public.cart_item_details as
+select
+  ci.id,
+  ci.cart_id,
+  ci.product_id,
+  ci.quantity,
+  p.price as unit_price,
+  (p.price * ci.quantity)::numeric(18,2) as subtotal,
+  p.name as product_name,
+  (
+    select pi.storage_path
+    from public.product_images pi
+    where pi.product_id = p.id
+    order by pi.sort_order, pi.created_at
+    limit 1
+  ) as product_image,
+  p.business_id,
+  b.name as business_name,
+  p.stock_quantity as available_stock
+from public.cart_items ci
+join public.products p
+  on p.id = ci.product_id
+left join public.businesses b
+  on b.id = p.business_id;
 create or replace view public.payment_refunds as select * from public.refunds;
 create or replace function public.update_cart_item_quantity(p_cart_item_id uuid,p_quantity integer) returns public.cart_items language plpgsql security invoker as $$ declare r public.cart_items; begin if p_quantity<1 then raise exception 'Quantity must be at least 1'; end if; update public.cart_items ci set quantity=p_quantity where ci.id=p_cart_item_id and exists(select 1 from public.carts c where c.id=ci.cart_id and c.customer_id=auth.uid()) returning ci.* into r; if r.id is null then raise exception 'Cart item not found'; end if; return r; end; $$;
