@@ -1,2 +1,5 @@
 [functions.refund-wallet]
 verify_jwt = true
+
+[functions.rider-assignment]
+verify_jwt = true
