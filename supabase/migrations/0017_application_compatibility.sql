@@ -1,0 +1,7 @@
+create table if not exists public.customer_addresses(id uuid primary key default gen_random_uuid(),customer_id uuid not null references auth.users(id) on delete cascade,label text,address text not null,city text,state text,phone text,is_default boolean not null default false,created_at timestamptz not null default now(),updated_at timestamptz not null default now());
+alter table public.products add column if not exists stock_quantity integer not null default 0; alter table public.products add column if not exists active boolean not null default true; alter table public.products add column if not exists featured boolean not null default false;
+alter table public.customer_addresses enable row level security;
+drop policy if exists customer_addresses_select_own on public.customer_addresses; create policy customer_addresses_select_own on public.customer_addresses for select using(auth.uid()=customer_id);
+drop policy if exists customer_addresses_insert_own on public.customer_addresses; create policy customer_addresses_insert_own on public.customer_addresses for insert with check(auth.uid()=customer_id);
+drop policy if exists customer_addresses_update_own on public.customer_addresses; create policy customer_addresses_update_own on public.customer_addresses for update using(auth.uid()=customer_id) with check(auth.uid()=customer_id);
+drop policy if exists customer_addresses_delete_own on public.customer_addresses; create policy customer_addresses_delete_own on public.customer_addresses for delete using(auth.uid()=customer_id);
