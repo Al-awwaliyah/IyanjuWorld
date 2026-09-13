@@ -175,11 +175,11 @@ export default function Privacy() {
       <section className="border-b border-slate-200 bg-slate-50">
         <PageContainer className="py-14 sm:py-18">
           <div className="mx-auto max-w-4xl">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
               <ShieldCheck className="h-7 w-7" />
             </div>
 
-            <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-blue-600">
+            <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-brand-600">
               Privacy
             </p>
 
@@ -216,7 +216,7 @@ export default function Privacy() {
                     key={item.title}
                     className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
                   >
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                       <Icon className="h-5 w-5" />
                     </div>
 
@@ -255,7 +255,7 @@ export default function Privacy() {
 
             <div className="mt-14 rounded-2xl border border-slate-200 bg-slate-50 p-6">
               <div className="flex gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-600 shadow-sm">
                   <UserRound className="h-5 w-5" />
                 </div>
 
@@ -272,7 +272,7 @@ export default function Privacy() {
 
                   <Link
                     to="/contact"
-                    className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800"
+                    className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-800"
                   >
                     Contact IyanjuWorld
                     <MessageSquare className="h-4 w-4" />
@@ -292,19 +292,19 @@ export default function Privacy() {
               <div className="mt-5 flex flex-wrap gap-4 text-sm font-medium">
                 <Link
                   to="/terms"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-brand-600 hover:text-brand-800"
                 >
                   Terms of Service
                 </Link>
 
                 <Link
                   to="/contact"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-brand-600 hover:text-brand-800"
                 >
                   Contact Support
                 </Link>
 
-                <Link to="/about" className="text-blue-600 hover:text-blue-800">
+                <Link to="/about" className="text-brand-600 hover:text-brand-800">
                   About IyanjuWorld
                 </Link>
               </div>

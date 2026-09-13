@@ -240,7 +240,7 @@ function SectionHeader({
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="max-w-2xl">
         {eyebrow && (
-          <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-wide text-brand-600">
             {eyebrow}
           </p>
         )}
@@ -259,7 +259,7 @@ function SectionHeader({
       {href && (
         <Link
           to={href}
-          className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-blue-600 transition hover:text-blue-700"
+          className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-600 transition hover:text-brand-700"
         >
           {linkLabel}
           <ChevronRight className="h-4 w-4" />
@@ -273,19 +273,19 @@ export default function Home() {
   return (
     <PageContainer>
       <div className="space-y-16 pb-16">
-        <section className="relative overflow-hidden rounded-3xl bg-slate-950 px-6 py-14 text-white sm:px-10 sm:py-20 lg:px-16">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-600/20 blur-3xl" />
-          <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink-950 via-ink-900 to-brand-700 px-6 py-14 text-white sm:px-10 sm:py-20 lg:px-16">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-500/30 blur-3xl" />
+          <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-brand-400/10 blur-3xl" />
 
           <div className="relative grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
             <div className="max-w-3xl">
-              <Badge variant="info">
+              <Badge variant="info" className="bg-brand-500/15 text-brand-200">
                 Nigeria&apos;s growing local marketplace
               </Badge>
 
               <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                 Discover products.
-                <span className="block text-blue-400">
+                <span className="block text-brand-400">
                   Buy from local businesses.
                 </span>
               </h1>
@@ -303,7 +303,7 @@ export default function Home() {
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link to="/explore">
-                  <Button size="lg" fullWidth>
+                  <Button size="lg" variant="brand" fullWidth>
                     Explore products
                     <ArrowRight className="h-4 w-4" />
                   </Button>
@@ -354,7 +354,7 @@ export default function Home() {
                         </p>
                       </div>
 
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                         <ShoppingBag className="h-5 w-5" />
                       </div>
                     </div>
@@ -383,7 +383,7 @@ export default function Home() {
 
                     <div className="mt-4 rounded-xl bg-slate-950 p-4 text-white">
                       <div className="flex items-center gap-3">
-                        <Truck className="h-5 w-5 text-blue-400" />
+                        <Truck className="h-5 w-5 text-brand-400" />
 
                         <div>
                           <p className="text-sm font-semibold">
@@ -430,12 +430,12 @@ export default function Home() {
           <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-brand-600 shadow-sm">
                   <MapPin className="h-5 w-5" />
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold text-blue-600">
+                  <p className="text-sm font-semibold text-brand-600">
                     Shop locally
                   </p>
 
@@ -452,7 +452,7 @@ export default function Home() {
             </div>
 
             <Link to="/businesses">
-              <Button variant="outline">
+              <Button variant="brand-outline">
                 Browse businesses
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -509,10 +509,10 @@ export default function Home() {
           />
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-blue-100 bg-blue-50 p-6 sm:p-8">
+        <section className="overflow-hidden rounded-2xl border border-brand-100 bg-brand-50 p-6 sm:p-8">
           <div className="grid gap-8 lg:grid-cols-3 lg:items-center">
             <div className="lg:col-span-2">
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
+              <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
                 Grow with IyanjuWorld
               </p>
 
@@ -528,7 +528,7 @@ export default function Home() {
 
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <Link to="/register">
-                <Button fullWidth>
+                <Button variant="brand" fullWidth>
                   Create a business account
                   <Store className="h-4 w-4" />
                 </Button>

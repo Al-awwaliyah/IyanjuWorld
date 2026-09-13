@@ -191,7 +191,7 @@ function getStatusClasses(status: string) {
     return "bg-orange-50 text-orange-700 ring-orange-200";
   }
 
-  return "bg-blue-50 text-blue-700 ring-blue-200";
+  return "bg-brand-50 text-brand-700 ring-brand-200";
 }
 
 function getItemImage(item: OrderItem) {
@@ -411,7 +411,7 @@ export default function CustomerOrderDetails() {
             <button
               type="button"
               onClick={() => void loadOrder()}
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
             >
               <RefreshCw className="h-4 w-4" />
               Try again
@@ -423,8 +423,7 @@ export default function CustomerOrderDetails() {
   }
 
   return (
-    <div className="min-h-full bg-slate-50">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+    <div>
         <Link
           to="/customer/orders"
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
@@ -473,7 +472,7 @@ export default function CustomerOrderDetails() {
         {!isExceptionState && (
           <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <div className="mb-6 flex items-center gap-2">
-              <Truck className="h-5 w-5 text-blue-600" />
+              <Truck className="h-5 w-5 text-brand-600" />
               <h2 className="text-base font-bold text-slate-900">
                 Order progress
               </h2>
@@ -499,7 +498,7 @@ export default function CustomerOrderDetails() {
                       <div
                         className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-4 ring-white ${
                           completed
-                            ? "bg-blue-600 text-white"
+                            ? "bg-brand-600 text-white"
                             : "bg-slate-100 text-slate-400"
                         }`}
                       >
@@ -523,7 +522,7 @@ export default function CustomerOrderDetails() {
                           </h3>
 
                           {current && (
-                            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
+                            <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700">
                               Current
                             </span>
                           )}
@@ -659,7 +658,7 @@ export default function CustomerOrderDetails() {
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <div className="mb-4 flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-blue-600" />
+                <MapPin className="h-5 w-5 text-brand-600" />
                 <h2 className="text-base font-bold text-slate-900">
                   Delivery details
                 </h2>
@@ -696,7 +695,7 @@ export default function CustomerOrderDetails() {
             {rider && (
               <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                 <div className="mb-4 flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-blue-600" />
+                  <Truck className="h-5 w-5 text-brand-600" />
                   <h2 className="text-base font-bold text-slate-900">
                     Your delivery rider
                   </h2>
@@ -741,7 +740,7 @@ export default function CustomerOrderDetails() {
 
                     <Link
                       to={`/customer/messages?order=${order.id}&rider=${rider.id}`}
-                      className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+                      className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
                     >
                       <MessageCircle className="h-4 w-4" />
                       Chat
@@ -864,7 +863,6 @@ export default function CustomerOrderDetails() {
             </section>
           </div>
         </div>
-      </div>
     </div>
   );
 }

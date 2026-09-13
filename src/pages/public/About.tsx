@@ -49,7 +49,7 @@ export default function About() {
       <section className="border-b border-slate-200 bg-slate-50">
         <PageContainer className="py-16 sm:py-20 lg:py-24">
           <div className="mx-auto max-w-4xl text-center">
-            <span className="inline-flex items-center rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+            <span className="inline-flex items-center rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700">
               About IyanjuWorld
             </span>
 
@@ -85,7 +85,7 @@ export default function About() {
         <PageContainer className="py-16 sm:py-20">
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+              <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
                 Our mission
               </p>
 
@@ -149,7 +149,7 @@ export default function About() {
       <section className="border-y border-slate-200 bg-slate-50">
         <PageContainer className="py-16 sm:py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
               What we believe
             </p>
 
@@ -172,7 +172,7 @@ export default function About() {
                   key={principle.title}
                   className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                     <Icon className="h-6 w-6" />
                   </div>
 
@@ -194,7 +194,7 @@ export default function About() {
         <PageContainer className="py-16 sm:py-20">
           <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+              <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
                 The platform
               </p>
 
@@ -226,7 +226,7 @@ export default function About() {
         </PageContainer>
       </section>
 
-      <section className="border-t border-slate-200 bg-blue-600">
+      <section className="border-t border-slate-200 bg-brand-600">
         <PageContainer className="py-14 sm:py-16">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-2xl">
@@ -234,7 +234,7 @@ export default function About() {
                 Discover what IyanjuWorld can offer
               </h2>
 
-              <p className="mt-3 text-sm leading-6 text-blue-100 sm:text-base">
+              <p className="mt-3 text-sm leading-6 text-brand-100 sm:text-base">
                 Explore products, discover local businesses, or learn more
                 about joining the marketplace.
               </p>
@@ -244,7 +244,7 @@ export default function About() {
               <Link to="/explore">
                 <Button
                   size="lg"
-                  className="w-full bg-white text-blue-700 hover:bg-blue-50 sm:w-auto"
+                  className="w-full bg-white text-brand-700 hover:bg-brand-50 sm:w-auto"
                 >
                   Explore products
                   <ArrowRight className="h-5 w-5" />

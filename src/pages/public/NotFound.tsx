@@ -11,11 +11,11 @@ export default function NotFound() {
     <div className="flex min-h-[70vh] items-center bg-white">
       <PageContainer className="py-16 sm:py-24">
         <div className="mx-auto max-w-2xl text-center">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-50 text-brand-600">
             <Compass className="h-10 w-10" />
           </div>
 
-          <p className="mt-8 text-sm font-bold uppercase tracking-[0.2em] text-blue-600">
+          <p className="mt-8 text-sm font-bold uppercase tracking-[0.2em] text-brand-600">
             Error 404
           </p>
 

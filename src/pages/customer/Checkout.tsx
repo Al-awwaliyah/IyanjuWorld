@@ -375,7 +375,7 @@ export default function CustomerCheckout() {
 
             <Link
               to="/explore"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
             >
               Explore marketplace
               <ArrowRight className="h-4 w-4" />
@@ -398,7 +398,7 @@ export default function CustomerCheckout() {
         </Link>
 
         <div className="mt-5">
-          <p className="text-sm font-medium text-blue-600">
+          <p className="text-sm font-medium text-brand-600">
             Customer checkout
           </p>
 
@@ -424,7 +424,7 @@ export default function CustomerCheckout() {
           <div className="space-y-5">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-blue-600" />
+                <MapPin className="h-5 w-5 text-brand-600" />
 
                 <div>
                   <h2 className="text-base font-bold text-slate-900">
@@ -468,7 +468,7 @@ export default function CustomerCheckout() {
                         key={address.id}
                         className={`block cursor-pointer rounded-xl border p-4 transition ${
                           selected
-                            ? "border-blue-400 bg-blue-50 ring-2 ring-blue-100"
+                            ? "border-brand-400 bg-brand-50 ring-2 ring-brand-100"
                             : "border-slate-200 hover:border-slate-300"
                         }`}
                       >
@@ -481,7 +481,7 @@ export default function CustomerCheckout() {
                             onChange={() =>
                               setSelectedAddressId(address.id)
                             }
-                            className="mt-1 h-4 w-4 accent-blue-600"
+                            className="mt-1 h-4 w-4 accent-brand-600"
                           />
 
                           <div className="min-w-0 flex-1">
@@ -523,7 +523,7 @@ export default function CustomerCheckout() {
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <div className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-blue-600" />
+                <CreditCard className="h-5 w-5 text-brand-600" />
 
                 <div>
                   <h2 className="text-base font-bold text-slate-900">
@@ -539,7 +539,7 @@ export default function CustomerCheckout() {
                 <label
                   className={`block cursor-pointer rounded-xl border p-4 transition ${
                     paymentMethod === "wallet"
-                      ? "border-blue-400 bg-blue-50 ring-2 ring-blue-100"
+                      ? "border-brand-400 bg-brand-50 ring-2 ring-brand-100"
                       : "border-slate-200 hover:border-slate-300"
                   }`}
                 >
@@ -552,10 +552,10 @@ export default function CustomerCheckout() {
                       onChange={() =>
                         setPaymentMethod("wallet")
                       }
-                      className="mt-1 h-4 w-4 accent-blue-600"
+                      className="mt-1 h-4 w-4 accent-brand-600"
                     />
 
-                    <Wallet className="mt-0.5 h-5 w-5 text-blue-600" />
+                    <Wallet className="mt-0.5 h-5 w-5 text-brand-600" />
 
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -613,7 +613,7 @@ export default function CustomerCheckout() {
                     key={method.value}
                     className={`block cursor-pointer rounded-xl border p-4 transition ${
                       paymentMethod === method.value
-                        ? "border-blue-400 bg-blue-50 ring-2 ring-blue-100"
+                        ? "border-brand-400 bg-brand-50 ring-2 ring-brand-100"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
                   >
@@ -626,7 +626,7 @@ export default function CustomerCheckout() {
                         onChange={() =>
                           setPaymentMethod(method.value)
                         }
-                        className="mt-1 h-4 w-4 accent-blue-600"
+                        className="mt-1 h-4 w-4 accent-brand-600"
                       />
 
                       <CreditCard className="mt-0.5 h-5 w-5 text-slate-500" />
@@ -648,7 +648,7 @@ export default function CustomerCheckout() {
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <div className="flex items-center gap-2">
-                <Package className="h-5 w-5 text-blue-600" />
+                <Package className="h-5 w-5 text-brand-600" />
 
                 <div>
                   <h2 className="text-base font-bold text-slate-900">
@@ -668,7 +668,7 @@ export default function CustomerCheckout() {
                 rows={4}
                 maxLength={500}
                 placeholder="Add any useful delivery instructions..."
-                className="mt-5 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                className="mt-5 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-2 focus:ring-brand-100"
               />
 
               <p className="mt-2 text-right text-xs text-slate-400">
@@ -679,7 +679,7 @@ export default function CustomerCheckout() {
 
           <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:sticky lg:top-6">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5 text-blue-600" />
+              <ShoppingBag className="h-5 w-5 text-brand-600" />
               <h2 className="text-base font-bold text-slate-900">
                 Order summary
               </h2>
@@ -784,7 +784,7 @@ export default function CustomerCheckout() {
                 hasStockIssue ||
                 (paymentMethod === "wallet" && !walletCanCoverOrder)
               }
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
               {placingOrder ? (
                 <>

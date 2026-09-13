@@ -76,7 +76,7 @@ function getStatusClasses(status: string) {
     case "out_for_delivery":
     case "picked_up":
     case "rider_assigned":
-      return "bg-blue-50 text-blue-700";
+      return "bg-brand-50 text-brand-700";
 
     case "paid":
     case "business_confirmed":
@@ -279,7 +279,7 @@ export default function CustomerDashboard() {
           className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
         >
           <div className="flex items-start justify-between">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
               <Wallet className="h-5 w-5" />
             </div>
 
@@ -386,7 +386,7 @@ export default function CustomerDashboard() {
                 to={action.href}
                 className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition group-hover:bg-blue-50 group-hover:text-blue-700">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition group-hover:bg-brand-50 group-hover:text-brand-700">
                   <Icon className="h-5 w-5" />
                 </div>
 
@@ -422,7 +422,7 @@ export default function CustomerDashboard() {
 
           <Link
             to="/customer/orders"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-800"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800"
           >
             View all
             <ArrowRight className="h-4 w-4" />
@@ -544,7 +544,7 @@ export default function CustomerDashboard() {
 
             <Link
               to="/customer/profile"
-              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-800"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800"
             >
               Manage your profile
               <ArrowRight className="h-4 w-4" />

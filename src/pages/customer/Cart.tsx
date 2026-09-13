@@ -285,7 +285,7 @@ export default function CustomerCart() {
             <button
               type="button"
               onClick={() => void loadCart()}
-              className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+              className="mt-5 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
             >
               Try again
             </button>
@@ -300,7 +300,7 @@ export default function CustomerCart() {
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-blue-600">
+            <p className="text-sm font-medium text-brand-600">
               Customer dashboard
             </p>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
@@ -313,7 +313,7 @@ export default function CustomerCart() {
 
           <Link
             to="/explore"
-            className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+            className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-700"
           >
             Continue shopping
             <ArrowRight className="h-4 w-4" />
@@ -343,7 +343,7 @@ export default function CustomerCart() {
 
             <Link
               to="/explore"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-700"
             >
               Explore marketplace
               <ArrowRight className="h-4 w-4" />
@@ -535,7 +535,7 @@ export default function CustomerCart() {
                 </div>
               </div>
 
-              <div className="mt-5 rounded-xl bg-blue-50 p-3 text-xs leading-5 text-blue-700">
+              <div className="mt-5 rounded-xl bg-brand-50 p-3 text-xs leading-5 text-brand-700">
                 Your final total will include the applicable delivery
                 fee. IyanjuWorld does not charge customers a separate
                 platform fee.
@@ -545,7 +545,7 @@ export default function CustomerCart() {
                 type="button"
                 disabled={hasStockIssue}
                 onClick={() => navigate("/customer/checkout")}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
               >
                 Proceed to checkout
                 <ArrowRight className="h-4 w-4" />

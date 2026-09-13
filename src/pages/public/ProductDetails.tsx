@@ -272,7 +272,7 @@ export default function ProductDetails() {
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <Link
             to="/explore"
-            className="inline-flex items-center gap-1 hover:text-blue-600"
+            className="inline-flex items-center gap-1 hover:text-brand-600"
           >
             <ArrowLeft className="h-4 w-4" />
             Explore
@@ -290,8 +290,8 @@ export default function ProductDetails() {
         </div>
 
         {message && (
-          <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-            <p className="text-sm leading-6 text-blue-800">
+          <div className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
+            <p className="text-sm leading-6 text-brand-800">
               {message}
             </p>
           </div>
@@ -317,7 +317,7 @@ export default function ProductDetails() {
                   onClick={() => setSelectedImage(image)}
                   className={`aspect-square overflow-hidden rounded-xl border-2 bg-slate-50 transition ${
                     selectedImage === image
-                      ? "border-blue-600"
+                      ? "border-brand-600"
                       : "border-slate-200 hover:border-slate-300"
                   }`}
                   aria-label={`View product image ${index + 1}`}
@@ -380,12 +380,12 @@ export default function ProductDetails() {
               <div className="min-w-0 flex-1">
                 <Link
                   to={`/businesses/${product.businessSlug}`}
-                  className="flex items-center gap-1 text-sm font-semibold text-slate-900 hover:text-blue-600"
+                  className="flex items-center gap-1 text-sm font-semibold text-slate-900 hover:text-brand-600"
                 >
                   {product.businessName}
 
                   {product.verifiedBusiness && (
-                    <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                    <CheckCircle2 className="h-4 w-4 text-brand-600" />
                   )}
                 </Link>
 
@@ -458,6 +458,7 @@ export default function ProductDetails() {
             <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
               <Button
                 size="lg"
+                variant="brand"
                 onClick={handleAddToCart}
                 disabled={!product.available || product.stock < 1}
                 fullWidth
@@ -468,7 +469,7 @@ export default function ProductDetails() {
 
               <Button
                 size="lg"
-                variant="secondary"
+                variant="brand-outline"
                 onClick={handleBuyNow}
                 disabled={!product.available || product.stock < 1}
                 fullWidth
@@ -596,7 +597,7 @@ export default function ProductDetails() {
         <section>
           <div className="mb-6 flex items-end justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
+              <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
                 You may also like
               </p>
 
@@ -607,7 +608,7 @@ export default function ProductDetails() {
 
             <Link
               to="/explore"
-              className="hidden items-center gap-1 text-sm font-semibold text-blue-600 sm:flex"
+              className="hidden items-center gap-1 text-sm font-semibold text-brand-600 sm:flex"
             >
               Explore more
               <ChevronRight className="h-4 w-4" />

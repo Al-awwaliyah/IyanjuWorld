@@ -461,7 +461,7 @@ export default function BusinessDetails() {
                     </h1>
 
                     {business.verified && (
-                      <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                      <CheckCircle2 className="h-5 w-5 text-brand-600" />
                     )}
                   </div>
 
@@ -576,8 +576,8 @@ export default function BusinessDetails() {
         </section>
 
         {message && (
-          <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-            <p className="text-sm leading-6 text-blue-800">
+          <div className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
+            <p className="text-sm leading-6 text-brand-800">
               {message}
             </p>
           </div>
@@ -587,7 +587,7 @@ export default function BusinessDetails() {
           <section>
             <div className="mb-5 flex items-end justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
+                <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
                   From this store
                 </p>
 
@@ -627,7 +627,7 @@ export default function BusinessDetails() {
                     setSearch(event.target.value)
                   }
                   placeholder="Search this store..."
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 sm:w-56"
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-800 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50 sm:w-56"
                   aria-label="Search products in this store"
                 />
               </div>
@@ -637,7 +637,7 @@ export default function BusinessDetails() {
                 onChange={(event) =>
                   setCategory(event.target.value)
                 }
-                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
                 aria-label="Filter store products by category"
               >
                 {categories.map((item) => (
@@ -776,7 +776,7 @@ function StoreProductListItem({
             <div>
               <Link
                 to={`/products/${product.id}`}
-                className="text-base font-semibold text-slate-900 hover:text-blue-600"
+                className="text-base font-semibold text-slate-900 hover:text-brand-600"
               >
                 {product.name}
               </Link>
@@ -871,7 +871,7 @@ function StoreBenefit({
 }) {
   return (
     <div className="flex gap-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand-600 shadow-sm">
         <Icon className="h-5 w-5" />
       </div>
 

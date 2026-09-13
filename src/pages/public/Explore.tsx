@@ -439,7 +439,7 @@ export default function Explore() {
                   setSearch(event.target.value)
                 }
                 placeholder="Search products, stores, categories or locations..."
-                className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-50"
                 aria-label="Search marketplace"
               />
             </div>
@@ -467,7 +467,7 @@ export default function Explore() {
                     setCategory(matching.value);
                   }
                 }}
-                className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700"
               >
                 {item}
               </button>
@@ -641,14 +641,14 @@ function ExploreListItem({
             <div>
               <Link
                 to={`/products/${product.id}`}
-                className="text-base font-semibold text-slate-900 hover:text-blue-600"
+                className="text-base font-semibold text-slate-900 hover:text-brand-600"
               >
                 {product.name}
               </Link>
 
               <Link
                 to={`/businesses/${product.businessSlug}`}
-                className="mt-1 block text-sm text-slate-500 hover:text-blue-600"
+                className="mt-1 block text-sm text-slate-500 hover:text-brand-600"
               >
                 {product.businessName}
               </Link>
@@ -721,7 +721,7 @@ function ExploreBenefit({
 }) {
   return (
     <div className="flex gap-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand-600 shadow-sm">
         <Icon className="h-5 w-5" />
       </div>
 

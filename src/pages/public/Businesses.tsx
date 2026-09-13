@@ -299,7 +299,7 @@ export default function Businesses() {
                   setSearch(event.target.value)
                 }
                 placeholder="Search businesses, categories or locations..."
-                className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-50"
                 aria-label="Search businesses"
               />
             </div>
@@ -314,7 +314,7 @@ export default function Businesses() {
                 onChange={(event) =>
                   setCategory(event.target.value)
                 }
-                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
                 aria-label="Filter businesses by category"
               >
                 {categories.map((item) => (
@@ -332,7 +332,7 @@ export default function Businesses() {
                 onChange={(event) =>
                   setState(event.target.value)
                 }
-                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
                 aria-label="Filter businesses by location"
               >
                 {states.map((item) => (
@@ -452,9 +452,9 @@ export default function Businesses() {
           </section>
         )}
 
-        <section className="rounded-2xl border border-blue-100 bg-blue-50 p-6 sm:p-8">
+        <section className="rounded-2xl border border-brand-100 bg-brand-50 p-6 sm:p-8">
           <div className="grid gap-6 md:grid-cols-[auto_1fr_auto] md:items-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-brand-600 shadow-sm">
               <Store className="h-6 w-6" />
             </div>
 

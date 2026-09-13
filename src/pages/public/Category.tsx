@@ -343,13 +343,13 @@ export default function Category() {
       <section className="border-b border-slate-200 bg-slate-50">
         <PageContainer className="py-8 sm:py-12">
           <nav className="flex items-center gap-2 text-sm text-slate-500">
-            <Link to="/" className="hover:text-blue-600">
+            <Link to="/" className="hover:text-brand-600">
               Home
             </Link>
 
             <ChevronRight className="h-4 w-4" />
 
-            <Link to="/explore" className="hover:text-blue-600">
+            <Link to="/explore" className="hover:text-brand-600">
               Explore
             </Link>
 
@@ -443,7 +443,7 @@ export default function Category() {
               onChange={(event) =>
                 setSort(event.target.value as SortOption)
               }
-              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               aria-label="Sort products"
             >
               <option value="relevance">Relevance</option>
@@ -514,7 +514,7 @@ export default function Category() {
         <PageContainer className="py-10">
           <div className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                 <MapPin className="h-6 w-6" />
               </div>
 

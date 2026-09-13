@@ -668,7 +668,7 @@ export default function Search() {
                   setQuery(event.target.value)
                 }
                 placeholder="What are you looking for?"
-                className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-50"
                 aria-label="Search marketplace"
               />
 
@@ -754,7 +754,7 @@ export default function Search() {
                       value,
                     );
                   }}
-                  className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+                  className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
                   aria-label="Sort search results"
                 >
                   {sortOptions.map((option) => (
@@ -862,7 +862,7 @@ export default function Search() {
                 <button
                   type="button"
                   onClick={clearSearch}
-                  className="ml-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                  className="ml-1 text-xs font-medium text-brand-600 hover:text-brand-700"
                 >
                   Clear all
                 </button>
@@ -885,7 +885,7 @@ export default function Search() {
 
                   <Link
                     to="/products"
-                    className="hidden text-sm font-semibold text-blue-600 hover:text-blue-700 sm:block"
+                    className="hidden text-sm font-semibold text-brand-600 hover:text-brand-700 sm:block"
                   >
                     Browse all
                   </Link>
@@ -999,14 +999,14 @@ function SearchProductListItem({
             <div>
               <Link
                 to={`/products/${product.id}`}
-                className="text-base font-semibold text-slate-900 hover:text-blue-600"
+                className="text-base font-semibold text-slate-900 hover:text-brand-600"
               >
                 {product.name}
               </Link>
 
               <Link
                 to={`/businesses/${product.businessSlug}`}
-                className="mt-1 block text-sm text-slate-500 hover:text-blue-600"
+                className="mt-1 block text-sm text-slate-500 hover:text-brand-600"
               >
                 {product.businessName}
               </Link>
@@ -1092,7 +1092,7 @@ function BusinessResultCard({
             <div>
               <Link
                 to={`/businesses/${business.slug}`}
-                className="font-semibold text-slate-900 hover:text-blue-600"
+                className="font-semibold text-slate-900 hover:text-brand-600"
               >
                 {business.name}
               </Link>

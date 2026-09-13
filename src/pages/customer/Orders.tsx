@@ -115,7 +115,7 @@ function getStatusClasses(status: string) {
     return "bg-orange-50 text-orange-700 ring-orange-200";
   }
 
-  return "bg-blue-50 text-blue-700 ring-blue-200";
+  return "bg-brand-50 text-brand-700 ring-brand-200";
 }
 
 function getStatusIcon(status: string) {
@@ -253,31 +253,18 @@ export default function CustomerOrders() {
   }, [orders]);
 
   return (
-    <div className="min-h-full bg-slate-50">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="mb-1 text-sm font-medium text-blue-600">
-              Customer dashboard
-            </p>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              My orders
-            </h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Track your purchases and manage your order history.
-            </p>
-          </div>
+    <div>
+      <div className="mb-5 flex justify-end">
+        <Link
+          to="/explore"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600"
+        >
+          <ShoppingBag className="h-4 w-4" />
+          Continue shopping
+        </Link>
+      </div>
 
-          <Link
-            to="/explore"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            Continue shopping
-          </Link>
-        </div>
-
-        <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             {
               key: "all" as const,
@@ -306,7 +293,7 @@ export default function CustomerOrders() {
               onClick={() => setFilter(item.key)}
               className={`rounded-2xl border p-4 text-left transition ${
                 filter === item.key
-                  ? "border-blue-200 bg-blue-50 shadow-sm"
+                  ? "border-brand-200 bg-brand-50 shadow-sm"
                   : "border-slate-200 bg-white hover:border-slate-300"
               }`}
             >
@@ -329,7 +316,7 @@ export default function CustomerOrders() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search by order reference or status"
-                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-2 focus:ring-brand-100"
               />
             </div>
 
@@ -402,7 +389,7 @@ export default function CustomerOrders() {
             {orders.length === 0 && (
               <Link
                 to="/explore"
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700"
               >
                 Explore marketplace
                 <ArrowRight className="h-4 w-4" />
@@ -415,11 +402,11 @@ export default function CustomerOrders() {
               <Link
                 key={order.id}
                 to={`/customer/orders/${order.id}`}
-                className="group block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-200 hover:shadow-md sm:p-5"
+                className="group block rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-brand-200 hover:shadow-md sm:p-5"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex min-w-0 items-start gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                       {getStatusIcon(order.status)}
                     </div>
 
@@ -460,7 +447,7 @@ export default function CustomerOrders() {
                       </p>
                     </div>
 
-                    <ChevronRight className="h-5 w-5 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-blue-600" />
+                    <ChevronRight className="h-5 w-5 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-brand-600" />
                   </div>
                 </div>
               </Link>
@@ -472,7 +459,7 @@ export default function CustomerOrders() {
           <div className="mt-6 flex justify-center">
             <Link
               to="/explore"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:text-brand-700"
             >
               Find more products
               <ArrowRight className="h-4 w-4" />
@@ -480,6 +467,6 @@ export default function CustomerOrders() {
           </div>
         )}
       </div>
-    </div>
   );
 }
+

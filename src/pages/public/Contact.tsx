@@ -27,7 +27,7 @@ export default function Contact() {
       <section className="border-b border-slate-200 bg-slate-50">
         <PageContainer className="py-16 sm:py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex items-center rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+            <span className="inline-flex items-center rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700">
               Contact IyanjuWorld
             </span>
 
@@ -49,7 +49,7 @@ export default function Contact() {
           <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
             <div className="space-y-5">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+                <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
                   Get in touch
                 </p>
 
@@ -67,7 +67,7 @@ export default function Contact() {
               <div className="grid gap-4">
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                   <div className="flex gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                       <Mail className="h-5 w-5" />
                     </div>
 
@@ -75,7 +75,7 @@ export default function Contact() {
                       <h3 className="font-semibold text-slate-950">Email</h3>
                       <a
                         href="mailto:support@iyanjuworld.com"
-                        className="mt-1 block text-sm text-slate-600 hover:text-blue-600"
+                        className="mt-1 block text-sm text-slate-600 hover:text-brand-600"
                       >
                         support@iyanjuworld.com
                       </a>
@@ -160,7 +160,7 @@ export default function Contact() {
 
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-blue-600">
+                <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">
                   Send a message
                 </p>
 

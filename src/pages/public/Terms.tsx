@@ -133,11 +133,11 @@ export default function Terms() {
       <section className="border-b border-slate-200 bg-slate-50">
         <PageContainer className="py-14 sm:py-18">
           <div className="mx-auto max-w-4xl">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
               <FileText className="h-7 w-7" />
             </div>
 
-            <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-blue-600">
+            <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-brand-600">
               Legal
             </p>
 
@@ -192,7 +192,7 @@ export default function Terms() {
                     key={item.label}
                     className="rounded-xl border border-slate-200 bg-white p-4"
                   >
-                    <Icon className="h-5 w-5 text-blue-600" />
+                    <Icon className="h-5 w-5 text-brand-600" />
                     <p className="mt-3 text-sm font-semibold text-slate-900">
                       {item.label}
                     </p>
@@ -233,21 +233,21 @@ export default function Terms() {
               <div className="mt-5 flex flex-wrap gap-4 text-sm font-medium">
                 <Link
                   to="/privacy"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-brand-600 hover:text-brand-800"
                 >
                   Privacy Policy
                 </Link>
 
                 <Link
                   to="/contact"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-brand-600 hover:text-brand-800"
                 >
                   Contact Support
                 </Link>
 
                 <Link
                   to="/about"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-brand-600 hover:text-brand-800"
                 >
                   About IyanjuWorld
                 </Link>

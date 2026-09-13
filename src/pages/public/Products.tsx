@@ -496,7 +496,7 @@ export default function Product() {
                   setSearch(event.target.value)
                 }
                 placeholder="Search products, businesses, categories or locations..."
-                className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50"
+                className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-50"
                 aria-label="Search products"
               />
             </div>
@@ -542,7 +542,7 @@ export default function Product() {
                   onChange={(event) =>
                     setSort(event.target.value)
                   }
-                  className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+                  className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
                   aria-label="Sort products"
                 >
                   {sortOptions.map((option) => (
@@ -663,14 +663,14 @@ function ProductListItem({
             <div>
               <Link
                 to={`/products/${product.id}`}
-                className="text-base font-semibold text-slate-900 hover:text-blue-600"
+                className="text-base font-semibold text-slate-900 hover:text-brand-600"
               >
                 {product.name}
               </Link>
 
               <Link
                 to={`/businesses/${product.businessSlug}`}
-                className="mt-1 block text-sm text-slate-500 hover:text-blue-600"
+                className="mt-1 block text-sm text-slate-500 hover:text-brand-600"
               >
                 {product.businessName}
               </Link>
