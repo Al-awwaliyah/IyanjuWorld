@@ -47,7 +47,7 @@ export type SignUpMetadata = {
 };
 
 const PROFILE_FIELDS =
-  "id,email,full_name,phone,role,admin_role,avatar,active,created_at,updated_at";
+  "id,email,full_name,phone,role,admin_role,avatar,avatar_url,active,is_active,created_at,updated_at";
 
 function normalizeRole(value: unknown): UserRole {
   if (
@@ -99,8 +99,13 @@ function mapProfile(row: Record<string, unknown>): Profile {
     avatar:
       typeof row.avatar === "string"
         ? row.avatar
-        : null,
-    active: row.active !== false,
+        : typeof row.avatar_url === "string"
+          ? row.avatar_url
+          : null,
+    active:
+      typeof row.active === "boolean"
+        ? row.active
+        : row.is_active !== false,
     created_at:
       typeof row.created_at === "string"
         ? row.created_at
@@ -116,9 +121,8 @@ function toAppError(error: unknown, fallback: string) {
   const message = getSafeErrorMessage(error);
 
   return createAppError(
-    message || fallback,
-    undefined,
     error,
+    message ? "UNKNOWN_ERROR" : "UNKNOWN_ERROR",
   );
 }
 
@@ -402,7 +406,7 @@ export async function signOut() {
 
     return {
       success: false,
-      error,
+      error: getSafeErrorMessage(error),
     };
   }
 }

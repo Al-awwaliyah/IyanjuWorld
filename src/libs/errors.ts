@@ -253,13 +253,18 @@ export function createAppError(
   };
 }
 
+
 export function getSafeErrorMessage(
   error: unknown,
-  fallbackCode: AppErrorCode = "UNKNOWN_ERROR",
+  fallback: AppErrorCode | string = "UNKNOWN_ERROR",
 ): string {
+  if (!(fallback in SAFE_MESSAGES)) {
+    return fallback;
+  }
+
   return createAppError(
     error,
-    fallbackCode,
+    fallback as AppErrorCode,
   ).message;
 }
 
@@ -274,18 +279,20 @@ export function getErrorCode(
 }
 
 export function logAppError(
-  context: string,
-  error: unknown,
+  contextOrError: string | unknown,
+  error?: unknown,
 ): AppError {
-  const appError =
-    createAppError(error);
+  const context =
+    error === undefined ? "application" : String(contextOrError);
+  const cause =
+    error === undefined ? contextOrError : error;
+  const appError = createAppError(cause);
 
   console.error(
     `[IyanjuWorld] ${context}`,
     {
       code: appError.code,
-      technicalMessage:
-        appError.technicalMessage,
+      technicalMessage: appError.technicalMessage,
       error: appError.cause,
     },
   );

@@ -122,7 +122,7 @@ export function useAuth(): UseAuthResult {
 
     return () => {
       mounted = false;
-      unsubscribe();
+      unsubscribe.unsubscribe();
     };
   }, [loadAuthState]);
 
@@ -134,10 +134,10 @@ export function useAuth(): UseAuthResult {
       try {
         const result = await signInWithPassword(email, password);
 
-        if (!result.success) {
+        if (result.error) {
           return {
             success: false,
-            error: result.error,
+            error: getSafeErrorMessage(result.error),
           };
         }
 
@@ -177,11 +177,11 @@ export function useAuth(): UseAuthResult {
           metadata
         );
 
-        if (!result.success) {
+        if (result.error) {
           return {
             success: false,
             requiresEmailConfirmation: false,
-            error: result.error,
+            error: getSafeErrorMessage(result.error),
           };
         }
 
@@ -244,10 +244,10 @@ export function useAuth(): UseAuthResult {
     try {
       const result = await resetPassword(email);
 
-      if (!result.success) {
+      if (result.error) {
         return {
           success: false,
-          error: result.error,
+          error: getSafeErrorMessage(result.error),
         };
       }
 
@@ -270,10 +270,10 @@ export function useAuth(): UseAuthResult {
     try {
       const result = await updatePassword(password);
 
-      if (!result.success) {
+      if (result.error) {
         return {
           success: false,
-          error: result.error,
+          error: getSafeErrorMessage(result.error),
         };
       }
 

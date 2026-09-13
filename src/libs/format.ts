@@ -26,14 +26,24 @@ const numberFormatter = new Intl.NumberFormat(
 
 export function formatNaira(
   amount: number | string | null | undefined,
+  currency = NGN_CURRENCY,
 ): string {
   const value = Number(amount ?? 0);
+  const formatter =
+    currency === NGN_CURRENCY
+      ? nairaFormatter
+      : new Intl.NumberFormat("en-NG", {
+          style: "currency",
+          currency,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
 
   if (!Number.isFinite(value)) {
-    return nairaFormatter.format(0);
+    return formatter.format(0);
   }
 
-  return nairaFormatter.format(value);
+  return formatter.format(value);
 }
 
 export function formatNairaCompact(
@@ -279,3 +289,7 @@ export function roundToNaira(
     (amount + Number.EPSILON) * 100,
   ) / 100;
 }
+
+// Backward-compatible re-export for pages that historically imported this helper
+// from the formatting utility module.
+export { getSafeErrorMessage } from "./errors";
