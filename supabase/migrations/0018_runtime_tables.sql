@@ -7,7 +7,9 @@ create table if not exists public.business_earnings(id uuid primary key default 
 create table if not exists public.rider_earnings(id uuid primary key default gen_random_uuid(),rider_id uuid references public.riders(id) on delete cascade,order_id uuid references public.orders(id) on delete set null,amount numeric(14,2) not null default 0,status text not null default 'pending',available_at timestamptz,created_at timestamptz not null default now(),updated_at timestamptz not null default now());
 create table if not exists public.payouts(id uuid primary key default gen_random_uuid(),business_id uuid references public.businesses(id) on delete set null,rider_id uuid references public.riders(id) on delete set null,amount numeric(14,2) not null,status text not null default 'pending',reference text,created_at timestamptz not null default now(),updated_at timestamptz not null default now());
 create table if not exists public.audit_logs(id uuid primary key default gen_random_uuid(),actor_id uuid references auth.users(id) on delete set null,action text not null,entity_type text,entity_id uuid,metadata jsonb not null default '{}'::jsonb,created_at timestamptz not null default now());
-create or replace view public.cart_item_details as
+drop view if exists public.cart_item_details;
+
+create view public.cart_item_details as
 select
   ci.id,
   ci.cart_id,
