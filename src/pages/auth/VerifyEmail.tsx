@@ -1,291 +1,325 @@
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Mail,
-  RefreshCw,
-  ShieldCheck,
-  ShoppingBag,
-} from "lucide-react";
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft, Mail, RefreshCw, ShieldCheck } from "lucide-react";
 
-import { supabase } from "../../libs/supabase";
-import { getSafeErrorMessage } from "../../libs/errors";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
+import { getSafeErrorMessage } from "../../libs/errors";
+import { supabase } from "../../libs/supabase";
 
-type LocationState = {
+type VerificationLocationState = {
   email?: string;
+  role?: "customer" | "business" | "rider";
+  redirectTo?: string;
 };
+
+const OTP_LENGTH = 6;
+const RESEND_COOLDOWN_SECONDS = 60;
+
+function getDashboardPath(role?: VerificationLocationState["role"]) {
+  switch (role) {
+    case "business":
+      return "/business/dashboard";
+    case "rider":
+      return "/rider/dashboard";
+    default:
+      return "/customer/dashboard";
+  }
+}
 
 export default function VerifyEmail() {
   const location = useLocation();
-  const locationState = location.state as LocationState | null;
+  const navigate = useNavigate();
 
-  const [email, setEmail] = useState(locationState?.email ?? "");
+  const locationState = useMemo(
+    () =>
+      (location.state as VerificationLocationState | null) ?? {
+        email: "",
+      },
+    [location.state],
+  );
+
+  const [email, setEmail] = useState(locationState.email ?? "");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
 
-  async function handleResendVerification() {
+  useEffect(() => {
+    if (cooldown <= 0) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setCooldown((current) => {
+        if (current <= 1) {
+          window.clearInterval(timer);
+          return 0;
+        }
+
+        return current - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [cooldown]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkExistingSession = async () => {
+      try {
+        const { data, error: sessionError } =
+          await supabase.auth.getSession();
+
+        if (!mounted || sessionError || !data.session) {
+          return;
+        }
+
+        const redirectTo =
+          locationState.redirectTo || getDashboardPath(locationState.role);
+
+        navigate(redirectTo, { replace: true });
+      } catch {
+        // Do not interrupt the OTP screen if session lookup fails.
+      }
+    };
+
+    void checkExistingSession();
+
+    return () => {
+      mounted = false;
+    };
+  }, [
+    navigate,
+    locationState.redirectTo,
+    locationState.role,
+  ]);
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const handleOtpChange = (value: string) => {
+    const cleaned = value.replace(/\D/g, "").slice(0, OTP_LENGTH);
+
+    setOtp(cleaned);
     setError("");
-    setSent(false);
+    setSuccess("");
+  };
 
-    const normalizedEmail = email.trim().toLowerCase();
+  const handleVerify = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    setError("");
+    setSuccess("");
 
     if (!normalizedEmail) {
-      setError("Please enter the email address you used to register.");
+      setError("Please enter the email address used during registration.");
+      return;
+    }
+
+    if (otp.length !== OTP_LENGTH) {
+      setError(`Please enter the ${OTP_LENGTH}-digit verification code.`);
       return;
     }
 
     setLoading(true);
 
     try {
-      /*
-       * Direct Supabase Auth email verification.
-       *
-       * Supabase handles the verification email using the SMTP
-       * configuration configured in the Supabase Auth settings.
-       *
-       * No Edge Function, third-party email API, or custom mail
-       * service is used here.
-       */
-      const { error: resendError } = await supabase.auth.resend({
-        type: "signup",
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
         email: normalizedEmail,
+        token: otp,
+        type: "email",
+      });
+
+      if (verifyError) {
+        throw verifyError;
+      }
+
+      if (!data.session) {
+        setSuccess(
+          "Your email has been verified. Please sign in to continue.",
+        );
+        return;
+      }
+
+      const redirectTo =
+        locationState.redirectTo || getDashboardPath(locationState.role);
+
+      navigate(redirectTo, { replace: true });
+    } catch (verificationError) {
+      setError(getSafeErrorMessage(verificationError));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setError("");
+    setSuccess("");
+
+    if (!normalizedEmail) {
+      setError("Please enter your email address first.");
+      return;
+    }
+
+    if (cooldown > 0) {
+      return;
+    }
+
+    setResending(true);
+
+    try {
+      const { error: resendError } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
+        options: {
+          shouldCreateUser: false,
+        },
       });
 
       if (resendError) {
         throw resendError;
       }
 
-      setSent(true);
+      setOtp("");
+      setCooldown(RESEND_COOLDOWN_SECONDS);
+      setSuccess("A new verification code has been sent to your email.");
     } catch (resendError) {
       setError(getSafeErrorMessage(resendError));
     } finally {
-      setLoading(false);
+      setResending(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
-        <section className="hidden bg-slate-950 lg:flex lg:flex-col lg:justify-between">
-          <div className="p-10 xl:p-14">
-            <Link to="/" className="inline-flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white">
-                <ShoppingBag className="h-6 w-6 text-slate-950" />
-              </div>
-
-              <span className="text-xl font-bold tracking-tight text-white">
-                IyanjuWorld
-              </span>
+    <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
+        <section className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-6 flex items-center justify-between">
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-slate-900"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
             </Link>
 
-            <div className="mt-24 max-w-xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
-                Verify your account
-              </p>
-
-              <h1 className="mt-5 text-5xl font-bold leading-tight tracking-tight text-white xl:text-6xl">
-                One more step before you get started.
-              </h1>
-
-              <p className="mt-6 max-w-lg text-base leading-7 text-slate-300">
-                Verify your email address to help protect your account and
-                ensure you can recover access when needed.
-              </p>
-
-              <div className="mt-10 space-y-5">
-                <VerificationBenefit
-                  icon={<Mail className="h-5 w-5" />}
-                  title="Confirm your email"
-                  description="Use the verification link sent to your registered email address."
-                />
-
-                <VerificationBenefit
-                  icon={<ShieldCheck className="h-5 w-5" />}
-                  title="Protect your account"
-                  description="Email verification adds another layer of account protection."
-                />
-
-                <VerificationBenefit
-                  icon={<CheckCircle2 className="h-5 w-5" />}
-                  title="Continue securely"
-                  description="After verification, return to IyanjuWorld and sign in."
-                />
-              </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+              <ShieldCheck className="h-5 w-5" />
             </div>
           </div>
 
-          <div className="border-t border-white/10 px-10 py-8 xl:px-14">
-            <p className="text-sm text-slate-400">
-              Already verified?{" "}
-              <Link
-                to="/login"
-                className="font-semibold text-blue-400 hover:text-blue-300"
-              >
-                Sign in
-              </Link>
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+              <Mail className="h-7 w-7" />
+            </div>
+
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Verify your email
+            </h1>
+
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Enter the 6-digit verification code sent to your email address.
             </p>
           </div>
-        </section>
 
-        <section className="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
-          <div className="w-full max-w-md">
-            <div className="mb-8 flex items-center justify-center lg:hidden">
-              <Link to="/" className="inline-flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-950">
-                  <ShoppingBag className="h-6 w-6 text-white" />
-                </div>
+          <form onSubmit={handleVerify} className="space-y-5">
+            <Input
+              label="Email address"
+              type="email"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setError("");
+                setSuccess("");
+              }}
+              placeholder="you@example.com"
+              autoComplete="email"
+              required
+              disabled={loading || resending}
+            />
 
-                <span className="text-xl font-bold tracking-tight text-slate-950">
-                  IyanjuWorld
-                </span>
-              </Link>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-slate-950"
+            <div>
+              <label
+                htmlFor="verification-code"
+                className="mb-2 block text-sm font-medium text-slate-700"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Back to sign in
-              </Link>
+                Verification code
+              </label>
 
-              <div className="mt-8">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                  <Mail className="h-7 w-7" />
-                </div>
-
-                <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-blue-600">
-                  Email verification
-                </p>
-
-                <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
-                  Check your inbox
-                </h2>
-
-                <p className="mt-4 text-sm leading-6 text-slate-600">
-                  We sent a verification link to the email address used for
-                  your IyanjuWorld account. Open the email and follow the link
-                  to verify your account.
-                </p>
-              </div>
-
-              {sent && (
-                <div
-                  role="status"
-                  className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3"
-                >
-                  <div className="flex gap-3">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-
-                    <p className="text-sm leading-6 text-emerald-700">
-                      A new verification email has been sent. Please check
-                      your inbox.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {error && (
-                <div
-                  role="alert"
-                  className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3"
-                >
-                  <p className="text-sm leading-6 text-red-700">{error}</p>
-                </div>
-              )}
-
-              <div className="mt-7">
-                <Input
-                  label="Registration email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  disabled={loading}
-                  leftIcon={<Mail className="h-5 w-5" />}
-                  required
-                />
-              </div>
-
-              <div className="mt-6">
-                <Button
-                  type="button"
-                  size="lg"
-                  fullWidth
-                  loading={loading}
-                  disabled={loading}
-                  onClick={() => void handleResendVerification()}
-                >
-                  <RefreshCw className="h-5 w-5" />
-                  Resend verification email
-                </Button>
-              </div>
-
-              <div className="mt-7 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-900">
-                  Didn't receive the email?
-                </p>
-
-                <ul className="mt-2 space-y-2 text-sm leading-5 text-slate-600">
-                  <li>• Check your spam or junk folder.</li>
-                  <li>• Confirm that the email address is correct.</li>
-                  <li>• Wait a moment before requesting another email.</li>
-                </ul>
-              </div>
-
-              <div className="mt-7 border-t border-slate-200 pt-6 text-center">
-                <p className="text-sm text-slate-600">
-                  Already verified your email?{" "}
-                  <Link
-                    to="/login"
-                    className="font-semibold text-blue-600 hover:text-blue-800"
-                  >
-                    Sign in
-                  </Link>
-                </p>
-              </div>
+              <input
+                id="verification-code"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={otp}
+                onChange={(event) => handleOtpChange(event.target.value)}
+                placeholder="000000"
+                maxLength={OTP_LENGTH}
+                disabled={loading || resending}
+                required
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-center text-2xl font-semibold tracking-[0.45em] text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100"
+              />
             </div>
 
-            <p className="mt-6 text-center text-xs leading-5 text-slate-500">
-              IyanjuWorld will never ask you to provide your password through
-              email.
+            {error ? (
+              <div
+                role="alert"
+                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+              >
+                {error}
+              </div>
+            ) : null}
+
+            {success ? (
+              <div
+                role="status"
+                className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+              >
+                {success}
+              </div>
+            ) : null}
+
+            <Button
+              type="submit"
+              fullWidth
+              loading={loading}
+              disabled={resending || otp.length !== OTP_LENGTH}
+            >
+              Verify email
+            </Button>
+          </form>
+
+          <div className="mt-6 border-t border-slate-200 pt-6 text-center">
+            <p className="text-sm text-slate-600">
+              Didn't receive the code?
             </p>
+
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={loading || resending || cooldown > 0}
+              className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 transition hover:text-blue-800 disabled:cursor-not-allowed disabled:text-slate-400"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${resending ? "animate-spin" : ""}`}
+              />
+
+              {resending
+                ? "Sending..."
+                : cooldown > 0
+                  ? `Resend code in ${cooldown}s`
+                  : "Resend verification code"}
+            </button>
           </div>
+
+          <p className="mt-6 text-center text-xs leading-5 text-slate-500">
+            For your security, never share your verification code with
+            anyone.
+          </p>
         </section>
       </div>
-    </div>
-  );
-}
-
-function VerificationBenefit({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex gap-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-blue-400">
-        {icon}
-      </div>
-
-      <div>
-        <p className="text-sm font-semibold text-white">{title}</p>
-
-        <p className="mt-1 text-sm leading-5 text-slate-400">
-          {description}
-        </p>
-      </div>
-    </div>
+    </main>
   );
 }
