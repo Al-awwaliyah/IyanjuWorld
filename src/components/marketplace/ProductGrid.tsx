@@ -8,6 +8,7 @@ export interface ProductGridProps {
   loading?: boolean;
   loadingCount?: number;
   emptyState?: ReactNode;
+  viewMode?: "grid" | "list";
   className?: string;
 }
 
@@ -54,6 +55,7 @@ export default function ProductGrid({
   loading = false,
   loadingCount = 8,
   emptyState,
+  viewMode = "grid",
   className = "",
 }: ProductGridProps) {
   if (loading) {
@@ -61,7 +63,9 @@ export default function ProductGrid({
       <div
         className={[
           "grid gap-4 sm:gap-5",
-          columnStyles[columns],
+          viewMode === "list"
+            ? "grid-cols-1"
+            : columnStyles[columns],
           className,
         ]
           .filter(Boolean)
@@ -111,3 +115,5 @@ export default function ProductGrid({
     </div>
   );
 }
+
+export { ProductGrid };

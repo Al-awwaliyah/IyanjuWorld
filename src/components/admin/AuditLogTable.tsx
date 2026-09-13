@@ -213,7 +213,7 @@ export function AuditLogTable({
       sortable: true,
       accessor: (log) =>
         new Date(log.createdAt).getTime(),
-      render: (log) => (
+      render: (_, log) => (
         <div className="flex items-center gap-2">
           <Clock3 className="h-4 w-4 shrink-0 text-slate-400" />
 
@@ -230,7 +230,7 @@ export function AuditLogTable({
       width: "190px",
       sortable: true,
       accessor: (log) => formatActor(log),
-      render: (log) => (
+      render: (_, log) => (
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-slate-800">
             {formatActor(log)}
@@ -251,7 +251,7 @@ export function AuditLogTable({
       width: "180px",
       sortable: true,
       accessor: (log) => log.action,
-      render: (log) => {
+      render: (_, log) => {
         const severity = getSeverity(log);
         const config = severityConfig[severity];
 
@@ -282,7 +282,7 @@ export function AuditLogTable({
       id: "resource",
       header: "Resource",
       width: "175px",
-      render: (log) => (
+      render: (_, log) => (
         <div className="min-w-0">
           <p className="truncate text-sm text-slate-700">
             {formatResourceType(log.resourceType)}
@@ -301,7 +301,7 @@ export function AuditLogTable({
       id: "description",
       header: "Description",
       width: "280px",
-      render: (log) => (
+      render: (_, log) => (
         <p className="max-w-[280px] truncate text-sm text-slate-600">
           {log.description ?? "—"}
         </p>
@@ -312,7 +312,7 @@ export function AuditLogTable({
       id: "severity",
       header: "Severity",
       width: "115px",
-      render: (log) => {
+      render: (_, log) => {
         const severity = getSeverity(log);
         const config = severityConfig[severity];
 

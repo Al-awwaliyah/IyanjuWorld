@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 export type BadgeVariant =
   | "default"
+  | "primary"
   | "success"
   | "warning"
   | "danger"
@@ -20,6 +21,7 @@ export interface BadgeProps {
 
 const variantStyles: Record<BadgeVariant, string> = {
   default: "bg-slate-100 text-slate-700",
+  primary: "bg-slate-900 text-white",
   success: "bg-emerald-50 text-emerald-700",
   warning: "bg-amber-50 text-amber-700",
   danger: "bg-red-50 text-red-700",
@@ -29,6 +31,7 @@ const variantStyles: Record<BadgeVariant, string> = {
 
 const dotStyles: Record<BadgeVariant, string> = {
   default: "bg-slate-500",
+  primary: "bg-slate-900",
   success: "bg-emerald-500",
   warning: "bg-amber-500",
   danger: "bg-red-500",
@@ -42,7 +45,7 @@ const sizeStyles: Record<BadgeSize, string> = {
   lg: "min-h-8 px-3 text-sm",
 };
 
-export default function Badge({
+export function Badge({
   children,
   variant = "default",
   size = "md",
@@ -71,3 +74,5 @@ export default function Badge({
     </span>
   );
 }
+
+export default Badge;

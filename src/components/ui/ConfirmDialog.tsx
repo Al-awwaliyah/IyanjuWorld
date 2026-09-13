@@ -5,13 +5,15 @@ import Button from "./Button";
 
 export interface ConfirmDialogProps {
   open: boolean;
-  onClose: () => void;
+  onClose?: () => void;
+  onCancel?: () => void;
   onConfirm: () => void;
   title: string;
   description?: string;
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: "primary" | "danger";
+  danger?: boolean;
   loading?: boolean;
   icon?: ReactNode;
 }
@@ -25,9 +27,12 @@ export default function ConfirmDialog({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   variant = "danger",
+  danger,
   loading = false,
   icon,
+  onCancel,
 }: ConfirmDialogProps) {
+  const close = onClose ?? onCancel ?? (() => undefined);
   useEffect(() => {
     if (!open) {
       return;
@@ -50,7 +55,7 @@ export default function ConfirmDialog({
   return (
     <Modal
       open={open}
-      onClose={loading ? () => undefined : onClose}
+      onClose={loading ? () => undefined : close}
       title={title}
       description={description}
       size="sm"
@@ -68,7 +73,7 @@ export default function ConfirmDialog({
           <Button
             type="button"
             variant="outline"
-            onClick={onClose}
+            onClick={close}
             disabled={loading}
             className="order-2 sm:order-1"
           >
@@ -77,7 +82,7 @@ export default function ConfirmDialog({
 
           <Button
             type="button"
-            variant={variant}
+            variant={danger === true ? "danger" : variant}
             loading={loading}
             onClick={onConfirm}
             className="order-1 sm:order-2"

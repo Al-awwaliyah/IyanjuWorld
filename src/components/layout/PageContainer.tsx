@@ -4,6 +4,8 @@ export interface PageContainerProps {
   children: ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "full";
   className?: string;
+  title?: string;
+  description?: string;
 }
 
 const sizeStyles: Record<
@@ -21,6 +23,8 @@ export default function PageContainer({
   children,
   size = "xl",
   className = "",
+  title,
+  description,
 }: PageContainerProps) {
   return (
     <div
@@ -32,7 +36,23 @@ export default function PageContainer({
         .filter(Boolean)
         .join(" ")}
     >
+      {(title || description) && (
+        <header className="mb-6">
+          {title && (
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              {title}
+            </h1>
+          )}
+          {description && (
+            <p className="mt-1 text-sm leading-6 text-slate-500">
+              {description}
+            </p>
+          )}
+        </header>
+      )}
       {children}
     </div>
   );
 }
+
+export { PageContainer };

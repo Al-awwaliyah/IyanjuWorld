@@ -235,14 +235,10 @@ function createDefaultStats(
 function formatStatValue(
   value: number,
   format: AdminStatFormat,
-  currency: string,
 ) {
   switch (format) {
     case "currency":
-      return formatNaira(
-        value,
-        currency,
-      );
+      return formatNaira(value);
 
     case "percentage":
       return formatPercentage(value);
@@ -425,7 +421,6 @@ export default function AdminStats({
                         stat.value,
                         stat.format ??
                           "number",
-                        currency,
                       )}
                     </p>
                   </div>
@@ -453,3 +448,5 @@ export default function AdminStats({
     </section>
   );
 }
+
+export { AdminStats };

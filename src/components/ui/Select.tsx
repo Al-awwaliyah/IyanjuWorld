@@ -19,7 +19,7 @@ export interface SelectProps
   fullWidth?: boolean;
 }
 
-const Select = forwardRef<HTMLSelectElement, SelectProps>(
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   (
     {
       label,

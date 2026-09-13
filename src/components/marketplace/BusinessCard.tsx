@@ -5,8 +5,9 @@ import Badge from "../ui/Badge";
 
 export interface BusinessCardProps {
   id?: string;
-  name: string;
-  slug: string;
+  business?: BusinessCardProps;
+  name?: string;
+  slug?: string;
   description?: string | null;
   logoUrl?: string | null;
   coverUrl?: string | null;
@@ -18,19 +19,24 @@ export interface BusinessCardProps {
   className?: string;
 }
 
-export default function BusinessCard({
-  name,
-  slug,
-  description,
-  logoUrl,
-  coverUrl,
-  city,
-  state,
-  verified = false,
-  open = true,
-  productCount,
-  className = "",
-}: BusinessCardProps) {
+export default function BusinessCard(props: BusinessCardProps) {
+  const source = props.business ?? props;
+  const {
+    business: _business,
+    name,
+    slug,
+    description,
+    logoUrl,
+    coverUrl,
+    city,
+    state,
+    verified = false,
+    open = true,
+    productCount,
+    className = "",
+  } = source;
+  const safeName = name ?? "Business";
+  const safeSlug = slug ?? source.id ?? "";
   const location = [city, state]
     .filter(Boolean)
     .join(", ");
@@ -45,9 +51,9 @@ export default function BusinessCard({
         .join(" ")}
     >
       <Link
-        to={`/businesses/${slug}`}
+        to={`/businesses/${safeSlug}`}
         className="block"
-        aria-label={`View ${name}`}
+        aria-label={`View ${safeName}`}
       >
         <div className="relative h-32 overflow-hidden bg-slate-100">
           {coverUrl ? (
@@ -81,7 +87,7 @@ export default function BusinessCard({
           <div className="-mt-8 flex items-end justify-between">
             <Avatar
               src={logoUrl}
-              name={name}
+              name={safeName}
               size="lg"
               className="border-4 border-white shadow-sm"
             />

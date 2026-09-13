@@ -185,7 +185,7 @@ function getVerificationStatus(
 
 function getBusinessActions(
   business: ManagedBusiness,
-  handlers: BusinessManagementProps,
+  handlers: Pick<BusinessManagementProps, "onView" | "onVerify" | "onReject" | "onSuspend" | "onActivate" | "onClose">,
 ): AdminTableAction<ManagedBusiness>[] {
   const actions: AdminTableAction<ManagedBusiness>[] = [];
 
@@ -295,7 +295,7 @@ export function BusinessManagement({
       width: "220px",
       sortable: true,
       accessor: (business) => business.name,
-      render: (business) => (
+      render: (_, business) => (
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100">
             {business.logo ? (
@@ -330,7 +330,7 @@ export function BusinessManagement({
       width: "190px",
       sortable: true,
       accessor: (business) => business.ownerName ?? "",
-      render: (business) => (
+      render: (_, business) => (
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-slate-800">
             {business.ownerName ?? "—"}
@@ -349,7 +349,7 @@ export function BusinessManagement({
       id: "location",
       header: "Location",
       width: "160px",
-      render: (business) => (
+      render: (_, business) => (
         <div className="min-w-0">
           <p className="truncate text-sm text-slate-700">
             {business.city ?? "—"}
@@ -368,7 +368,7 @@ export function BusinessManagement({
       id: "verification",
       header: "Verification",
       width: "145px",
-      render: (business) => {
+      render: (_, business) => {
         const verification =
           verificationConfig[
             getVerificationStatus(business)
@@ -386,7 +386,7 @@ export function BusinessManagement({
       id: "status",
       header: "Status",
       width: "125px",
-      render: (business) => {
+      render: (_, business) => {
         const status = statusConfig[business.status];
 
         return (
@@ -404,7 +404,7 @@ export function BusinessManagement({
       align: "right",
       sortable: true,
       accessor: (business) => business.productCount ?? 0,
-      render: (business) => (
+      render: (_, business) => (
         <span className="text-sm font-medium text-slate-700">
           {formatNumber(business.productCount ?? 0)}
         </span>
@@ -418,7 +418,7 @@ export function BusinessManagement({
       align: "right",
       sortable: true,
       accessor: (business) => business.orderCount ?? 0,
-      render: (business) => (
+      render: (_, business) => (
         <span className="text-sm font-medium text-slate-700">
           {formatNumber(business.orderCount ?? 0)}
         </span>
@@ -432,7 +432,7 @@ export function BusinessManagement({
       align: "right",
       sortable: true,
       accessor: (business) => business.netEarnings ?? 0,
-      render: (business) => (
+      render: (_, business) => (
         <span className="text-sm font-semibold text-slate-900">
           {formatNaira(business.netEarnings ?? 0)}
         </span>
@@ -448,7 +448,7 @@ export function BusinessManagement({
         business.createdAt
           ? new Date(business.createdAt).getTime()
           : 0,
-      render: (business) => (
+      render: (_, business) => (
         <span className="text-xs text-slate-500">
           {displayDate(business.createdAt)}
         </span>

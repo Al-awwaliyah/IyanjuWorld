@@ -78,7 +78,7 @@ function displayLocation(zone: DeliveryZone) {
 
 function getZoneActions(
   zone: DeliveryZone,
-  handlers: DeliveryZoneManagerProps,
+  handlers: Pick<DeliveryZoneManagerProps, "onView" | "onEdit" | "onToggleActive" | "onDelete">,
 ): AdminTableAction<DeliveryZone>[] {
   const actions: AdminTableAction<DeliveryZone>[] = [];
 
@@ -151,7 +151,7 @@ export function DeliveryZoneManager({
       width: "210px",
       sortable: true,
       accessor: (zone) => zone.name,
-      render: (zone) => (
+      render: (_, zone) => (
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
             <MapPin className="h-4 w-4 text-slate-500" />
@@ -174,7 +174,7 @@ export function DeliveryZoneManager({
       id: "location",
       header: "Coverage",
       width: "180px",
-      render: (zone) => (
+      render: (_, zone) => (
         <div className="min-w-0">
           <p className="truncate text-sm text-slate-700">
             {zone.city ?? "All cities"}
@@ -194,7 +194,7 @@ export function DeliveryZoneManager({
       align: "right",
       sortable: true,
       accessor: (zone) => zone.baseFee,
-      render: (zone) => (
+      render: (_, zone) => (
         <span className="text-sm font-medium text-slate-700">
           {formatNaira(zone.baseFee)}
         </span>
@@ -208,7 +208,7 @@ export function DeliveryZoneManager({
       align: "right",
       sortable: true,
       accessor: (zone) => zone.perKmFee,
-      render: (zone) => (
+      render: (_, zone) => (
         <span className="text-sm text-slate-700">
           {formatNaira(zone.perKmFee)}
         </span>
@@ -222,7 +222,7 @@ export function DeliveryZoneManager({
       align: "right",
       sortable: true,
       accessor: (zone) => zone.minimumFee ?? 0,
-      render: (zone) => (
+      render: (_, zone) => (
         <span className="text-sm text-slate-700">
           {zone.minimumFee !== undefined
             ? formatNaira(zone.minimumFee)
@@ -238,7 +238,7 @@ export function DeliveryZoneManager({
       align: "right",
       sortable: true,
       accessor: (zone) => zone.maximumFee ?? 0,
-      render: (zone) => (
+      render: (_, zone) => (
         <span className="text-sm text-slate-700">
           {zone.maximumFee !== undefined
             ? formatNaira(zone.maximumFee)
@@ -255,7 +255,7 @@ export function DeliveryZoneManager({
       sortable: true,
       accessor: (zone) =>
         zone.freeDeliveryThreshold ?? 0,
-      render: (zone) => (
+      render: (_, zone) => (
         <span className="text-sm text-slate-700">
           {zone.freeDeliveryThreshold != null
             ? formatNaira(
@@ -274,7 +274,7 @@ export function DeliveryZoneManager({
       sortable: true,
       accessor: (zone) =>
         zone.maxDistanceKm ?? 0,
-      render: (zone) => (
+      render: (_, zone) => (
         <span className="text-sm text-slate-700">
           {zone.maxDistanceKm != null
             ? `${zone.maxDistanceKm} km`
@@ -287,7 +287,7 @@ export function DeliveryZoneManager({
       id: "status",
       header: "Status",
       width: "105px",
-      render: (zone) => (
+      render: (_, zone) => (
         <Badge
           variant={
             zone.active ? "success" : "neutral"
@@ -309,7 +309,7 @@ export function DeliveryZoneManager({
         zone.updatedAt
           ? new Date(zone.updatedAt).getTime()
           : 0,
-      render: (zone) => (
+      render: (_, zone) => (
         <span className="text-xs text-slate-500">
           {displayDate(zone.updatedAt)}
         </span>

@@ -8,7 +8,7 @@ import { formatNaira } from "../../libs/format";
 import Badge from "../ui/Badge";
 
 export interface OrderSummaryProps {
-  orderReference: string;
+  orderReference?: string;
   businessName?: string | null;
   status?: string | null;
   subtotal: number;
@@ -83,7 +83,7 @@ function formatStatus(
 }
 
 export default function OrderSummary({
-  orderReference,
+  orderReference = "—",
   businessName,
   status,
   subtotal,

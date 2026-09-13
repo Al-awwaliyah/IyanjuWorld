@@ -14,7 +14,7 @@ const sizeStyles: Record<SpinnerSize, string> = {
   xl: "h-10 w-10 border-3",
 };
 
-export default function Spinner({
+export function Spinner({
   size = "md",
   label = "Loading",
   className = "",
@@ -33,3 +33,5 @@ export default function Spinner({
     />
   );
 }
+
+export default Spinner;

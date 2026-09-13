@@ -183,7 +183,7 @@ const DEFAULT_DELIVERY_FLOW:
 function getTimelineItems(
   items: DeliveryTimelineItem[],
   currentStatus?: DeliveryTimelineStatus,
-) {
+): DeliveryTimelineItem[] {
   if (items.length > 0) {
     return items;
   }

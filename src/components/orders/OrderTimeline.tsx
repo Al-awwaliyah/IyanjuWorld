@@ -18,7 +18,8 @@ export interface OrderTimelineItem {
 }
 
 export interface OrderTimelineProps {
-  items: OrderTimelineItem[];
+  items?: OrderTimelineItem[];
+  events?: OrderTimelineItem[];
   className?: string;
   showDates?: boolean;
 }
@@ -70,10 +71,12 @@ function formatDate(
 }
 
 export default function OrderTimeline({
-  items,
+  items: providedItems,
+  events,
   className = "",
   showDates = true,
 }: OrderTimelineProps) {
+  const items = providedItems ?? events ?? [];
   if (items.length === 0) {
     return (
       <section

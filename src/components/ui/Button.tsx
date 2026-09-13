@@ -2,6 +2,8 @@ import {
   forwardRef,
   type ButtonHTMLAttributes,
   type ReactNode,
+  isValidElement,
+  cloneElement,
 } from "react";
 
 type ButtonVariant =
@@ -11,7 +13,7 @@ type ButtonVariant =
   | "ghost"
   | "danger";
 
-type ButtonSize = "sm" | "md" | "lg";
+type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -20,6 +22,7 @@ export interface ButtonProps
   loading?: boolean;
   fullWidth?: boolean;
   children: ReactNode;
+  asChild?: boolean;
 }
 
 const baseStyles =
@@ -42,9 +45,10 @@ const sizeStyles: Record<ButtonSize, string> = {
   sm: "min-h-9 px-3 text-sm",
   md: "min-h-11 px-4 text-sm",
   lg: "min-h-12 px-6 text-base",
+  icon: "h-10 w-10 p-0",
 };
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       variant = "primary",
@@ -53,6 +57,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth = false,
       disabled,
       children,
+      asChild = false,
       className = "",
       type = "button",
       ...props
@@ -69,6 +74,24 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       .filter(Boolean)
       .join(" ");
 
+    const content = loading ? (
+      <>
+        <span
+          aria-hidden="true"
+          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+        />
+        <span>Processing...</span>
+      </>
+    ) : children;
+
+    if (asChild && isValidElement(children)) {
+      return cloneElement(children, {
+        className: [classes, (children.props as { className?: string }).className ?? ""].filter(Boolean).join(" "),
+        ...(props as Record<string, unknown>),
+        ref,
+      } as never);
+    }
+
     return (
       <button
         ref={ref}
@@ -78,17 +101,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={classes}
         {...props}
       >
-        {loading ? (
-          <>
-            <span
-              aria-hidden="true"
-              className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-            />
-            <span>Processing...</span>
-          </>
-        ) : (
-          children
-        )}
+        {content}
       </button>
     );
   },

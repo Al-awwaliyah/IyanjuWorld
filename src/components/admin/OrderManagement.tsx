@@ -219,7 +219,7 @@ function displayDate(value?: string | Date) {
 
 function getOrderActions(
   order: AdminOrder,
-  handlers: OrderManagementProps,
+  handlers: Pick<OrderManagementProps, "onView" | "onConfirmBusiness" | "onRequestDelivery" | "onCancel" | "onRefund" | "onMarkPickedUp" | "onMarkOutForDelivery" | "onMarkDelivered" | "onComplete" | "onAssignRider" | "onResolveDispute">,
 ): AdminTableAction<AdminOrder>[] {
   const actions: AdminTableAction<AdminOrder>[] = [];
 
@@ -396,7 +396,7 @@ export function OrderManagement({
       width: "180px",
       sortable: true,
       accessor: (order) => order.orderReference,
-      render: (order) => (
+      render: (_, order) => (
         <div className="min-w-0">
           <p className="truncate font-mono text-xs font-semibold text-slate-800">
             {order.orderReference}
@@ -417,7 +417,7 @@ export function OrderManagement({
       width: "180px",
       sortable: true,
       accessor: (order) => order.customerName ?? "",
-      render: (order) => (
+      render: (_, order) => (
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-slate-800">
             {order.customerName ?? "—"}
@@ -438,7 +438,7 @@ export function OrderManagement({
       width: "170px",
       sortable: true,
       accessor: (order) => order.businessName ?? "",
-      render: (order) => (
+      render: (_, order) => (
         <p className="truncate text-sm text-slate-700">
           {order.businessName ?? "—"}
         </p>
@@ -452,7 +452,7 @@ export function OrderManagement({
       align: "right",
       sortable: true,
       accessor: (order) => order.customerTotal,
-      render: (order) => (
+      render: (_, order) => (
         <div className="text-right">
           <p className="font-semibold text-slate-900">
             {formatNaira(order.customerTotal)}
@@ -471,7 +471,7 @@ export function OrderManagement({
       id: "payment",
       header: "Payment",
       width: "140px",
-      render: (order) => {
+      render: (_, order) => {
         const config = paymentStatusConfig[order.paymentStatus];
 
         return (
@@ -486,7 +486,7 @@ export function OrderManagement({
       id: "status",
       header: "Status",
       width: "170px",
-      render: (order) => {
+      render: (_, order) => {
         const config = statusConfig[order.status];
 
         return (
@@ -501,7 +501,7 @@ export function OrderManagement({
       id: "rider",
       header: "Rider",
       width: "150px",
-      render: (order) => (
+      render: (_, order) => (
         <div className="min-w-0">
           <p className="truncate text-sm text-slate-700">
             {order.riderName ?? "Not assigned"}
@@ -519,7 +519,7 @@ export function OrderManagement({
         order.createdAt
           ? new Date(order.createdAt).getTime()
           : 0,
-      render: (order) => (
+      render: (_, order) => (
         <span className="text-xs text-slate-500">
           {displayDate(order.createdAt)}
         </span>

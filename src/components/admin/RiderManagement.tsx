@@ -197,7 +197,7 @@ function displayDate(value?: string | Date) {
 
 function getRiderActions(
   rider: ManagedRider,
-  handlers: RiderManagementProps,
+  handlers: Pick<RiderManagementProps, "onView" | "onVerify" | "onReject" | "onSuspend" | "onActivate" | "onSetOnline" | "onSetOffline">,
 ): AdminTableAction<ManagedRider>[] {
   const actions: AdminTableAction<ManagedRider>[] = [];
 
@@ -323,7 +323,7 @@ export function RiderManagement({
       width: "220px",
       sortable: true,
       accessor: (rider) => rider.name,
-      render: (rider) => (
+      render: (_, rider) => (
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100">
             {rider.photo ? (
@@ -364,7 +364,7 @@ export function RiderManagement({
       id: "verification",
       header: "Verification",
       width: "140px",
-      render: (rider) => {
+      render: (_, rider) => {
         const status =
           verificationConfig[rider.verificationStatus];
 
@@ -380,7 +380,7 @@ export function RiderManagement({
       id: "status",
       header: "Live status",
       width: "135px",
-      render: (rider) => {
+      render: (_, rider) => {
         const status =
           visibleStatusConfig[rider.visibleStatus];
 
@@ -400,7 +400,7 @@ export function RiderManagement({
       id: "vehicle",
       header: "Vehicle",
       width: "145px",
-      render: (rider) => (
+      render: (_, rider) => (
         <div className="min-w-0">
           <p className="truncate text-sm text-slate-700">
             {rider.vehicleType
@@ -421,7 +421,7 @@ export function RiderManagement({
       id: "area",
       header: "Operating area",
       width: "175px",
-      render: (rider) => (
+      render: (_, rider) => (
         <div className="flex min-w-0 items-center gap-1.5">
           <MapPin className="h-3.5 w-3.5 shrink-0 text-slate-400" />
 
@@ -439,7 +439,7 @@ export function RiderManagement({
       align: "right",
       sortable: true,
       accessor: (rider) => rider.deliveryCount ?? 0,
-      render: (rider) => (
+      render: (_, rider) => (
         <span className="text-sm font-medium text-slate-700">
           {formatNumber(rider.deliveryCount ?? 0)}
         </span>
@@ -453,7 +453,7 @@ export function RiderManagement({
       align: "right",
       sortable: true,
       accessor: (rider) => rider.totalEarnings ?? 0,
-      render: (rider) => (
+      render: (_, rider) => (
         <span className="text-sm font-semibold text-slate-900">
           {formatNaira(rider.totalEarnings ?? 0)}
         </span>
@@ -467,7 +467,7 @@ export function RiderManagement({
       align: "right",
       sortable: true,
       accessor: (rider) => rider.rating ?? 0,
-      render: (rider) => (
+      render: (_, rider) => (
         <span className="text-sm font-medium text-slate-700">
           {typeof rider.rating === "number"
             ? rider.rating.toFixed(1)
@@ -485,7 +485,7 @@ export function RiderManagement({
         rider.createdAt
           ? new Date(rider.createdAt).getTime()
           : 0,
-      render: (rider) => (
+      render: (_, rider) => (
         <span className="text-xs text-slate-500">
           {displayDate(rider.createdAt)}
         </span>

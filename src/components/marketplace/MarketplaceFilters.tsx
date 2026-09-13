@@ -5,10 +5,20 @@ import Input from "../ui/Input";
 
 export interface MarketplaceFiltersProps {
   search?: string;
+  searchValue?: string;
   category?: string;
+  categoryValue?: string;
+  state?: string;
+  stateValue?: string;
+  stateOptions?: SelectOption[];
   business?: string;
   sort?: string;
   availability?: string;
+  availabilityValue?: string;
+  availableOnly?: boolean;
+  featuredOnly?: boolean;
+  categories?: SelectOption[];
+  states?: SelectOption[];
   categoryOptions?: SelectOption[];
   businessOptions?: SelectOption[];
   sortOptions?: SelectOption[];
@@ -18,6 +28,9 @@ export interface MarketplaceFiltersProps {
   onBusinessChange?: (value: string) => void;
   onSortChange?: (value: string) => void;
   onAvailabilityChange?: (value: string) => void;
+  onStateChange?: (value: string) => void;
+  onAvailableChange?: (value: boolean) => void;
+  onFeaturedChange?: (value: boolean) => void;
   onApply?: () => void;
   onReset?: () => void;
   loading?: boolean;
@@ -66,10 +79,20 @@ const defaultAvailabilityOptions: SelectOption[] = [
 
 export default function MarketplaceFilters({
   search = "",
+  searchValue,
   category = "",
+  categoryValue,
+  state = "",
+  stateValue = "",
+  stateOptions = [],
   business = "",
   sort = "featured",
   availability = "all",
+  availabilityValue,
+  availableOnly = false,
+  featuredOnly = false,
+  categories,
+  states,
   categoryOptions = [],
   businessOptions = [],
   sortOptions = defaultSortOptions,
@@ -79,6 +102,9 @@ export default function MarketplaceFilters({
   onBusinessChange,
   onSortChange,
   onAvailabilityChange,
+  onStateChange,
+  onAvailableChange,
+  onFeaturedChange,
   onApply,
   onReset,
   loading = false,
@@ -86,6 +112,11 @@ export default function MarketplaceFilters({
   showAvailabilityFilter = true,
   className = "",
 }: MarketplaceFiltersProps) {
+  const effectiveSearch = searchValue ?? search;
+  const effectiveCategory = categoryValue ?? category;
+  const effectiveState = stateValue || state;
+  const effectiveAvailability = availabilityValue ?? availability;
+  const effectiveCategoryOptions = categories ?? categoryOptions;
   return (
     <section
       className={[
@@ -132,7 +163,7 @@ export default function MarketplaceFilters({
           onChange={(event) =>
             onCategoryChange?.(event.target.value)
           }
-          options={categoryOptions}
+          options={effectiveCategoryOptions}
           placeholder="All categories"
           disabled={loading}
         />
@@ -160,10 +191,19 @@ export default function MarketplaceFilters({
           disabled={loading}
         />
 
-        {showAvailabilityFilter && (
+        {states && states.length > 0 && (
+        <Select
+          label="State"
+          value={effectiveState}
+          options={states ?? stateOptions}
+          onChange={(event) => onStateChange?.(event.target.value)}
+        />
+      )}
+
+      {showAvailabilityFilter && (
           <Select
             label="Availability"
-            value={availability}
+            value={effectiveAvailability}
             onChange={(event) =>
               onAvailabilityChange?.(event.target.value)
             }
@@ -188,7 +228,24 @@ export default function MarketplaceFilters({
             </Button>
           )}
 
-          {onApply && (
+          {(onAvailableChange || onFeaturedChange) && (
+        <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-600">
+          {onAvailableChange && (
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={availableOnly || effectiveAvailability === "available"} onChange={(event) => onAvailableChange(event.target.checked)} />
+              Available only
+            </label>
+          )}
+          {onFeaturedChange && (
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={featuredOnly} onChange={(event) => onFeaturedChange(event.target.checked)} />
+              Featured only
+            </label>
+          )}
+        </div>
+      )}
+
+      {onApply && (
             <Button
               type="button"
               variant="primary"
@@ -205,3 +262,5 @@ export default function MarketplaceFilters({
     </section>
   );
 }
+
+export { MarketplaceFilters };

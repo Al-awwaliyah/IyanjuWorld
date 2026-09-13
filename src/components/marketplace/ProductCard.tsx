@@ -6,6 +6,7 @@ import Badge from "../ui/Badge";
 
 export interface ProductCardProps {
   id?: string;
+  product?: ProductCardProps;
   name: string;
   slug: string;
   businessName: string;
@@ -35,24 +36,27 @@ function formatPrice(
   }).format(amount);
 }
 
-export default function ProductCard({
-  name,
-  slug,
-  businessName,
-  businessSlug,
-  price,
-  compareAtPrice,
-  imageUrl,
-  categoryName,
-  available = true,
-  stock,
-  featured = false,
-  currency = "NGN",
-  onAddToCart,
-  addingToCart = false,
-  actionIcon,
-  className = "",
-}: ProductCardProps) {
+export default function ProductCard(props: ProductCardProps) {
+  const source = props.product ?? props;
+  const {
+    product: _product,
+    name,
+    slug,
+    businessName,
+    businessSlug,
+    price,
+    compareAtPrice,
+    imageUrl,
+    categoryName,
+    available = true,
+    stock,
+    featured = false,
+    currency = "NGN",
+    onAddToCart,
+    addingToCart = false,
+    actionIcon,
+    className = "",
+  } = source;
   const isOutOfStock =
     available === false || (stock !== null && stock !== undefined && stock <= 0);
 

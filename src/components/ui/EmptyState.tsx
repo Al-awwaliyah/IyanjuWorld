@@ -1,24 +1,27 @@
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import Button, { type ButtonProps } from "./Button";
 
 export interface EmptyStateProps {
-  icon?: LucideIcon;
+  icon?: LucideIcon | ReactNode;
   title: string;
   description?: string;
   actionLabel?: string;
   actionHref?: string;
   onAction?: () => void;
+  action?: ReactNode;
   actionVariant?: ButtonProps["variant"];
   className?: string;
 }
 
-export default function EmptyState({
+export function EmptyState({
   icon: Icon,
   title,
   description,
   actionLabel,
   actionHref,
   onAction,
+  action: customAction,
   actionVariant = "primary",
   className = "",
 }: EmptyStateProps) {
@@ -44,10 +47,11 @@ export default function EmptyState({
     >
       {Icon && (
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-          <Icon
-            className="h-6 w-6"
-            aria-hidden="true"
-          />
+          {typeof Icon === "function" ? (
+            <Icon className="h-6 w-6" aria-hidden="true" />
+          ) : (
+            Icon
+          )}
         </div>
       )}
 
@@ -61,17 +65,19 @@ export default function EmptyState({
         </p>
       )}
 
-      {actionLabel && (
+      {(actionLabel || customAction) && (
         <div className="mt-5">
-          {actionHref ? (
-            <a href={actionHref}>
-              {action}
-            </a>
-          ) : (
-            action
+          {customAction ?? (
+            actionHref ? (
+              <a href={actionHref}>{action}</a>
+            ) : (
+              action
+            )
           )}
         </div>
       )}
     </div>
   );
 }
+
+export default EmptyState;

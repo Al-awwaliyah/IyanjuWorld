@@ -1,8 +1,8 @@
 import type {
-  ComponentType,
-  MouseEvent,
   ReactNode,
+  MouseEvent,
 } from "react";
+import type { LucideIcon } from "lucide-react";
 
 import {
   ChevronDown,
@@ -19,12 +19,8 @@ import Dropdown, {
 export interface AdminTableColumn<T> {
   id: string;
   header: string;
-  accessor?: keyof T;
-  render?: (
-    value: T[keyof T] | undefined,
-    row: T,
-    index: number,
-  ) => ReactNode;
+  accessor?: keyof T | ((row: T) => ReactNode);
+  render?: (value: any, row: T, index: number) => ReactNode;
   align?: "left" | "center" | "right";
   width?: string;
   sortable?: boolean;
@@ -35,36 +31,34 @@ export interface AdminTableColumn<T> {
 export interface AdminTableAction<T> {
   id: string;
   label: string;
-  icon?: ReactNode;
+  icon?: LucideIcon;
   onClick: (
     row: T,
-    event?: MouseEvent<HTMLButtonElement>,
+    event: MouseEvent<HTMLButtonElement>,
   ) => void;
-  disabled?: boolean | ((row: T) => boolean);
+  disabled?: (
+    row: T,
+  ) => boolean;
   danger?: boolean;
 }
 
-/*
- * Backward-compatible name used by the existing admin pages.
- */
-export type AdminTableRowAction<T = unknown> =
-  AdminTableAction<T>;
+export interface AdminTableRowAction {
+  id: string;
+  label: string;
+  icon?: LucideIcon;
+  onClick: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+}
 
 export interface AdminTableProps<T> {
   columns: AdminTableColumn<T>[];
   data: T[];
 
-  /*
-   * Current API.
-   */
   getRowId?: (
     row: T,
     index: number,
   ) => string;
-
-  /*
-   * Existing admin-page API.
-   */
   rowKey?: (
     row: T,
     index: number,
@@ -73,22 +67,13 @@ export interface AdminTableProps<T> {
   loading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
-  emptyIcon?: ComponentType<{
-    className?: string;
-  }>;
+  emptyMessage?: string;
+  emptyIcon?: LucideIcon | ReactNode;
 
-  /*
-   * Static actions.
-   */
   actions?: AdminTableAction<T>[];
-
-  /*
-   * Existing admin-page API.
-   * Actions can be generated per row.
-   */
-  getRowActions?: (
-    row: T,
-  ) => AdminTableRowAction<T>[];
+  getRowActions?: (row: T) =>
+    | AdminTableAction<T>[]
+    | AdminTableRowAction[];
 
   onRowClick?: (
     row: T,
@@ -108,10 +93,6 @@ export interface AdminTableProps<T> {
     ids: string[],
   ) => void;
 
-  /*
-   * Pagination support.
-   */
-  pagination?: boolean;
   page?: number;
   pageSize?: number;
   totalItems?: number;
@@ -122,13 +103,15 @@ export interface AdminTableProps<T> {
   stickyHeader?: boolean;
   striped?: boolean;
   compact?: boolean;
+  pagination?: boolean;
+  ariaLabel?: string;
 
   className?: string;
 }
 
 function getAlignmentClass(
-  align: AdminTableColumn<unknown>["align"],
-): string {
+  align: AdminTableColumn<any>["align"],
+) {
   switch (align) {
     case "center":
       return "text-center";
@@ -143,8 +126,8 @@ function getAlignmentClass(
 }
 
 function getJustifyClass(
-  align: AdminTableColumn<unknown>["align"],
-): string {
+  align: AdminTableColumn<any>["align"],
+) {
   switch (align) {
     case "center":
       return "justify-center";
@@ -158,7 +141,33 @@ function getJustifyClass(
   }
 }
 
-export default function AdminTable<T>({
+function getValue<T>(
+  row: T,
+  column: AdminTableColumn<T>,
+  index: number,
+) {
+  let value: unknown;
+
+  if (typeof column.accessor === "function") {
+    value = column.accessor(row);
+  } else if (column.accessor) {
+    value = row[column.accessor];
+  }
+
+  if (column.render) {
+    return column.render(value, row, index);
+  }
+
+  if (value != null) {
+    return typeof value === "string" ? value : String(value);
+  }
+
+  return "—";
+}
+
+export default function AdminTable<
+  T,
+>({
   columns,
   data,
   getRowId,
@@ -166,6 +175,7 @@ export default function AdminTable<T>({
   loading = false,
   emptyTitle = "No records found",
   emptyDescription = "There are no records to display.",
+  emptyMessage,
   emptyIcon,
   actions = [],
   getRowActions,
@@ -176,7 +186,6 @@ export default function AdminTable<T>({
   selectable = false,
   selectedIds = [],
   onSelectionChange,
-  pagination = false,
   page = 1,
   pageSize = 20,
   totalItems,
@@ -184,64 +193,61 @@ export default function AdminTable<T>({
   stickyHeader = true,
   striped = false,
   compact = false,
+  pagination = false,
+  ariaLabel,
   className = "",
 }: AdminTableProps<T>) {
-  const resolveRowId = (
-    row: T,
-    index: number,
-  ): string => {
-    if (getRowId) {
-      return getRowId(row, index);
-    }
+  const resolvedGetRowId =
+    getRowId ??
+    rowKey ??
+    ((row: T, index: number) => {
+      const candidate = (row as T & { id?: unknown }).id;
+      return candidate != null
+        ? String(candidate)
+        : String(index);
+    });
 
-    if (rowKey) {
-      return rowKey(row, index);
-    }
-
-    /*
-     * Every production table should provide either getRowId
-     * or rowKey. This fallback only prevents a runtime crash
-     * while keeping the component resilient.
-     */
-    return String(index);
-  };
-
-  const resolveRowActions = (
-    row: T,
-  ): AdminTableRowAction<T>[] => {
-    if (getRowActions) {
-      return getRowActions(row);
-    }
-
-    return actions;
-  };
+  const resolvedActions =
+    getRowActions
+      ? (row: T): AdminTableAction<T>[] =>
+          getRowActions(row).map((action) => ({
+            ...action,
+            disabled:
+              typeof action.disabled === "function"
+                ? action.disabled
+                : () => Boolean(action.disabled),
+            onClick: (currentRow: T, event: MouseEvent<HTMLButtonElement>) => {
+              if (action.onClick.length === 0) {
+                (action.onClick as () => void)();
+              } else {
+                (action.onClick as (row: T, event: MouseEvent<HTMLButtonElement>) => void)(currentRow, event);
+              }
+            },
+          }))
+      : () => actions;
 
   const hasActions =
-    data.some(
-      (row) =>
-        resolveRowActions(row).length > 0,
-    ) || actions.length > 0;
+    actions.length > 0 ||
+    Boolean(getRowActions);
+
+  const resolvedEmptyTitle =
+    emptyMessage ?? emptyTitle;
 
   const allSelected =
     selectable &&
     data.length > 0 &&
     data.every((row, index) =>
       selectedIds.includes(
-        resolveRowId(row, index),
+        resolvedGetRowId(row, index),
       ),
     );
 
-  const effectiveTotalItems =
-    totalItems ??
-    (pagination ? data.length : undefined);
-
   const totalPages =
-    effectiveTotalItems != null
+    totalItems != null
       ? Math.max(
           1,
           Math.ceil(
-            effectiveTotalItems /
-              pageSize,
+            totalItems / pageSize,
           ),
         )
       : 1;
@@ -251,12 +257,12 @@ export default function AdminTable<T>({
       return;
     }
 
-    const currentIds = data.map(
-      (row, index) =>
-        resolveRowId(row, index),
-    );
-
     if (allSelected) {
+      const currentIds = data.map(
+        (row, index) =>
+          resolvedGetRowId(row, index),
+      );
+
       onSelectionChange(
         selectedIds.filter(
           (id) =>
@@ -270,7 +276,10 @@ export default function AdminTable<T>({
     const mergedIds = Array.from(
       new Set([
         ...selectedIds,
-        ...currentIds,
+        ...data.map(
+          (row, index) =>
+            resolvedGetRowId(row, index),
+        ),
       ]),
     );
 
@@ -285,10 +294,7 @@ export default function AdminTable<T>({
       return;
     }
 
-    const id = resolveRowId(
-      row,
-      index,
-    );
+    const id = resolvedGetRowId(row, index);
 
     if (selectedIds.includes(id)) {
       onSelectionChange(
@@ -297,64 +303,36 @@ export default function AdminTable<T>({
             selectedId !== id,
         ),
       );
-
-      return;
+    } else {
+      onSelectionChange([
+        ...selectedIds,
+        id,
+      ]);
     }
-
-    onSelectionChange([
-      ...selectedIds,
-      id,
-    ]);
   };
 
   const getActionItems = (
     row: T,
   ): DropdownItem[] =>
-    resolveRowActions(row).map(
-      (action) => ({
-        id: action.id,
-        label: action.label,
-        icon: action.icon,
-        danger: action.danger,
-        disabled:
-          typeof action.disabled ===
-          "function"
-            ? action.disabled(row)
-            : Boolean(
-                action.disabled,
-              ),
-        onClick: () => {
-          action.onClick(
-            row,
-          );
-        },
-      }),
-    );
-
-  const renderCell = (
-    row: T,
-    column: AdminTableColumn<T>,
-    index: number,
-  ): ReactNode => {
-    const value =
-      column.accessor
-        ? row[column.accessor]
-        : undefined;
-
-    if (column.render) {
-      return column.render(
-        value,
-        row,
-        index,
-      );
-    }
-
-    if (value != null) {
-      return String(value);
-    }
-
-    return "—";
-  };
+    resolvedActions(row).map((action) => ({
+      id: action.id,
+      label: action.label,
+      icon: action.icon,
+      danger: action.danger,
+      disabled:
+        typeof action.disabled ===
+        "function"
+          ? action.disabled(row)
+          : Boolean(
+              action.disabled,
+            ),
+      onClick: () => {
+        action.onClick(
+          row,
+          {} as MouseEvent<HTMLButtonElement>,
+        );
+      },
+    }));
 
   return (
     <div
@@ -511,7 +489,7 @@ export default function AdminTable<T>({
                 >
                   <EmptyState
                     icon={emptyIcon}
-                    title={emptyTitle}
+                    title={resolvedEmptyTitle}
                     description={
                       emptyDescription
                     }
@@ -522,7 +500,7 @@ export default function AdminTable<T>({
               data.map(
                 (row, index) => {
                   const rowId =
-                    resolveRowId(
+                    resolvedGetRowId(
                       row,
                       index,
                     );
@@ -611,11 +589,22 @@ export default function AdminTable<T>({
                                 " ",
                               )}
                           >
-                            {renderCell(
-                              row,
-                              column,
-                              index,
-                            )}
+                            {column.render
+                              ? column.render(
+                                  typeof column.accessor === "function"
+                                    ? column.accessor(row)
+                                    : column.accessor
+                                      ? row[column.accessor]
+                                      : undefined,
+                                  row,
+                                  index,
+                                )
+                              : typeof column.accessor === "function"
+                                ? column.accessor(row)
+                                : column.accessor &&
+                                    row[column.accessor] != null
+                                  ? String(row[column.accessor])
+                                  : "—"}
                           </td>
                         ),
                       )}
@@ -629,28 +618,24 @@ export default function AdminTable<T>({
                             event.stopPropagation()
                           }
                         >
-                          {resolveRowActions(
-                            row,
-                          ).length > 0 && (
-                            <Dropdown
-                              trigger={
-                                <button
-                                  type="button"
-                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                                  aria-label="Row actions"
-                                >
-                                  <MoreHorizontal
-                                    className="h-5 w-5"
-                                    aria-hidden="true"
-                                  />
-                                </button>
-                              }
-                              items={getActionItems(
-                                row,
-                              )}
-                              align="right"
-                            />
-                          )}
+                          <Dropdown
+                            trigger={
+                              <button
+                                type="button"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                                aria-label="Row actions"
+                              >
+                                <MoreHorizontal
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              </button>
+                            }
+                            items={getActionItems(
+                              row,
+                            )}
+                            align="right"
+                          />
                         </td>
                       )}
                     </tr>
@@ -662,9 +647,8 @@ export default function AdminTable<T>({
         </table>
       </div>
 
-      {effectiveTotalItems !=
-        null &&
-        effectiveTotalItems > 0 && (
+      {totalItems != null &&
+        totalItems > 0 && (
           <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-slate-500">
               Showing{" "}
@@ -673,19 +657,19 @@ export default function AdminTable<T>({
                   (page - 1) *
                     pageSize +
                     1,
-                  effectiveTotalItems,
+                  totalItems,
                 )}
               </span>{" "}
               to{" "}
               <span className="font-medium text-slate-700">
                 {Math.min(
                   page * pageSize,
-                  effectiveTotalItems,
+                  totalItems,
                 )}
               </span>{" "}
               of{" "}
               <span className="font-medium text-slate-700">
-                {effectiveTotalItems}
+                {totalItems}
               </span>
             </p>
 
@@ -732,3 +716,5 @@ export default function AdminTable<T>({
     </div>
   );
 }
+
+export { AdminTable };

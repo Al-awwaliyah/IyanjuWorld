@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+
 import {
   useEffect,
   useRef,
@@ -6,9 +8,10 @@ import {
 } from "react";
 
 export interface DropdownItem {
+  id?: string;
   label: string;
   onClick: () => void;
-  icon?: ReactNode;
+  icon?: LucideIcon;
   danger?: boolean;
   disabled?: boolean;
 }
@@ -114,7 +117,7 @@ export default function Dropdown({
             >
               {item.icon && (
                 <span className="flex shrink-0 items-center">
-                  {item.icon}
+                  <item.icon className="h-4 w-4" aria-hidden="true" />
                 </span>
               )}
 
