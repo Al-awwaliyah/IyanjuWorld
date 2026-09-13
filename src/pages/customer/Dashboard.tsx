@@ -132,8 +132,8 @@ export default function CustomerDashboard() {
         }
 
         setProfile({
-          full_name: authState.profile.full_name,
-          phone: authState.profile.phone,
+          full_name: authState.profile.full_name ?? null,
+          phone: authState.profile.phone ?? null,
         });
 
         /*

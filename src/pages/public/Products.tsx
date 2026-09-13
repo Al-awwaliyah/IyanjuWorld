@@ -2,21 +2,16 @@ import { useMemo, useState } from "react";
 import {
   Grid2X2,
   List,
-  MapPin,
   Search,
-  ShoppingBag,
-  Truck,
-  SlidersHorizontal,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import PageContainer from "../../components/layout/PageContainer";
 import ProductGrid from "../../components/marketplace/ProductGrid";
 import MarketplaceFilters from "../../components/marketplace/MarketplaceFilters";
-import ProductCard from "../../components/marketplace/ProductCard";
-import EmptyState from "../../components/ui/EmptyState";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
+import EmptyState from "../../components/ui/EmptyState";
 
 type Product = {
   id: string;
@@ -241,6 +236,74 @@ const products: Product[] = [
     available: true,
     featured: false,
   },
+  {
+    id: "product-013",
+    name: "Premium Face Moisturizer",
+    slug: "premium-face-moisturizer",
+    price: 11500,
+    compareAtPrice: 13500,
+    imageUrl: "/images/products/moisturizer.jpg",
+    businessName: "Natural Touch",
+    businessSlug: "natural-touch",
+    category: "Beauty & Personal Care",
+    categorySlug: "beauty-personal-care",
+    city: "Lagos",
+    state: "Lagos",
+    stock: 17,
+    available: true,
+    featured: false,
+  },
+  {
+    id: "product-014",
+    name: "Kitchen Storage Set",
+    slug: "kitchen-storage-set",
+    price: 13500,
+    compareAtPrice: null,
+    imageUrl: "/images/products/storage-set.jpg",
+    businessName: "HomeStyle Nigeria",
+    businessSlug: "homestyle-nigeria",
+    category: "Home & Living",
+    categorySlug: "home-living",
+    city: "Akure",
+    state: "Ondo",
+    stock: 19,
+    available: true,
+    featured: false,
+  },
+  {
+    id: "product-015",
+    name: "Fast Charging Adapter",
+    slug: "fast-charging-adapter",
+    price: 7500,
+    compareAtPrice: 9000,
+    imageUrl: "/images/products/charger.jpg",
+    businessName: "TechPoint Store",
+    businessSlug: "techpoint-store",
+    category: "Electronics",
+    categorySlug: "electronics",
+    city: "Ibadan",
+    state: "Oyo",
+    stock: 31,
+    available: true,
+    featured: false,
+  },
+  {
+    id: "product-016",
+    name: "Classic Shoulder Bag",
+    slug: "classic-shoulder-bag",
+    price: 22000,
+    compareAtPrice: null,
+    imageUrl: "/images/products/shoulder-bag.jpg",
+    businessName: "Elegance Collections",
+    businessSlug: "elegance-collections",
+    category: "Fashion",
+    categorySlug: "fashion",
+    city: "Osogbo",
+    state: "Osun",
+    stock: 13,
+    available: true,
+    featured: false,
+  },
 ];
 
 const categories = [
@@ -307,10 +370,6 @@ const sortOptions = [
     label: "Featured",
   },
   {
-    value: "newest",
-    label: "Newest",
-  },
-  {
     value: "price-low",
     label: "Price: Low to high",
   },
@@ -324,7 +383,7 @@ const sortOptions = [
   },
 ];
 
-export default function Explore() {
+export default function Product() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [state, setState] = useState("");
@@ -336,7 +395,7 @@ export default function Explore() {
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    const result = products.filter((product) => {
+    const filtered = products.filter((product) => {
       const matchesSearch =
         !query ||
         [
@@ -373,7 +432,7 @@ export default function Explore() {
       );
     });
 
-    return [...result].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       switch (sort) {
         case "price-low":
           return a.price - b.price;
@@ -383,9 +442,6 @@ export default function Explore() {
 
         case "name":
           return a.name.localeCompare(b.name);
-
-        case "newest":
-          return b.id.localeCompare(a.id);
 
         case "featured":
         default:
@@ -416,16 +472,17 @@ export default function Explore() {
         <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
           <div className="max-w-3xl">
             <Badge variant="info">
-              IyanjuWorld Marketplace
+              IyanjuWorld Products
             </Badge>
 
             <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-              Explore products from local businesses
+              Shop products from trusted businesses
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
-              Search products, discover new businesses and find what you
-              need without creating an account just to browse.
+              Browse products from businesses across the marketplace.
+              Compare prices, discover sellers and choose what you want
+              to order.
             </p>
           </div>
 
@@ -438,40 +495,11 @@ export default function Explore() {
                 onChange={(event) =>
                   setSearch(event.target.value)
                 }
-                placeholder="Search products, stores, categories or locations..."
+                placeholder="Search products, businesses, categories or locations..."
                 className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50"
-                aria-label="Search marketplace"
+                aria-label="Search products"
               />
             </div>
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            {[
-              "Fashion",
-              "Electronics",
-              "Food & Groceries",
-              "Beauty",
-              "Phones",
-            ].map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => {
-                  const matching = categories.find(
-                    (categoryItem) =>
-                      categoryItem.label.toLowerCase() ===
-                      item.toLowerCase(),
-                  );
-
-                  if (matching) {
-                    setCategory(matching.value);
-                  }
-                }}
-                className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-              >
-                {item}
-              </button>
-            ))}
           </div>
         </section>
 
@@ -495,40 +523,37 @@ export default function Explore() {
           <div className="min-w-0">
             <div className="mb-5 flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-slate-900">
+                <h2 className="text-lg font-bold text-slate-950">
+                  Marketplace products
+                </h2>
+
+                <p className="mt-1 text-xs text-slate-500">
                   {filteredProducts.length}{" "}
                   {filteredProducts.length === 1
                     ? "product"
-                    : "products"}
-                </p>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  Showing products currently available on the marketplace.
+                    : "products"}{" "}
+                  available
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <div className="flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3">
-                  <SlidersHorizontal className="h-4 w-4 text-slate-400" />
-
-                  <select
-                    value={sort}
-                    onChange={(event) =>
-                      setSort(event.target.value)
-                    }
-                    className="bg-transparent text-sm text-slate-700 outline-none"
-                    aria-label="Sort products"
-                  >
-                    {sortOptions.map((option) => (
-                      <option
-                        key={option.value}
-                        value={option.value}
-                      >
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={sort}
+                  onChange={(event) =>
+                    setSort(event.target.value)
+                  }
+                  className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+                  aria-label="Sort products"
+                >
+                  {sortOptions.map((option) => (
+                    <option
+                      key={option.value}
+                      value={option.value}
+                    >
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
 
                 <div className="flex rounded-lg border border-slate-200 bg-white p-1">
                   <button
@@ -564,7 +589,7 @@ export default function Explore() {
               <div className="rounded-xl border border-slate-200 bg-white py-12">
                 <EmptyState
                   title="No products found"
-                  description="Try a different search term or clear some of your filters."
+                  description="Try another search term or change your filters."
                   action={
                     <Button
                       variant="outline"
@@ -580,7 +605,7 @@ export default function Explore() {
             ) : (
               <div className="space-y-4">
                 {filteredProducts.map((product) => (
-                  <ExploreListItem
+                  <ProductListItem
                     key={product.id}
                     product={product}
                   />
@@ -592,22 +617,19 @@ export default function Explore() {
 
         <section className="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
           <div className="grid gap-6 md:grid-cols-3">
-            <ExploreBenefit
-              icon={MapPin}
-              title="Shop local"
-              description="Discover products from businesses operating in your city and state."
+            <ProductBenefit
+              title="Discover"
+              description="Find products from multiple businesses in one marketplace."
             />
 
-            <ExploreBenefit
-              icon={ShoppingBag}
-              title="Order directly"
-              description="Choose the product you want and place your order with the business."
+            <ProductBenefit
+              title="Compare"
+              description="Review product prices, sellers, availability and locations."
             />
 
-            <ExploreBenefit
-              icon={Truck}
-              title="Get it delivered"
-              description="Eligible paid orders can be connected with verified delivery riders."
+            <ProductBenefit
+              title="Order"
+              description="Choose a product and continue to secure marketplace checkout."
             />
           </div>
         </section>
@@ -616,7 +638,7 @@ export default function Explore() {
   );
 }
 
-function ExploreListItem({
+function ProductListItem({
   product,
 }: {
   product: Product;
@@ -626,7 +648,7 @@ function ExploreListItem({
       <div className="flex flex-col gap-4 sm:flex-row">
         <Link
           to={`/products/${product.id}`}
-          className="block h-32 w-full shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:w-32"
+          className="h-32 w-full shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:w-32"
         >
           <img
             src={product.imageUrl}
@@ -637,7 +659,7 @@ function ExploreListItem({
         </Link>
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <Link
                 to={`/products/${product.id}`}
@@ -693,13 +715,16 @@ function ExploreListItem({
           </div>
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-1 text-xs text-slate-400">
-              <MapPin className="h-3.5 w-3.5" />
-              {product.city}, {product.state}
+            <div className="text-xs text-slate-500">
+              {product.city}, {product.state} ·{" "}
+              {product.stock} available
             </div>
 
             <Link to={`/products/${product.id}`}>
-              <Button size="sm" variant="outline">
+              <Button
+                variant="outline"
+                size="sm"
+              >
                 View product
               </Button>
             </Link>
@@ -710,30 +735,22 @@ function ExploreListItem({
   );
 }
 
-function ExploreBenefit({
-  icon: Icon,
+function ProductBenefit({
   title,
   description,
 }: {
-  icon: typeof MapPin;
   title: string;
   description: string;
 }) {
   return (
-    <div className="flex gap-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
-        <Icon className="h-5 w-5" />
-      </div>
+    <div>
+      <h3 className="text-sm font-semibold text-slate-900">
+        {title}
+      </h3>
 
-      <div>
-        <h3 className="text-sm font-semibold text-slate-900">
-          {title}
-        </h3>
-
-        <p className="mt-1 text-sm leading-6 text-slate-500">
-          {description}
-        </p>
-      </div>
+      <p className="mt-1 text-sm leading-6 text-slate-500">
+        {description}
+      </p>
     </div>
   );
 }

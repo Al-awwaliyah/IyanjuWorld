@@ -437,7 +437,7 @@ export default function Disputes() {
       sortable: true,
       render: (value) => (
         <span className="text-sm text-slate-700">
-          {reasonLabels[value]}
+          {reasonLabels[String(value) as DisputeReason] ?? String(value)}
         </span>
       ),
     },
@@ -460,7 +460,7 @@ export default function Disputes() {
       sortable: true,
       render: (value) => (
         <Badge variant={priorityVariant(value)}>
-          {priorityLabels[value]}
+          {priorityLabels[String(value) as DisputePriority] ?? String(value)}
         </Badge>
       ),
     },
@@ -471,7 +471,7 @@ export default function Disputes() {
       sortable: true,
       render: (value) => (
         <Badge variant={statusVariant(value)}>
-          {statusLabels[value]}
+          {statusLabels[String(value) as DisputeStatus] ?? String(value)}
         </Badge>
       ),
     },

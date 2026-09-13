@@ -1,0 +1,1 @@
+import { supabase } from "@/libs/supabase"; export async function checkoutCart(cartId:string){const {data,error}=await supabase.rpc("checkout_cart",{p_cart_id:cartId});if(error)throw error;return data;}

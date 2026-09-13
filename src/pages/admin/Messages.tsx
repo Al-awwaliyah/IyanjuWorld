@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   Archive,
   CheckCircle2,
+  Eye,
   ChevronLeft,
   Clock3,
   MessageSquare,
@@ -648,7 +649,7 @@ export default function Messages() {
       {
         id: "view",
         label: "Open conversation",
-        icon: EyeIcon,
+        icon: Eye,
         onClick: () =>
           selectConversation(conversation),
       },
@@ -1237,10 +1238,4 @@ export default function Messages() {
       </div>
     </PageContainer>
   );
-}
-
-function EyeIcon(
-  props: React.ComponentProps<typeof Eye>,
-) {
-  return <Eye {...props} />;
 }

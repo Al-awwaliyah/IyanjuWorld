@@ -83,7 +83,7 @@ export default function CustomerCart() {
       setCart(cartData as CartRecord);
 
       const { data: itemData, error: itemError } = await supabase
-        .from("cart_items")
+        .from("cart_item_details")
         .select(
           "id, cart_id, product_id, quantity, unit_price, subtotal, product_name, product_image, business_id, business_name, available_stock"
         )
@@ -163,20 +163,19 @@ export default function CustomerCart() {
     setError("");
 
     try {
-      const { data, error: rpcError } = await supabase.rpc(
-        "update_cart_item_quantity",
-        {
-          p_cart_item_id: item.id,
-          p_quantity: nextQuantity,
-        }
-      );
+      const { data, error: updateError } = await supabase
+        .from("cart_items")
+        .update({ quantity: nextQuantity })
+        .eq("id", item.id)
+        .select("id, quantity")
+        .single();
 
-      if (rpcError) {
+      if (updateError) {
         console.error(
           "CustomerCart: failed to update quantity",
-          rpcError
+          updateError
         );
-        throw rpcError;
+        throw updateError;
       }
 
       if (data) {

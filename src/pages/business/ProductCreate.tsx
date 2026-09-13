@@ -154,6 +154,10 @@ export default function ProductCreate() {
       return "Product name is too short.";
     }
 
+    if (!form.category_id) {
+      return "Please select a product category.";
+    }
+
     if (!form.price.trim()) {
       return "Please enter a product price.";
     }
@@ -237,6 +241,7 @@ export default function ProductCreate() {
         .from("products")
         .insert({
           business_id: business.id,
+          created_by: profile.id,
           name,
           slug,
           description: description || null,

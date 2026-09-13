@@ -168,7 +168,7 @@ export default function CustomerCheckout() {
       }
 
       const { data: itemData, error: itemError } = await supabase
-        .from("cart_items")
+        .from("cart_item_details")
         .select(
           "id, cart_id, product_id, quantity, unit_price, subtotal, product_name, product_image, business_id, business_name, available_stock"
         )
@@ -269,65 +269,48 @@ export default function CustomerCheckout() {
     setPlacingOrder(true);
 
     try {
-      /*
-       * Order creation and payment must remain server-side.
-       *
-       * The frontend deliberately does not insert an order directly
-       * or modify wallet balances. A dedicated checkout Edge Function
-       * will validate:
-       *
-       * - authenticated customer
-       * - cart ownership
-       * - current product prices
-       * - current inventory
-       * - delivery fee
-       * - business availability
-       * - platform commission
-       * - payment method
-       *
-       * It will then create the order and initiate/verify payment
-       * through the appropriate server-side flow.
-       */
-
-      const { data, error: checkoutError } = await supabase.functions.invoke(
-        "create-order",
+      const { data: checkoutRows, error: checkoutError } = await supabase.rpc(
+        "checkout_cart",
         {
-          body: {
-            cart_id: cart.id,
-            delivery_address_id: selectedAddress.id,
-            payment_method: paymentMethod,
-            customer_note: customerNote.trim() || null,
+          p_cart_id: cart.id,
+          p_delivery_address: {
+            address_line: selectedAddress.address,
+            city: selectedAddress.city || "",
+            state: selectedAddress.state || "",
+            country: "Nigeria",
           },
-        }
+          p_customer_note: customerNote.trim() || null,
+        },
       );
 
       if (checkoutError) {
         console.error(
-          "CustomerCheckout: create-order function failed",
-          checkoutError
+          "CustomerCheckout: checkout_cart failed",
+          checkoutError,
         );
         throw checkoutError;
       }
 
-      if (!data?.success) {
-        console.error(
-          "CustomerCheckout: create-order returned unsuccessful response",
-          data
-        );
+      const createdOrders = Array.isArray(checkoutRows)
+        ? checkoutRows
+        : checkoutRows
+          ? [checkoutRows]
+          : [];
 
+      if (createdOrders.length === 0) {
         throw new Error(
-          data?.message ||
-            "We couldn't create your order. Please try again."
+          "We couldn't create your order. Please try again.",
         );
       }
 
-      if (data.payment_url) {
-        window.location.assign(data.payment_url);
-        return;
-      }
+      const firstOrder = createdOrders[0] as {
+        id?: string;
+        order_id?: string;
+      };
+      const createdOrderId = firstOrder.id ?? firstOrder.order_id;
 
-      if (data.order_id) {
-        navigate(`/customer/orders/${data.order_id}`, {
+      if (createdOrderId) {
+        navigate(`/customer/orders/${createdOrderId}`, {
           replace: true,
           state: {
             orderCreated: true,
@@ -338,7 +321,7 @@ export default function CustomerCheckout() {
       }
 
       throw new Error(
-        "Your order could not be completed. Please try again."
+        "Your order could not be completed. Please try again.",
       );
     } catch (submitError) {
       console.error(

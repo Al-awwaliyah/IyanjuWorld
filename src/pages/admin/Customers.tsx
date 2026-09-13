@@ -232,7 +232,7 @@ export default function Customers({
       sortable: true,
       accessor: (customer) =>
         customer.fullName ?? "",
-      render: (customer) => (
+      render: (_, customer) => (
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100">
             {customer.avatar ? (
@@ -270,7 +270,7 @@ export default function Customers({
       sortable: true,
       accessor: (customer) =>
         customer.phone ?? "",
-      render: (customer) => (
+      render: (_, customer) => (
         <span className="text-sm text-slate-700">
           {customer.phone ?? "—"}
         </span>
@@ -281,7 +281,7 @@ export default function Customers({
       id: "location",
       header: "Location",
       width: "160px",
-      render: (customer) => (
+      render: (_, customer) => (
         <div className="min-w-0">
           <p className="truncate text-sm text-slate-700">
             {customer.city ?? "—"}
@@ -300,7 +300,7 @@ export default function Customers({
       id: "status",
       header: "Status",
       width: "120px",
-      render: (customer) => {
+      render: (_, customer) => {
         const status =
           statusConfig[customer.status];
 
@@ -324,7 +324,7 @@ export default function Customers({
       sortable: true,
       accessor: (customer) =>
         customer.orderCount ?? 0,
-      render: (customer) => (
+      render: (_, customer) => (
         <span className="text-sm font-medium text-slate-700">
           {formatNumber(customer.orderCount ?? 0)}
         </span>
@@ -339,7 +339,7 @@ export default function Customers({
       sortable: true,
       accessor: (customer) =>
         customer.totalSpent ?? 0,
-      render: (customer) => (
+      render: (_, customer) => (
         <span className="text-sm font-semibold text-slate-900">
           {formatNaira(customer.totalSpent ?? 0)}
         </span>
@@ -354,7 +354,7 @@ export default function Customers({
       sortable: true,
       accessor: (customer) =>
         customer.walletBalance ?? 0,
-      render: (customer) => (
+      render: (_, customer) => (
         <div className="text-right">
           <p className="text-sm font-semibold text-slate-800">
             {formatNaira(
@@ -386,7 +386,7 @@ export default function Customers({
               customer.lastSeenAt,
             ).getTime()
           : 0,
-      render: (customer) => (
+      render: (_, customer) => (
         <span className="text-xs text-slate-500">
           {displayDateTime(customer.lastSeenAt)}
         </span>
@@ -402,7 +402,7 @@ export default function Customers({
         customer.createdAt
           ? new Date(customer.createdAt).getTime()
           : 0,
-      render: (customer) => (
+      render: (_, customer) => (
         <span className="text-xs text-slate-500">
           {displayDate(customer.createdAt)}
         </span>

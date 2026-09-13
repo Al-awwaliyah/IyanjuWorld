@@ -12,7 +12,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 // Public pages
 import Home from "./pages/public/Home";
 import Explore from "./pages/public/Explore";
-import Product from "./pages/public/Product";
+import Products from "./pages/public/Products";
 import ProductDetails from "./pages/public/ProductDetails";
 import Category from "./pages/public/Category";
 import Businesses from "./pages/public/Businesses";
@@ -36,6 +36,8 @@ import CustomerDashboard from "./pages/customer/Dashboard";
 import CustomerOrders from "./pages/customer/Orders";
 import CustomerOrderDetails from "./pages/customer/OrderDetails";
 import CustomerCart from "./pages/customer/Cart";
+import CustomerCheckout from "./pages/customer/Checkout";
+import CustomerPaymentResult from "./pages/customer/PaymentResult";
 import CustomerWallet from "./pages/customer/Wallet";
 import CustomerMessages from "./pages/customer/Messages";
 import CustomerProfile from "./pages/customer/Profile";
@@ -43,7 +45,7 @@ import CustomerProfile from "./pages/customer/Profile";
 // Business pages
 import BusinessDashboard from "./pages/business/Dashboard";
 import BusinessProducts from "./pages/business/Products";
-import BusinessProductForm from "./pages/business/ProductForm";
+import BusinessProductForm from "./pages/business/ProductCreate";
 import BusinessProductEdit from "./pages/business/ProductEdit";
 import BusinessOrders from "./pages/business/Orders";
 import BusinessOrderDetails from "./pages/business/OrderDetails";
@@ -91,7 +93,7 @@ function App() {
 
         <Route path="/explore" element={<Explore />} />
 
-        <Route path="/products" element={<Product />} />
+        <Route path="/products" element={<Products />} />
 
         <Route
           path="/products/:productId"
@@ -186,6 +188,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/customer/checkout" element={<ProtectedRoute allowedRoles={["customer"]}><CustomerCheckout /></ProtectedRoute>} />
+        <Route path="/customer/payment-result" element={<ProtectedRoute allowedRoles={["customer"]}><CustomerPaymentResult /></ProtectedRoute>} />
 
         <Route
           path="/customer/wallet"

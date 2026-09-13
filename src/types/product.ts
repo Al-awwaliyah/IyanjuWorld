@@ -1,0 +1,1 @@
+export type Product={id:string;business_id:string;category_id?:string|null;name:string;slug:string;price:number;[key:string]:unknown}; export type ProductForm={name:string;description:string;price:string;stock_quantity:string;image_url:string;category_id:string};

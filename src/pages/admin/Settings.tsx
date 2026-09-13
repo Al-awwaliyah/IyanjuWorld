@@ -17,6 +17,7 @@ import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
+import Textarea from "../../components/ui/Textarea";
 import Switch from "../../components/ui/Switch";
 import { formatNaira, formatPercentage } from "../../libs/format";
 
@@ -484,10 +485,10 @@ function GeneralSettings({
         >
           <Switch
             checked={settings.marketplaceEnabled}
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "marketplaceEnabled",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -542,10 +543,10 @@ function MarketplaceSettings({
             checked={
               settings.customerRegistrationEnabled
             }
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "customerRegistrationEnabled",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -559,10 +560,10 @@ function MarketplaceSettings({
             checked={
               settings.businessRegistrationEnabled
             }
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "businessRegistrationEnabled",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -576,10 +577,10 @@ function MarketplaceSettings({
             checked={
               settings.riderRegistrationEnabled
             }
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "riderRegistrationEnabled",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -874,10 +875,10 @@ function WalletSettings({
         >
           <Switch
             checked={settings.walletEnabled}
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "walletEnabled",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -891,10 +892,10 @@ function WalletSettings({
             checked={
               settings.walletWithdrawalsEnabled
             }
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "walletWithdrawalsEnabled",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -949,10 +950,10 @@ function NotificationSettings({
             checked={
               settings.pushNotificationsEnabled
             }
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "pushNotificationsEnabled",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -966,10 +967,10 @@ function NotificationSettings({
             checked={
               settings.emailNotificationsEnabled
             }
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "emailNotificationsEnabled",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -1024,10 +1025,10 @@ function SecuritySettings({
             checked={
               settings.requireBusinessVerification
             }
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "requireBusinessVerification",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -1041,10 +1042,10 @@ function SecuritySettings({
             checked={
               settings.requireRiderVerification
             }
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "requireRiderVerification",
-                checked,
+                event.target.checked,
               )
             }
           />
@@ -1097,10 +1098,10 @@ function MaintenanceSettings({
         >
           <Switch
             checked={settings.maintenanceMode}
-            onChange={(checked) =>
+            onChange={(event) =>
               updateSetting(
                 "maintenanceMode",
-                checked,
+                event.target.checked,
               )
             }
           />
