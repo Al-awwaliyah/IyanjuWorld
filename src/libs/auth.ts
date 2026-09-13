@@ -1,21 +1,13 @@
-import type {
-  AuthChangeEvent,
-  Session,
-  User,
-} from "@supabase/supabase-js";
-
-import {
-  supabase,
-} from "./supabase";
-
+import { supabase } from "./supabase";
 import {
   createAppError,
+  getSafeErrorMessage,
   logAppError,
 } from "./errors";
 
 export type UserRole =
   | "customer"
-  | "business_owner"
+  | "business"
   | "rider"
   | "admin";
 
@@ -29,58 +21,164 @@ export type AdminRole =
 
 export type Profile = {
   id: string;
-  full_name: string | null;
-  phone: string | null;
+  email?: string | null;
+  full_name?: string | null;
+  phone?: string | null;
   role: UserRole;
-  admin_role: AdminRole | null;
-  avatar: string | null;
+  admin_role?: AdminRole | null;
+  avatar?: string | null;
   active: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type AuthState = {
-  user: User | null;
-  session: Session | null;
+  user: Awaited<
+    ReturnType<typeof supabase.auth.getUser>
+  >["data"]["user"] | null;
   profile: Profile | null;
+  loading: boolean;
 };
 
-export async function getSession(): Promise<Session | null> {
-  const {
-    data,
-    error,
-  } = await supabase.auth.getSession();
+export type SignUpMetadata = {
+  full_name?: string;
+  phone?: string;
+  role?: UserRole;
+};
 
-  if (error) {
-    logAppError(
-      "Failed to retrieve authentication session.",
+const PROFILE_FIELDS =
+  "id,email,full_name,phone,role,admin_role,avatar,active,created_at,updated_at";
+
+function normalizeRole(value: unknown): UserRole {
+  if (
+    value === "customer" ||
+    value === "business" ||
+    value === "rider" ||
+    value === "admin"
+  ) {
+    return value;
+  }
+
+  return "customer";
+}
+
+function normalizeAdminRole(
+  value: unknown,
+): AdminRole | null {
+  if (
+    value === "super_admin" ||
+    value === "operations" ||
+    value === "support" ||
+    value === "finance" ||
+    value === "compliance" ||
+    value === "read_only"
+  ) {
+    return value;
+  }
+
+  return null;
+}
+
+function mapProfile(row: Record<string, unknown>): Profile {
+  return {
+    id: String(row.id),
+    email:
+      typeof row.email === "string"
+        ? row.email
+        : null,
+    full_name:
+      typeof row.full_name === "string"
+        ? row.full_name
+        : null,
+    phone:
+      typeof row.phone === "string"
+        ? row.phone
+        : null,
+    role: normalizeRole(row.role),
+    admin_role: normalizeAdminRole(row.admin_role),
+    avatar:
+      typeof row.avatar === "string"
+        ? row.avatar
+        : null,
+    active: row.active !== false,
+    created_at:
+      typeof row.created_at === "string"
+        ? row.created_at
+        : undefined,
+    updated_at:
+      typeof row.updated_at === "string"
+        ? row.updated_at
+        : undefined,
+  };
+}
+
+function toAppError(error: unknown, fallback: string) {
+  const message = getSafeErrorMessage(error);
+
+  return createAppError(
+    message || fallback,
+    undefined,
+    error,
+  );
+}
+
+/**
+ * Get the currently authenticated session.
+ */
+export async function getSession() {
+  try {
+    const {
+      data,
       error,
+    } = await supabase.auth.getSession();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.session;
+  } catch (error) {
+    logAppError(
+      toAppError(
+        error,
+        "Unable to load the current session.",
+      ),
     );
 
     return null;
   }
-
-  return data.session;
 }
 
-export async function getCurrentUser(): Promise<User | null> {
-  const {
-    data,
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error) {
-    logAppError(
-      "Failed to retrieve authenticated user.",
+/**
+ * Get the currently authenticated user.
+ */
+export async function getCurrentUser() {
+  try {
+    const {
+      data,
       error,
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      throw error;
+    }
+
+    return data.user;
+  } catch (error) {
+    logAppError(
+      toAppError(
+        error,
+        "Unable to load the current user.",
+      ),
     );
 
     return null;
   }
-
-  return data.user ?? null;
 }
 
+/**
+ * Get the current user's profile.
+ */
 export async function getCurrentProfile(): Promise<Profile | null> {
   const user = await getCurrentUser();
 
@@ -88,408 +186,471 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     return null;
   }
 
-  const {
-    data,
-    error,
-  } = await supabase
-    .from("profiles")
-    .select(
-      [
-        "id",
-        "full_name",
-        "phone",
-        "role",
-        "admin_role",
-        "avatar",
-        "active",
-        "created_at",
-        "updated_at",
-      ].join(", "),
-    )
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (error) {
-    logAppError(
-      "Failed to retrieve user profile.",
+  try {
+    const {
+      data,
       error,
+    } = await supabase
+      .from("profiles")
+      .select(PROFILE_FIELDS)
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    return mapProfile(
+      data as Record<string, unknown>,
+    );
+  } catch (error) {
+    logAppError(
+      toAppError(
+        error,
+        "Unable to load your profile.",
+      ),
     );
 
     return null;
   }
-
-  return data as Profile | null;
 }
 
+/**
+ * Get the complete authentication state.
+ */
 export async function getAuthState(): Promise<AuthState> {
-  const session = await getSession();
+  try {
+    const {
+      data,
+      error,
+    } = await supabase.auth.getUser();
 
-  if (!session?.user) {
+    if (error) {
+      throw error;
+    }
+
+    if (!data.user) {
+      return {
+        user: null,
+        profile: null,
+        loading: false,
+      };
+    }
+
+    const {
+      data: profileData,
+      error: profileError,
+    } = await supabase
+      .from("profiles")
+      .select(PROFILE_FIELDS)
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      throw profileError;
+    }
+
+    return {
+      user: data.user,
+      profile: profileData
+        ? mapProfile(
+            profileData as Record<string, unknown>,
+          )
+        : null,
+      loading: false,
+    };
+  } catch (error) {
+    logAppError(
+      toAppError(
+        error,
+        "Unable to load your authentication state.",
+      ),
+    );
+
     return {
       user: null,
-      session: null,
       profile: null,
+      loading: false,
     };
   }
-
-  const profile =
-    await getCurrentProfile();
-
-  return {
-    user: session.user,
-    session,
-    profile,
-  };
 }
 
+/**
+ * Sign in with email and password.
+ */
 export async function signInWithPassword(
   email: string,
   password: string,
-): Promise<{
-  user: User | null;
-  session: Session | null;
-  profile: Profile | null;
-}> {
-  const normalizedEmail =
-    email.trim().toLowerCase();
-
-  if (!normalizedEmail || !password) {
-    throw createAppError(
-      new Error(
-        "Email and password are required.",
-      ),
-      "VALIDATION_ERROR",
-    );
-  }
-
-  const {
-    data,
-    error,
-  } =
-    await supabase.auth.signInWithPassword({
-      email: normalizedEmail,
+) {
+  try {
+    const {
+      data,
+      error,
+    } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
       password,
     });
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+
+    return {
+      data,
+      error: null,
+    };
+  } catch (error) {
     logAppError(
-      "Password sign-in failed.",
-      error,
-    );
-
-    throw createAppError(
-      error,
-      "AUTH_INVALID",
-    );
-  }
-
-  if (!data.user || !data.session) {
-    throw createAppError(
-      new Error(
-        "Authentication completed without a valid session.",
+      toAppError(
+        error,
+        "Unable to sign you in.",
       ),
-      "AUTH_INVALID",
     );
+
+    return {
+      data: null,
+      error,
+    };
   }
-
-  const profile =
-    await getCurrentProfile();
-
-  if (
-    profile &&
-    profile.active === false
-  ) {
-    await supabase.auth.signOut();
-
-    throw createAppError(
-      new Error(
-        "User profile is inactive.",
-      ),
-      "PERMISSION_DENIED",
-    );
-  }
-
-  return {
-    user: data.user,
-    session: data.session,
-    profile,
-  };
 }
 
+/**
+ * Register a new IyanjuWorld account.
+ *
+ * The role and registration information are passed
+ * to Supabase Auth metadata so the database profile
+ * creation trigger can use the same information.
+ *
+ * Email confirmation/OTP is handled by Supabase Auth.
+ */
 export async function signUpWithPassword(
   email: string,
   password: string,
-  fullName?: string,
-  phone?: string,
-): Promise<{
-  user: User | null;
-  session: Session | null;
-}> {
-  const normalizedEmail =
-    email.trim().toLowerCase();
+  metadata: SignUpMetadata = {},
+) {
+  try {
+    const normalizedEmail =
+      email.trim().toLowerCase();
 
-  if (!normalizedEmail || !password) {
-    throw createAppError(
-      new Error(
-        "Email and password are required.",
-      ),
-      "VALIDATION_ERROR",
-    );
-  }
-
-  if (password.length < 8) {
-    throw createAppError(
-      new Error(
-        "Password must contain at least 8 characters.",
-      ),
-      "VALIDATION_ERROR",
-    );
-  }
-
-  const {
-    data,
-    error,
-  } =
-    await supabase.auth.signUp({
+    const {
+      data,
+      error,
+    } = await supabase.auth.signUp({
       email: normalizedEmail,
       password,
       options: {
         data: {
           full_name:
-            fullName?.trim() || null,
+            metadata.full_name?.trim() || null,
           phone:
-            phone?.trim() || null,
+            metadata.phone?.trim() || null,
+          role: metadata.role || "customer",
         },
       },
     });
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+
+    return {
+      data,
+      error: null,
+    };
+  } catch (error) {
     logAppError(
-      "Password registration failed.",
-      error,
+      toAppError(
+        error,
+        "Unable to create your account.",
+      ),
     );
 
-    throw createAppError(
+    return {
+      data: null,
       error,
-      "UNKNOWN_ERROR",
-    );
-  }
-
-  return {
-    user: data.user,
-    session: data.session,
-  };
-}
-
-export async function signOut(): Promise<void> {
-  const {
-    error,
-  } = await supabase.auth.signOut();
-
-  if (error) {
-    logAppError(
-      "Sign-out failed.",
-      error,
-    );
-
-    throw createAppError(
-      error,
-      "UNKNOWN_ERROR",
-    );
+    };
   }
 }
 
+/**
+ * Sign out the current user.
+ */
+export async function signOut() {
+  try {
+    const { error } =
+      await supabase.auth.signOut();
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      success: true,
+      error: null,
+    };
+  } catch (error) {
+    logAppError(
+      toAppError(
+        error,
+        "Unable to sign you out.",
+      ),
+    );
+
+    return {
+      success: false,
+      error,
+    };
+  }
+}
+
+/**
+ * Send a password reset email.
+ */
 export async function resetPassword(
   email: string,
-): Promise<void> {
-  const normalizedEmail =
-    email.trim().toLowerCase();
+) {
+  try {
+    const normalizedEmail =
+      email.trim().toLowerCase();
 
-  if (!normalizedEmail) {
-    throw createAppError(
-      new Error(
-        "Email is required.",
-      ),
-      "VALIDATION_ERROR",
-    );
-  }
+    const redirectTo =
+      `${window.location.origin}/reset-password`;
 
-  const {
-    error,
-  } =
-    await supabase.auth.resetPasswordForEmail(
+    const {
+      error,
+    } = await supabase.auth.resetPasswordForEmail(
       normalizedEmail,
       {
-        redirectTo:
-          `${window.location.origin}/reset-password`,
+        redirectTo,
       },
     );
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+
+    return {
+      success: true,
+      error: null,
+    };
+  } catch (error) {
     logAppError(
-      "Password reset request failed.",
-      error,
+      toAppError(
+        error,
+        "Unable to send the password reset email.",
+      ),
     );
 
-    throw createAppError(
+    return {
+      success: false,
       error,
-      "UNKNOWN_ERROR",
-    );
+    };
   }
 }
 
+/**
+ * Update the authenticated user's password.
+ */
 export async function updatePassword(
   password: string,
-): Promise<void> {
-  if (!password || password.length < 8) {
-    throw createAppError(
-      new Error(
-        "Password must contain at least 8 characters.",
-      ),
-      "VALIDATION_ERROR",
-    );
-  }
-
-  const {
-    error,
-  } =
-    await supabase.auth.updateUser({
+) {
+  try {
+    const {
+      data,
+      error,
+    } = await supabase.auth.updateUser({
       password,
     });
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+
+    return {
+      data,
+      error: null,
+    };
+  } catch (error) {
     logAppError(
-      "Password update failed.",
-      error,
+      toAppError(
+        error,
+        "Unable to update your password.",
+      ),
     );
 
-    throw createAppError(
+    return {
+      data: null,
       error,
-      "UNKNOWN_ERROR",
-    );
+    };
   }
 }
 
-export async function refreshSession(): Promise<Session | null> {
-  const {
-    data,
-    error,
-  } =
-    await supabase.auth.refreshSession();
-
-  if (error) {
-    logAppError(
-      "Authentication session refresh failed.",
+/**
+ * Refresh the current Supabase session.
+ */
+export async function refreshSession() {
+  try {
+    const {
+      data,
       error,
+    } = await supabase.auth.refreshSession();
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      data,
+      error: null,
+    };
+  } catch (error) {
+    logAppError(
+      toAppError(
+        error,
+        "Unable to refresh your session.",
+      ),
     );
 
-    return null;
+    return {
+      data: null,
+      error,
+    };
   }
-
-  return data.session;
 }
 
+/**
+ * Subscribe to Supabase authentication changes.
+ */
 export function subscribeToAuthChanges(
   callback: (
-    event: AuthChangeEvent,
-    session: Session | null,
+    event: string,
+    session: Awaited<
+      ReturnType<typeof supabase.auth.getSession>
+    >["data"]["session"],
   ) => void,
-): () => void {
+) {
   const {
-    data: subscriptionData,
-  } =
-    supabase.auth.onAuthStateChange(
-      (event, session) => {
-        callback(
-          event,
-          session,
-        );
-      },
-    );
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange(
+    (event, session) => {
+      callback(event, session);
+    },
+  );
 
-  return () => {
-    subscriptionData.subscription.unsubscribe();
-  };
+  return subscription;
 }
 
+/**
+ * Check whether a user is authenticated.
+ */
 export function isAuthenticated(
-  state: AuthState,
-): boolean {
+  authState: AuthState,
+) {
   return Boolean(
-    state.user &&
-    state.session,
+    authState.user &&
+      authState.profile,
   );
 }
 
+/**
+ * Check whether the profile is active.
+ */
 export function isActiveProfile(
-  profile: Profile | null,
-): boolean {
+  authState: AuthState,
+) {
   return Boolean(
-    profile &&
-    profile.active === true,
+    authState.profile &&
+      authState.profile.active,
   );
 }
 
+/**
+ * Check whether the authenticated user
+ * has a specific role.
+ */
 export function isRole(
-  profile: Profile | null,
+  authState: AuthState,
   role: UserRole,
-): boolean {
+) {
   return (
-    profile?.role === role
+    authState.profile?.role === role
   );
 }
 
+/**
+ * Check whether the user is an administrator.
+ */
 export function isAdmin(
-  profile: Profile | null,
-): boolean {
+  authState: AuthState,
+) {
   return (
-    profile?.role === "admin" &&
-    profile.active === true
+    authState.profile?.role === "admin"
   );
 }
 
+/**
+ * Check whether an administrator has
+ * one of the supplied admin roles.
+ */
 export function hasAdminRole(
-  profile: Profile | null,
-  adminRole: AdminRole,
-): boolean {
-  return (
-    isAdmin(profile) &&
-    profile?.admin_role === adminRole
-  );
+  authState: AuthState,
+  roles: AdminRole[],
+) {
+  if (!isAdmin(authState)) {
+    return false;
+  }
+
+  const adminRole =
+    authState.profile?.admin_role;
+
+  if (!adminRole) {
+    return false;
+  }
+
+  return roles.includes(adminRole);
 }
 
+/**
+ * Check whether the user can access
+ * the administration area.
+ */
 export function canAccessAdminArea(
-  profile: Profile | null,
-): boolean {
-  return isAdmin(profile);
+  authState: AuthState,
+) {
+  return (
+    isAdmin(authState) &&
+    isActiveProfile(authState)
+  );
 }
 
+/**
+ * Check whether the administrator can
+ * manage financial operations.
+ */
 export function canManageFinancialOperations(
-  profile: Profile | null,
-): boolean {
-  if (!isAdmin(profile)) {
-    return false;
-  }
-
-  return (
-    profile.admin_role ===
-      "super_admin" ||
-    profile.admin_role ===
-      "finance"
-  );
+  authState: AuthState,
+) {
+  return hasAdminRole(authState, [
+    "super_admin",
+    "finance",
+    "operations",
+  ]);
 }
 
+/**
+ * Check whether the administrator can
+ * process wallet refunds.
+ */
 export function canProcessRefunds(
-  profile: Profile | null,
-): boolean {
-  if (!isAdmin(profile)) {
-    return false;
-  }
-
-  return (
-    profile.admin_role ===
-      "super_admin" ||
-    profile.admin_role ===
-      "finance"
-  );
+  authState: AuthState,
+) {
+  return hasAdminRole(authState, [
+    "super_admin",
+    "finance",
+    "operations",
+  ]);
 }
