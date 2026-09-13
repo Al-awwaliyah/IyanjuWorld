@@ -1,60 +1,75 @@
-import type { ReactNode } from "react";
-import Button from "./Button";
+import type { LucideIcon } from "lucide-react";
+import Button, { type ButtonProps } from "./Button";
 
 export interface EmptyStateProps {
-  icon?: ReactNode;
+  icon?: LucideIcon;
   title: string;
   description?: string;
   actionLabel?: string;
+  actionHref?: string;
   onAction?: () => void;
-  actionVariant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+  actionVariant?: ButtonProps["variant"];
   className?: string;
 }
 
 export default function EmptyState({
-  icon,
+  icon: Icon,
   title,
   description,
   actionLabel,
+  actionHref,
   onAction,
   actionVariant = "primary",
   className = "",
 }: EmptyStateProps) {
-  const showAction = Boolean(actionLabel && onAction);
+  const action = actionLabel && (
+    <Button
+      type="button"
+      variant={actionVariant}
+      size="md"
+      onClick={onAction}
+    >
+      {actionLabel}
+    </Button>
+  );
 
   return (
     <div
       className={[
-        "flex min-h-60 w-full flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center",
+        "flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      {icon && (
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-          {icon}
+      {Icon && (
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+          <Icon
+            className="h-6 w-6"
+            aria-hidden="true"
+          />
         </div>
       )}
 
-      <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+      <h2 className="text-base font-semibold text-slate-900">
+        {title}
+      </h2>
 
       {description && (
-        <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+        <p className="mt-1 max-w-md text-sm leading-6 text-slate-500">
           {description}
         </p>
       )}
 
-      {showAction && (
+      {actionLabel && (
         <div className="mt-5">
-          <Button
-            type="button"
-            variant={actionVariant}
-            size="sm"
-            onClick={onAction}
-          >
-            {actionLabel}
-          </Button>
+          {actionHref ? (
+            <a href={actionHref}>
+              {action}
+            </a>
+          ) : (
+            action
+          )}
         </div>
       )}
     </div>
