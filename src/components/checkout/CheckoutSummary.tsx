@@ -174,7 +174,7 @@ export default function CheckoutSummary({
         {onPlaceOrder ? (
           <Button
             type="button"
-            variant="primary"
+            variant="brand"
             size="lg"
             fullWidth
             loading={placingOrder || loading}

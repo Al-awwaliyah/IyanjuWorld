@@ -16,12 +16,12 @@ const columnStyles: Record<
   3: "grid-cols-2 sm:grid-cols-3",
   4: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
   5: "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
-  6: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6",
+  6: "grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8",
 };
 
 export default function CategoryGrid({
   categories,
-  columns = 4,
+  columns = 6,
   emptyState,
   className = "",
 }: CategoryGridProps) {
@@ -40,7 +40,7 @@ export default function CategoryGrid({
   return (
     <div
       className={[
-        "grid gap-4 sm:gap-5",
+        "grid gap-3 sm:gap-4",
         columnStyles[columns],
         className,
       ]

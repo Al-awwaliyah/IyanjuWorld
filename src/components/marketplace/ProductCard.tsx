@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
 import type { ReactNode } from "react";
-import Button from "../ui/Button";
 import Badge from "../ui/Badge";
 
 export interface ProductCardProps {
@@ -25,10 +24,7 @@ export interface ProductCardProps {
   className?: string;
 }
 
-function formatPrice(
-  amount: number,
-  currency = "NGN",
-) {
+function formatPrice(amount: number, currency = "NGN") {
   return new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency,
@@ -65,10 +61,14 @@ export default function ProductCard(props: ProductCardProps) {
     compareAtPrice !== undefined &&
     compareAtPrice > price;
 
+  const discountPercent = hasDiscount
+    ? Math.round(((compareAtPrice as number) - price) / (compareAtPrice as number) * 100)
+    : null;
+
   return (
     <article
       className={[
-        "group overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md",
+        "group overflow-hidden rounded-md border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md",
         className,
       ]
         .filter(Boolean)
@@ -79,7 +79,7 @@ export default function ProductCard(props: ProductCardProps) {
         className="block"
         aria-label={`View ${name}`}
       >
-        <div className="relative aspect-square overflow-hidden bg-slate-100">
+        <div className="relative aspect-square overflow-hidden bg-slate-50">
           {imageUrl ? (
             <img
               src={imageUrl}
@@ -88,101 +88,90 @@ export default function ProductCard(props: ProductCardProps) {
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-slate-400">
+            <div className="flex h-full w-full items-center justify-center text-slate-300">
               <ShoppingCart className="h-10 w-10" />
             </div>
           )}
 
-          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+          <div className="absolute left-0 top-0 flex flex-col items-start gap-1">
+            {discountPercent !== null && discountPercent > 0 && (
+              <span className="rounded-br-md bg-brand-500 px-2 py-1 text-[11px] font-bold text-white">
+                -{discountPercent}%
+              </span>
+            )}
+
             {featured && (
-              <Badge variant="info" size="sm">
+              <Badge variant="info" size="sm" className="ml-1 mt-1">
                 Featured
-              </Badge>
-            )}
-
-            {hasDiscount && (
-              <Badge variant="danger" size="sm">
-                Sale
-              </Badge>
-            )}
-
-            {isOutOfStock && (
-              <Badge variant="neutral" size="sm">
-                Out of stock
               </Badge>
             )}
           </div>
 
-          {actionIcon && (
-            <div className="absolute right-3 top-3">
-              {actionIcon}
+          {isOutOfStock && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/70">
+              <span className="rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold text-white">
+                Out of stock
+              </span>
             </div>
+          )}
+
+          {actionIcon && (
+            <div className="absolute right-2 top-2">{actionIcon}</div>
           )}
         </div>
       </Link>
 
-      <div className="p-4">
+      <div className="p-3">
         {categoryName && (
-          <p className="mb-1 truncate text-xs font-medium text-slate-400">
+          <p className="mb-1 truncate text-[11px] font-medium uppercase tracking-wide text-slate-400">
             {categoryName}
           </p>
         )}
 
-        <Link
-          to={`/products/${slug}`}
-          className="block"
-        >
-          <h3 className="line-clamp-2 min-h-10 text-sm font-semibold leading-5 text-slate-900 transition-colors group-hover:text-slate-700">
+        <Link to={`/products/${slug}`} className="block">
+          <h3 className="line-clamp-2 min-h-10 text-sm leading-5 text-slate-800 transition-colors group-hover:text-brand-600">
             {name}
           </h3>
         </Link>
 
-        <div className="mt-2">
+        <div className="mt-2 flex items-baseline gap-2">
+          <p className="text-base font-bold text-ink-900">
+            {formatPrice(price, currency)}
+          </p>
+
+          {hasDiscount && (
+            <p className="text-xs text-slate-400 line-through">
+              {formatPrice(compareAtPrice, currency)}
+            </p>
+          )}
+        </div>
+
+        <div className="mt-1">
           {businessSlug ? (
             <Link
               to={`/businesses/${businessSlug}`}
-              className="block truncate text-xs text-slate-500 hover:text-slate-900 hover:underline"
+              className="block truncate text-xs text-slate-500 hover:text-brand-600 hover:underline"
               onClick={(event) => event.stopPropagation()}
             >
               {businessName}
             </Link>
           ) : (
-            <p className="truncate text-xs text-slate-500">
-              {businessName}
-            </p>
+            <p className="truncate text-xs text-slate-500">{businessName}</p>
           )}
         </div>
 
-        <div className="mt-3 flex items-end justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-base font-bold text-slate-900">
-              {formatPrice(price, currency)}
-            </p>
-
-            {hasDiscount && (
-              <p className="mt-0.5 text-xs text-slate-400 line-through">
-                {formatPrice(compareAtPrice, currency)}
-              </p>
-            )}
-          </div>
-
-          {onAddToCart && (
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              loading={addingToCart}
-              disabled={isOutOfStock}
-              aria-label={`Add ${name} to cart`}
-              onClick={onAddToCart}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              <span className="hidden sm:inline">
-                Add
-              </span>
-            </Button>
-          )}
-        </div>
+        {onAddToCart && (
+          <button
+            type="button"
+            disabled={isOutOfStock || addingToCart}
+            aria-label={`Add ${name} to cart`}
+            onClick={onAddToCart}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-brand-500 py-2 text-xs font-semibold text-brand-600 transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400 disabled:hover:bg-transparent"
+          >
+            <ShoppingCart className="h-3.5 w-3.5" />
+            {addingToCart ? "Adding..." : "Add to cart"}
+          </button>
+        )}
       </div>
     </article>
   );

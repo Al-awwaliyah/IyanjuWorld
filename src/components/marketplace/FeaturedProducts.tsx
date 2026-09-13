@@ -53,7 +53,7 @@ export default function FeaturedProducts({
         {viewAllHref && (
           <Link
             to={viewAllHref}
-            className="shrink-0 text-sm font-semibold text-slate-900 transition-colors hover:text-slate-600"
+            className="shrink-0 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700"
           >
             {viewAllLabel}
             <span aria-hidden="true"> →</span>

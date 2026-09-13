@@ -23,7 +23,7 @@ export default function MobileNavigation({
       icon: Home,
     },
     {
-      label: "Explore",
+      label: "Categories",
       to: "/explore",
       icon: LayoutGrid,
     },
@@ -48,7 +48,7 @@ export default function MobileNavigation({
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_10px_rgba(15,23,42,0.06)] lg:hidden"
     >
       <div className="mx-auto flex h-16 max-w-lg items-center justify-around">
         {items.map((item) => {
@@ -61,9 +61,9 @@ export default function MobileNavigation({
               end={item.to === "/"}
               className={({ isActive }) =>
                 [
-                  "relative flex min-w-14 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 text-[11px] font-medium transition-colors",
+                  "relative flex min-w-14 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-medium transition-colors",
                   isActive
-                    ? "text-slate-900"
+                    ? "text-brand-600"
                     : "text-slate-400 hover:text-slate-700",
                 ].join(" ")
               }
@@ -79,13 +79,16 @@ export default function MobileNavigation({
                     />
 
                     {item.badge !== undefined && item.badge > 0 && (
-                      <span className="absolute -right-2 -top-2 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-slate-900 px-1 text-[9px] font-semibold leading-none text-white">
+                      <span className="absolute -right-2 -top-2 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-brand-500 px-1 text-[9px] font-semibold leading-none text-white">
                         {item.badge > 99 ? "99+" : item.badge}
                       </span>
                     )}
                   </span>
 
                   <span>{item.label}</span>
+                  {isActive && (
+                    <span className="absolute -top-[9px] h-[3px] w-8 rounded-full bg-brand-500" />
+                  )}
                 </>
               )}
             </NavLink>

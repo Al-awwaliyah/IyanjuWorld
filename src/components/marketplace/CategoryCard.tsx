@@ -20,47 +20,39 @@ export default function CategoryCard({
 }: CategoryCardProps) {
   return (
     <Link
-      to={`/explore/${slug}`}
+      to={`/category/${slug}`}
       className={[
-        "group block overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md",
+        "group flex flex-col items-center gap-2 rounded-lg border border-slate-100 bg-white p-3 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+      <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-brand-50 sm:h-20 sm:w-20">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-slate-400">
-            {icon ?? (
-              <span className="text-3xl font-semibold">
-                {name.charAt(0).toUpperCase()}
-              </span>
-            )}
-          </div>
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-      </div>
-
-      <div className="p-4">
-        <h3 className="truncate text-sm font-semibold text-slate-900">
-          {name}
-        </h3>
-
-        {productCount !== undefined && (
-          <p className="mt-1 text-xs text-slate-500">
-            {productCount.toLocaleString()}{" "}
-            {productCount === 1 ? "product" : "products"}
-          </p>
+          <span className="text-2xl font-semibold text-brand-600">
+            {icon ?? name.charAt(0).toUpperCase()}
+          </span>
         )}
       </div>
+
+      <h3 className="line-clamp-2 text-xs font-medium text-slate-700 group-hover:text-brand-600 sm:text-sm">
+        {name}
+      </h3>
+
+      {productCount !== undefined && (
+        <p className="text-[11px] text-slate-400">
+          {productCount.toLocaleString()}{" "}
+          {productCount === 1 ? "product" : "products"}
+        </p>
+      )}
     </Link>
   );
 }

@@ -124,7 +124,7 @@ className,
 
             {verified && (
               <span
-                className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600"
                 title="Verified business"
               >
                 <CheckCircle2

@@ -74,7 +74,7 @@ export default function DashboardHeader({
             <Bell className="h-5 w-5" />
 
             {notificationCount > 0 && (
-              <span className="absolute right-1 top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-semibold leading-none text-white">
+              <span className="absolute right-1 top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-brand-500 px-1 text-[9px] font-semibold leading-none text-white">
                 {notificationCount > 99 ? "99+" : notificationCount}
               </span>
             )}
@@ -93,7 +93,7 @@ export default function DashboardHeader({
                 className="h-9 w-9 rounded-full object-cover"
               />
             ) : (
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-600">
                 <UserRound className="h-4 w-4" />
               </span>
             )}
