@@ -1,6 +1,7 @@
 import type {
-  ReactNode,
+  ComponentType,
   MouseEvent,
+  ReactNode,
 } from "react";
 
 import {
@@ -20,6 +21,7 @@ export interface AdminTableColumn<T> {
   header: string;
   accessor?: keyof T;
   render?: (
+    value: T[keyof T] | undefined,
     row: T,
     index: number,
   ) => ReactNode;
@@ -36,19 +38,34 @@ export interface AdminTableAction<T> {
   icon?: ReactNode;
   onClick: (
     row: T,
-    event: MouseEvent<HTMLButtonElement>,
+    event?: MouseEvent<HTMLButtonElement>,
   ) => void;
-  disabled?: (
-    row: T,
-  ) => boolean;
+  disabled?: boolean | ((row: T) => boolean);
   danger?: boolean;
 }
+
+/*
+ * Backward-compatible name used by the existing admin pages.
+ */
+export type AdminTableRowAction<T = unknown> =
+  AdminTableAction<T>;
 
 export interface AdminTableProps<T> {
   columns: AdminTableColumn<T>[];
   data: T[];
 
-  getRowId: (
+  /*
+   * Current API.
+   */
+  getRowId?: (
+    row: T,
+    index: number,
+  ) => string;
+
+  /*
+   * Existing admin-page API.
+   */
+  rowKey?: (
     row: T,
     index: number,
   ) => string;
@@ -56,11 +73,22 @@ export interface AdminTableProps<T> {
   loading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
-  emptyIcon?: React.ComponentType<{
+  emptyIcon?: ComponentType<{
     className?: string;
   }>;
 
+  /*
+   * Static actions.
+   */
   actions?: AdminTableAction<T>[];
+
+  /*
+   * Existing admin-page API.
+   * Actions can be generated per row.
+   */
+  getRowActions?: (
+    row: T,
+  ) => AdminTableRowAction<T>[];
 
   onRowClick?: (
     row: T,
@@ -80,6 +108,10 @@ export interface AdminTableProps<T> {
     ids: string[],
   ) => void;
 
+  /*
+   * Pagination support.
+   */
+  pagination?: boolean;
   page?: number;
   pageSize?: number;
   totalItems?: number;
@@ -95,8 +127,8 @@ export interface AdminTableProps<T> {
 }
 
 function getAlignmentClass(
-  align: AdminTableColumn<any>["align"],
-) {
+  align: AdminTableColumn<unknown>["align"],
+): string {
   switch (align) {
     case "center":
       return "text-center";
@@ -111,8 +143,8 @@ function getAlignmentClass(
 }
 
 function getJustifyClass(
-  align: AdminTableColumn<any>["align"],
-) {
+  align: AdminTableColumn<unknown>["align"],
+): string {
   switch (align) {
     case "center":
       return "justify-center";
@@ -126,40 +158,17 @@ function getJustifyClass(
   }
 }
 
-function getValue<T>(
-  row: T,
-  column: AdminTableColumn<T>,
-) {
-  if (column.render) {
-    return column.render(
-      row,
-      0,
-    );
-  }
-
-  if (
-    column.accessor &&
-    row[column.accessor] != null
-  ) {
-    return String(
-      row[column.accessor],
-    );
-  }
-
-  return "—";
-}
-
-export default function AdminTable<
-  T,
->({
+export default function AdminTable<T>({
   columns,
   data,
   getRowId,
+  rowKey,
   loading = false,
   emptyTitle = "No records found",
   emptyDescription = "There are no records to display.",
   emptyIcon,
   actions = [],
+  getRowActions,
   onRowClick,
   sortBy = null,
   sortDirection = "asc",
@@ -167,6 +176,7 @@ export default function AdminTable<
   selectable = false,
   selectedIds = [],
   onSelectionChange,
+  pagination = false,
   page = 1,
   pageSize = 20,
   totalItems,
@@ -176,24 +186,62 @@ export default function AdminTable<
   compact = false,
   className = "",
 }: AdminTableProps<T>) {
+  const resolveRowId = (
+    row: T,
+    index: number,
+  ): string => {
+    if (getRowId) {
+      return getRowId(row, index);
+    }
+
+    if (rowKey) {
+      return rowKey(row, index);
+    }
+
+    /*
+     * Every production table should provide either getRowId
+     * or rowKey. This fallback only prevents a runtime crash
+     * while keeping the component resilient.
+     */
+    return String(index);
+  };
+
+  const resolveRowActions = (
+    row: T,
+  ): AdminTableRowAction<T>[] => {
+    if (getRowActions) {
+      return getRowActions(row);
+    }
+
+    return actions;
+  };
+
   const hasActions =
-    actions.length > 0;
+    data.some(
+      (row) =>
+        resolveRowActions(row).length > 0,
+    ) || actions.length > 0;
 
   const allSelected =
     selectable &&
     data.length > 0 &&
     data.every((row, index) =>
       selectedIds.includes(
-        getRowId(row, index),
+        resolveRowId(row, index),
       ),
     );
 
+  const effectiveTotalItems =
+    totalItems ??
+    (pagination ? data.length : undefined);
+
   const totalPages =
-    totalItems != null
+    effectiveTotalItems != null
       ? Math.max(
           1,
           Math.ceil(
-            totalItems / pageSize,
+            effectiveTotalItems /
+              pageSize,
           ),
         )
       : 1;
@@ -203,12 +251,12 @@ export default function AdminTable<
       return;
     }
 
-    if (allSelected) {
-      const currentIds = data.map(
-        (row, index) =>
-          getRowId(row, index),
-      );
+    const currentIds = data.map(
+      (row, index) =>
+        resolveRowId(row, index),
+    );
 
+    if (allSelected) {
       onSelectionChange(
         selectedIds.filter(
           (id) =>
@@ -222,10 +270,7 @@ export default function AdminTable<
     const mergedIds = Array.from(
       new Set([
         ...selectedIds,
-        ...data.map(
-          (row, index) =>
-            getRowId(row, index),
-        ),
+        ...currentIds,
       ]),
     );
 
@@ -240,7 +285,10 @@ export default function AdminTable<
       return;
     }
 
-    const id = getRowId(row, index);
+    const id = resolveRowId(
+      row,
+      index,
+    );
 
     if (selectedIds.includes(id)) {
       onSelectionChange(
@@ -249,36 +297,64 @@ export default function AdminTable<
             selectedId !== id,
         ),
       );
-    } else {
-      onSelectionChange([
-        ...selectedIds,
-        id,
-      ]);
+
+      return;
     }
+
+    onSelectionChange([
+      ...selectedIds,
+      id,
+    ]);
   };
 
   const getActionItems = (
     row: T,
   ): DropdownItem[] =>
-    actions.map((action) => ({
-      id: action.id,
-      label: action.label,
-      icon: action.icon,
-      danger: action.danger,
-      disabled:
-        typeof action.disabled ===
-        "function"
-          ? action.disabled(row)
-          : Boolean(
-              action.disabled,
-            ),
-      onClick: () => {
-        action.onClick(
-          row,
-          {} as MouseEvent<HTMLButtonElement>,
-        );
-      },
-    }));
+    resolveRowActions(row).map(
+      (action) => ({
+        id: action.id,
+        label: action.label,
+        icon: action.icon,
+        danger: action.danger,
+        disabled:
+          typeof action.disabled ===
+          "function"
+            ? action.disabled(row)
+            : Boolean(
+                action.disabled,
+              ),
+        onClick: () => {
+          action.onClick(
+            row,
+          );
+        },
+      }),
+    );
+
+  const renderCell = (
+    row: T,
+    column: AdminTableColumn<T>,
+    index: number,
+  ): ReactNode => {
+    const value =
+      column.accessor
+        ? row[column.accessor]
+        : undefined;
+
+    if (column.render) {
+      return column.render(
+        value,
+        row,
+        index,
+      );
+    }
+
+    if (value != null) {
+      return String(value);
+    }
+
+    return "—";
+  };
 
   return (
     <div
@@ -446,7 +522,7 @@ export default function AdminTable<
               data.map(
                 (row, index) => {
                   const rowId =
-                    getRowId(
+                    resolveRowId(
                       row,
                       index,
                     );
@@ -535,24 +611,11 @@ export default function AdminTable<
                                 " ",
                               )}
                           >
-                            {column.render
-                              ? column.render(
-                                  row,
-                                  index,
-                                )
-                              : column.accessor &&
-                                  row[
-                                    column
-                                      .accessor
-                                  ] !=
-                                    null
-                                ? String(
-                                    row[
-                                      column
-                                        .accessor
-                                    ],
-                                  )
-                                : "—"}
+                            {renderCell(
+                              row,
+                              column,
+                              index,
+                            )}
                           </td>
                         ),
                       )}
@@ -566,24 +629,28 @@ export default function AdminTable<
                             event.stopPropagation()
                           }
                         >
-                          <Dropdown
-                            trigger={
-                              <button
-                                type="button"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                                aria-label="Row actions"
-                              >
-                                <MoreHorizontal
-                                  className="h-5 w-5"
-                                  aria-hidden="true"
-                                />
-                              </button>
-                            }
-                            items={getActionItems(
-                              row,
-                            )}
-                            align="right"
-                          />
+                          {resolveRowActions(
+                            row,
+                          ).length > 0 && (
+                            <Dropdown
+                              trigger={
+                                <button
+                                  type="button"
+                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                                  aria-label="Row actions"
+                                >
+                                  <MoreHorizontal
+                                    className="h-5 w-5"
+                                    aria-hidden="true"
+                                  />
+                                </button>
+                              }
+                              items={getActionItems(
+                                row,
+                              )}
+                              align="right"
+                            />
+                          )}
                         </td>
                       )}
                     </tr>
@@ -595,8 +662,9 @@ export default function AdminTable<
         </table>
       </div>
 
-      {totalItems != null &&
-        totalItems > 0 && (
+      {effectiveTotalItems !=
+        null &&
+        effectiveTotalItems > 0 && (
           <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-slate-500">
               Showing{" "}
@@ -605,19 +673,19 @@ export default function AdminTable<
                   (page - 1) *
                     pageSize +
                     1,
-                  totalItems,
+                  effectiveTotalItems,
                 )}
               </span>{" "}
               to{" "}
               <span className="font-medium text-slate-700">
                 {Math.min(
                   page * pageSize,
-                  totalItems,
+                  effectiveTotalItems,
                 )}
               </span>{" "}
               of{" "}
               <span className="font-medium text-slate-700">
-                {totalItems}
+                {effectiveTotalItems}
               </span>
             </p>
 
