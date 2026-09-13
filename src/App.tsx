@@ -7,6 +7,8 @@ import BusinessLayout from "./layouts/BusinessLayout";
 import RiderLayout from "./layouts/RiderLayout";
 import AdminLayout from "./layouts/AdminLayout";
 
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+
 // Public pages
 import Home from "./pages/public/Home";
 import Explore from "./pages/public/Explore";
@@ -151,37 +153,65 @@ function App() {
       <Route element={<CustomerLayout />}>
         <Route
           path="/customer/dashboard"
-          element={<CustomerDashboard />}
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerDashboard />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/customer/orders"
-          element={<CustomerOrders />}
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerOrders />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/customer/orders/:orderId"
-          element={<CustomerOrderDetails />}
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerOrderDetails />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/customer/cart"
-          element={<CustomerCart />}
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerCart />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/customer/wallet"
-          element={<CustomerWallet />}
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerWallet />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/customer/messages"
-          element={<CustomerMessages />}
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerMessages />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/customer/profile"
-          element={<CustomerProfile />}
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerProfile />
+            </ProtectedRoute>
+          }
         />
       </Route>
 
@@ -191,57 +221,101 @@ function App() {
       <Route element={<BusinessLayout />}>
         <Route
           path="/business/dashboard"
-          element={<BusinessDashboard />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessDashboard />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/products"
-          element={<BusinessProducts />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessProducts />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/products/new"
-          element={<BusinessProductForm />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessProductForm />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/products/:productId/edit"
-          element={<BusinessProductEdit />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessProductEdit />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/orders"
-          element={<BusinessOrders />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessOrders />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/orders/:orderId"
-          element={<BusinessOrderDetails />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessOrderDetails />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/customers"
-          element={<BusinessCustomers />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessCustomers />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/earnings"
-          element={<BusinessEarnings />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessEarnings />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/payouts"
-          element={<BusinessPayouts />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessPayouts />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/messages"
-          element={<BusinessMessages />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessMessages />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/business/settings"
-          element={<BusinessSettings />}
+          element={
+            <ProtectedRoute allowedRoles={["business"]}>
+              <BusinessSettings />
+            </ProtectedRoute>
+          }
         />
       </Route>
 
@@ -251,37 +325,65 @@ function App() {
       <Route element={<RiderLayout />}>
         <Route
           path="/rider/dashboard"
-          element={<RiderDashboard />}
+          element={
+            <ProtectedRoute allowedRoles={["rider"]}>
+              <RiderDashboard />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/rider/requests"
-          element={<RiderRequests />}
+          element={
+            <ProtectedRoute allowedRoles={["rider"]}>
+              <RiderRequests />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/rider/deliveries"
-          element={<RiderDeliveries />}
+          element={
+            <ProtectedRoute allowedRoles={["rider"]}>
+              <RiderDeliveries />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/rider/deliveries/:orderId"
-          element={<RiderDeliveryDetails />}
+          element={
+            <ProtectedRoute allowedRoles={["rider"]}>
+              <RiderDeliveryDetails />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/rider/earnings"
-          element={<RiderEarnings />}
+          element={
+            <ProtectedRoute allowedRoles={["rider"]}>
+              <RiderEarnings />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/rider/messages"
-          element={<RiderMessages />}
+          element={
+            <ProtectedRoute allowedRoles={["rider"]}>
+              <RiderMessages />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/rider/profile"
-          element={<RiderProfile />}
+          element={
+            <ProtectedRoute allowedRoles={["rider"]}>
+              <RiderProfile />
+            </ProtectedRoute>
+          }
         />
       </Route>
 
@@ -291,82 +393,194 @@ function App() {
       <Route element={<AdminLayout />}>
         <Route
           path="/admin/dashboard"
-          element={<AdminDashboard />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/customers"
-          element={<AdminCustomers />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminCustomers />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/businesses"
-          element={<AdminBusinesses />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminBusinesses />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/riders"
-          element={<AdminRiders />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminRiders />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/orders"
-          element={<AdminOrders />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminOrders />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/orders/:orderId"
-          element={<AdminOrderDetails />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminOrderDetails />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/payments"
-          element={<AdminPayments />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminPayments />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/refunds"
-          element={<AdminRefunds />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminRefunds />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/wallets"
-          element={<AdminWallets />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminWallets />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/categories"
-          element={<AdminCategories />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminCategories />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/delivery"
-          element={<AdminDelivery />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminDelivery />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/fees"
-          element={<AdminFees />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminFees />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/disputes"
-          element={<AdminDisputes />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminDisputes />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/messages"
-          element={<AdminMessages />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminMessages />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/settings"
-          element={<AdminSettings />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminSettings />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/admin/audit"
-          element={<AdminAudit />}
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <AdminAudit />
+            </ProtectedRoute>
+          }
         />
       </Route>
 
