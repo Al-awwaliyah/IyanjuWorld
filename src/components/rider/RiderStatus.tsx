@@ -1,10 +1,10 @@
 import {
-  CheckCircle2,
+  CarFront,
+  CircleCheck,
   CircleOff,
   Clock3,
   MapPin,
-  Power,
-  ShieldCheck,
+  Radio,
   Truck,
 } from "lucide-react";
 
@@ -12,11 +12,11 @@ import Badge, {
   type BadgeProps,
 } from "../ui/Badge";
 import Button from "../ui/Button";
+import { formatRelativeDate } from "../../libs/format";
 
 export type RiderAvailability =
-  | "offline"
   | "available"
-  | "busy";
+  | "unavailable";
 
 export type RiderVerificationStatus =
   | "pending"
@@ -25,339 +25,502 @@ export type RiderVerificationStatus =
   | "rejected"
   | "suspended";
 
+export type RiderPresenceStatus =
+  | "online"
+  | "offline";
+
+export type RiderVisibleStatus =
+  | "available"
+  | "online"
+  | "on_delivery"
+  | "offline";
+
 export interface RiderStatusProps {
+  online: boolean;
   availability: RiderAvailability;
-  verificationStatus: RiderVerificationStatus;
-  operatingArea?: string | null;
   activeDelivery?: boolean;
+  lastSeenAt?: string | null;
+
+  verificationStatus: RiderVerificationStatus;
+
+  operatingArea?: string | null;
+
+  vehicleType?:
+    | "bicycle"
+    | "motorcycle"
+    | "car"
+    | "van"
+    | "other"
+    | null;
+
   loading?: boolean;
   error?: string | null;
+
   onToggleAvailability?: (
-    availability: RiderAvailability,
+    available: boolean,
   ) => void;
+
+  showAvailabilityControl?: boolean;
+  showVerification?: boolean;
+  showOperatingArea?: boolean;
+  showVehicle?: boolean;
+  compact?: boolean;
+
   className?: string;
 }
 
-const availabilityConfig: Record<
-  RiderAvailability,
-  {
-    label: string;
-    description: string;
-    variant: BadgeProps["variant"];
-    icon: typeof Power;
-  }
+interface StatusConfig {
+  label: string;
+  description: string;
+  variant: BadgeProps["variant"];
+  icon: typeof Radio;
+}
+
+const STATUS_CONFIG: Record<
+  RiderVisibleStatus,
+  StatusConfig
 > = {
-  offline: {
-    label: "Offline",
-    description:
-      "You are currently unavailable for new delivery requests.",
-    variant: "neutral",
-    icon: CircleOff,
-  },
   available: {
     label: "Available",
     description:
-      "You can receive eligible delivery requests.",
+      "Online and ready to receive delivery requests.",
     variant: "success",
-    icon: CheckCircle2,
+    icon: CircleCheck,
   },
-  busy: {
-    label: "Busy",
+
+  online: {
+    label: "Online",
     description:
-      "You are currently handling a delivery.",
+      "Online but currently unavailable for new deliveries.",
+    variant: "info",
+    icon: Radio,
+  },
+
+  on_delivery: {
+    label: "On Delivery",
+    description:
+      "Currently handling an active delivery.",
     variant: "warning",
     icon: Truck,
   },
+
+  offline: {
+    label: "Offline",
+    description:
+      "Not currently online.",
+    variant: "neutral",
+    icon: CircleOff,
+  },
 };
 
-const verificationConfig: Record<
+const VERIFICATION_CONFIG: Record<
   RiderVerificationStatus,
   {
     label: string;
     variant: BadgeProps["variant"];
-    description: string;
   }
 > = {
   pending: {
-    label: "Verification pending",
+    label: "Verification Pending",
     variant: "warning",
-    description:
-      "Your rider verification has not been completed yet.",
   },
+
   under_review: {
-    label: "Under review",
+    label: "Under Review",
     variant: "info",
-    description:
-      "Your rider information is currently being reviewed.",
   },
+
   verified: {
-    label: "Verified rider",
+    label: "Verified",
     variant: "success",
-    description:
-      "Your rider account is verified and eligible for delivery assignments.",
   },
+
   rejected: {
-    label: "Verification rejected",
+    label: "Rejected",
     variant: "danger",
-    description:
-      "Your rider verification was not approved.",
   },
+
   suspended: {
-    label: "Account suspended",
+    label: "Suspended",
     variant: "danger",
-    description:
-      "Your rider account is currently suspended.",
   },
 };
 
-function getNextAvailability(
-  current: RiderAvailability,
+function getVisibleStatus(
+  online: boolean,
+  availability: RiderAvailability,
   activeDelivery: boolean,
-): RiderAvailability | null {
-  if (activeDelivery) {
-    return null;
-  }
-
-  if (current === "offline") {
-    return "available";
-  }
-
-  if (current === "available") {
+): RiderVisibleStatus {
+  if (!online) {
     return "offline";
   }
 
-  return null;
+  if (activeDelivery) {
+    return "on_delivery";
+  }
+
+  if (availability === "available") {
+    return "available";
+  }
+
+  return "online";
+}
+
+function getVehicleLabel(
+  vehicleType:
+    | RiderStatusProps["vehicleType"],
+) {
+  switch (vehicleType) {
+    case "bicycle":
+      return "Bicycle";
+
+    case "motorcycle":
+      return "Motorcycle";
+
+    case "car":
+      return "Car";
+
+    case "van":
+      return "Van";
+
+    case "other":
+      return "Other";
+
+    default:
+      return null;
+  }
 }
 
 export default function RiderStatus({
+  online,
   availability,
-  verificationStatus,
-  operatingArea,
   activeDelivery = false,
+  lastSeenAt = null,
+  verificationStatus,
+  operatingArea = null,
+  vehicleType = null,
   loading = false,
-  error,
+  error = null,
   onToggleAvailability,
+  showAvailabilityControl = true,
+  showVerification = true,
+  showOperatingArea = true,
+  showVehicle = false,
+  compact = false,
   className = "",
 }: RiderStatusProps) {
-  const availabilityInfo =
-    availabilityConfig[availability];
+  const visibleStatus = getVisibleStatus(
+    online,
+    availability,
+    activeDelivery,
+  );
 
-  const verificationInfo =
-    verificationConfig[verificationStatus];
+  const status =
+    STATUS_CONFIG[visibleStatus];
 
-  const AvailabilityIcon =
-    availabilityInfo.icon;
+  const StatusIcon = status.icon;
 
-  const nextAvailability =
-    getNextAvailability(
-      availability,
-      activeDelivery,
-    );
+  const verification =
+    VERIFICATION_CONFIG[
+      verificationStatus
+    ];
 
-  const canChangeAvailability =
-    verificationStatus === "verified" &&
-    !activeDelivery &&
+  const canToggleAvailability =
     Boolean(onToggleAvailability) &&
-    !loading;
+    online &&
+    !activeDelivery &&
+    verificationStatus === "verified";
+
+  if (compact) {
+    return (
+      <div
+        className={[
+          "inline-flex items-center gap-2",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <Badge
+          variant={status.variant}
+          size="sm"
+          dot
+        >
+          {status.label}
+        </Badge>
+      </div>
+    );
+  }
 
   return (
     <section
       className={[
-        "rounded-2xl border border-slate-200 bg-white",
+        "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
+      aria-label="Rider status"
     >
-      <div className="border-b border-slate-200 p-5">
+      <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h2 className="text-lg font-bold tracking-tight text-slate-900">
-              Rider status
-            </h2>
-
-            <p className="mt-1 text-sm leading-6 text-slate-500">
-              Manage your availability for delivery
-              assignments.
-            </p>
-          </div>
-
-          <Badge
-            variant={availabilityInfo.variant}
-            size="md"
-            dot
-          >
-            {availabilityInfo.label}
-          </Badge>
-        </div>
-      </div>
-
-      {error && (
-        <div
-          role="alert"
-          className="border-b border-red-200 bg-red-50 px-5 py-3 text-sm text-red-700"
-        >
-          {error}
-        </div>
-      )}
-
-      <div className="space-y-5 p-5">
-        <div className="flex flex-col gap-4 rounded-2xl bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm">
-              <AvailabilityIcon
+            <div
+              className={[
+                "flex h-11 w-11 shrink-0 items-center justify-center rounded-full",
+                visibleStatus === "available"
+                  ? "bg-emerald-50 text-emerald-600"
+                  : visibleStatus === "on_delivery"
+                    ? "bg-amber-50 text-amber-600"
+                    : visibleStatus === "online"
+                      ? "bg-blue-50 text-blue-600"
+                      : "bg-slate-100 text-slate-500",
+              ].join(" ")}
+            >
+              <StatusIcon
                 className="h-5 w-5"
                 aria-hidden="true"
               />
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-slate-900">
-                {availabilityInfo.label}
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-base font-semibold text-slate-900">
+                  Rider Status
+                </h2>
 
-              <p className="mt-1 max-w-xl text-xs leading-5 text-slate-500">
-                {availabilityInfo.description}
+                <Badge
+                  variant={status.variant}
+                  size="sm"
+                  dot
+                >
+                  {status.label}
+                </Badge>
+              </div>
+
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                {status.description}
               </p>
             </div>
           </div>
 
-          {canChangeAvailability &&
-            nextAvailability && (
-              <Button
-                type="button"
-                variant={
-                  availability === "available"
-                    ? "outline"
-                    : "primary"
-                }
-                size="sm"
-                loading={loading}
-                onClick={() =>
-                  onToggleAvailability?.(
-                    nextAvailability,
-                  )
-                }
-              >
-                {availability === "available"
-                  ? "Go offline"
-                  : "Go available"}
-              </Button>
-            )}
+          {showAvailabilityControl && (
+            <div className="shrink-0">
+              {activeDelivery ? (
+                <Badge
+                  variant="warning"
+                  size="md"
+                  dot
+                >
+                  Delivery in progress
+                </Badge>
+              ) : !online ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="primary"
+                  disabled={
+                    loading ||
+                    !onToggleAvailability ||
+                    verificationStatus !==
+                      "verified"
+                  }
+                  loading={loading}
+                  onClick={() =>
+                    onToggleAvailability?.(
+                      true,
+                    )
+                  }
+                >
+                  Go Online
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={
+                    loading ||
+                    !onToggleAvailability ||
+                    !canToggleAvailability
+                  }
+                  loading={loading}
+                  onClick={() =>
+                    onToggleAvailability?.(
+                      false,
+                    )
+                  }
+                >
+                  {availability ===
+                  "available"
+                    ? "Stop Receiving"
+                    : "Go Available"}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
-        {activeDelivery && (
-          <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-            <Truck
-              className="mt-0.5 h-5 w-5 shrink-0 text-amber-600"
-              aria-hidden="true"
-            />
-
-            <div>
-              <p className="text-sm font-semibold text-amber-900">
-                Active delivery in progress
-              </p>
-
-              <p className="mt-1 text-xs leading-5 text-amber-800">
-                Your availability is temporarily locked
-                while you complete the current delivery.
-              </p>
-            </div>
+        {error && (
+          <div
+            className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+            role="alert"
+          >
+            {error}
           </div>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                <ShieldCheck
-                  className="h-4.5 w-4.5"
-                  aria-hidden="true"
-                />
-              </div>
-
-              <div>
-                <p className="text-xs font-medium text-slate-500">
-                  Verification
-                </p>
-
-                <Badge
-                  variant={
-                    verificationInfo.variant
-                  }
-                  size="sm"
-                >
-                  {verificationInfo.label}
-                </Badge>
-              </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+              <Radio
+                className="h-3.5 w-3.5"
+                aria-hidden="true"
+              />
+              Presence
             </div>
 
-            <p className="mt-3 text-xs leading-5 text-slate-500">
-              {verificationInfo.description}
+            <p className="mt-1.5 text-sm font-semibold text-slate-900">
+              {online ? "Online" : "Offline"}
+            </p>
+
+            {!online &&
+              lastSeenAt && (
+                <p className="mt-1 text-xs text-slate-500">
+                  Last seen{" "}
+                  {formatRelativeDate(
+                    lastSeenAt,
+                  )}
+                </p>
+              )}
+          </div>
+
+          <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+              <CircleCheck
+                className="h-3.5 w-3.5"
+                aria-hidden="true"
+              />
+              Availability
+            </div>
+
+            <p className="mt-1.5 text-sm font-semibold text-slate-900">
+              {availability ===
+              "available"
+                ? "Available"
+                : "Unavailable"}
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-                <MapPin
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                />
-              </div>
-
-              <div>
-                <p className="text-xs font-medium text-slate-500">
-                  Operating area
-                </p>
-
-                <p className="mt-1 text-sm font-semibold text-slate-900">
-                  {operatingArea ||
-                    "Not configured"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {availability === "available" &&
-          verificationStatus === "verified" && (
-            <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-              <CheckCircle2
-                className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600"
+          <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+              <Truck
+                className="h-3.5 w-3.5"
                 aria-hidden="true"
               />
+              Delivery
+            </div>
 
-              <div>
-                <p className="text-sm font-semibold text-emerald-900">
-                  Ready for delivery requests
-                </p>
+            <p className="mt-1.5 text-sm font-semibold text-slate-900">
+              {activeDelivery
+                ? "On Delivery"
+                : "No Active Delivery"}
+            </p>
+          </div>
 
-                <p className="mt-1 text-xs leading-5 text-emerald-800">
-                  Eligible delivery requests can be
-                  offered to you while you remain
-                  available.
-                </p>
+          {showVerification && (
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+                <CircleCheck
+                  className="h-3.5 w-3.5"
+                  aria-hidden="true"
+                />
+                Verification
+              </div>
+
+              <div className="mt-1.5">
+                <Badge
+                  variant={
+                    verification.variant
+                  }
+                  size="sm"
+                >
+                  {verification.label}
+                </Badge>
               </div>
             </div>
           )}
+        </div>
 
-        {verificationStatus !== "verified" && (
-          <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+        {(showOperatingArea ||
+          showVehicle) && (
+          <div className="grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
+            {showOperatingArea &&
+              operatingArea && (
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                    <MapPin
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      Operating Area
+                    </p>
+
+                    <p className="mt-1 text-sm font-medium text-slate-800">
+                      {operatingArea}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+            {showVehicle &&
+              vehicleType && (
+                <div className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                    <CarFront
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      Vehicle
+                    </p>
+
+                    <p className="mt-1 text-sm font-medium text-slate-800">
+                      {getVehicleLabel(
+                        vehicleType,
+                      )}
+                    </p>
+                  </div>
+                </div>
+              )}
+          </div>
+        )}
+
+        {activeDelivery && (
+          <div className="flex items-start gap-3 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3">
             <Clock3
-              className="mt-0.5 h-5 w-5 shrink-0 text-slate-500"
+              className="mt-0.5 h-4 w-4 shrink-0 text-amber-600"
               aria-hidden="true"
             />
 
             <div>
-              <p className="text-sm font-semibold text-slate-900">
-                Delivery access is restricted
+              <p className="text-sm font-medium text-amber-900">
+                Rider is currently on a
+                delivery
               </p>
 
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Rider delivery requests become available
-                after the account has been verified by
-                the platform.
+              <p className="mt-0.5 text-xs leading-5 text-amber-700">
+                New delivery requests
+                should not be assigned until
+                the active delivery is
+                completed.
               </p>
             </div>
           </div>
