@@ -418,3 +418,29 @@ export default function Businesses() {
           emptyTitle="No businesses found"
           emptyDescription="No businesses match the current search or status filter."
           selectable
+          pagination
+          pageSize={10}
+          stickyHeader
+          striped
+        />
+
+        <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
+          <div className="flex items-center gap-2 text-sm text-slate-500">
+            <MoreHorizontal className="h-4 w-4" />
+            <span>
+              Showing {filteredBusinesses.length} of {businesses.length}{" "}
+              businesses
+            </span>
+          </div>
+
+          <Link
+            to="/admin/dashboard"
+            className="text-sm font-medium text-slate-700 hover:text-slate-900"
+          >
+            Back to dashboard
+          </Link>
+        </div>
+      </div>
+    </PageContainer>
+  );
+}
