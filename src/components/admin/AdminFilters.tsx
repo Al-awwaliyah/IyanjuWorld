@@ -1,347 +1,254 @@
 import {
-  useMemo,
-  type ChangeEvent,
-  type ReactNode,
+  Calendar,
+  Filter,
+  RotateCcw,
+  Search,
+  X,
+} from "lucide-react";
+import type {
+  ChangeEvent,
+  ReactNode,
 } from "react";
-import { CalendarDays, Filter, RotateCcw, Search, X } from "lucide-react";
 
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select, type SelectOption } from "@/components/ui/Select";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Select, {
+  type SelectOption,
+} from "@/components/ui/Select";
 
 export interface AdminFilterOption {
-  label: string;
   value: string;
+  label: string;
 }
 
-export interface AdminSelectFilter {
-  id: string;
+export interface AdminFilterConfig {
+  key: string;
   label: string;
-  value: string;
-  options: SelectOption[] | AdminFilterOption[];
+  value?: string;
+  options?: AdminFilterOption[];
+  onChange?: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
-  onChange: (value: string) => void;
-  className?: string;
 }
 
 export interface AdminFiltersProps {
+  children?: ReactNode;
+
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   searchPlaceholder?: string;
 
-  filters?: AdminSelectFilter[];
+  filters?: AdminFilterConfig[];
 
-  dateFrom?: string;
-  dateTo?: string;
-  onDateFromChange?: (value: string) => void;
-  onDateToChange?: (value: string) => void;
-  showDateRange?: boolean;
-  dateFromLabel?: string;
-  dateToLabel?: string;
-
-  activeFilterCount?: number;
+  startDate?: string;
+  endDate?: string;
+  onStartDateChange?: (value: string) => void;
+  onEndDateChange?: (value: string) => void;
 
   onApply?: () => void;
   onReset?: () => void;
 
-  applyLabel?: string;
-  resetLabel?: string;
-
   loading?: boolean;
   disabled?: boolean;
+
+  showSearch?: boolean;
+  showDates?: boolean;
   showApplyButton?: boolean;
   showResetButton?: boolean;
 
   header?: ReactNode;
   footer?: ReactNode;
 
-  compact?: boolean;
   className?: string;
 }
 
-function normalizeOptions(
-  options: SelectOption[] | AdminFilterOption[],
-): SelectOption[] {
-  return options.map((option) => ({
-    label: option.label,
-    value: option.value,
-  }));
-}
-
-function getInputValue(
-  event: ChangeEvent<HTMLInputElement>,
-): string {
-  return event.target.value;
-}
-
 export function AdminFilters({
+  children,
   searchValue = "",
   onSearchChange,
   searchPlaceholder = "Search...",
   filters = [],
-  dateFrom = "",
-  dateTo = "",
-  onDateFromChange,
-  onDateToChange,
-  showDateRange = false,
-  dateFromLabel = "From date",
-  dateToLabel = "To date",
-  activeFilterCount = 0,
+  startDate = "",
+  endDate = "",
+  onStartDateChange,
+  onEndDateChange,
   onApply,
   onReset,
-  applyLabel = "Apply filters",
-  resetLabel = "Reset",
   loading = false,
   disabled = false,
-  showApplyButton = true,
+  showSearch = true,
+  showDates = false,
+  showApplyButton = false,
   showResetButton = true,
   header,
   footer,
-  compact = false,
   className = "",
 }: AdminFiltersProps) {
-  const hasSearch = typeof onSearchChange === "function";
-  const hasSelectFilters = filters.length > 0;
-  const hasDateRange =
-    showDateRange &&
-    (typeof onDateFromChange === "function" ||
-      typeof onDateToChange === "function");
+  const isDisabled = disabled || loading;
 
-  const hasControls = hasSearch || hasSelectFilters || hasDateRange;
+  const handleSearchChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    onSearchChange?.(event.target.value);
+  };
 
-  const computedActiveFilterCount = useMemo(() => {
-    if (activeFilterCount > 0) {
-      return activeFilterCount;
-    }
+  const handleStartDateChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    onStartDateChange?.(event.target.value);
+  };
 
-    let count = 0;
+  const handleEndDateChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    onEndDateChange?.(event.target.value);
+  };
 
-    if (searchValue.trim()) {
-      count += 1;
-    }
+  const hasActiveFilters =
+    Boolean(searchValue) ||
+    Boolean(startDate) ||
+    Boolean(endDate) ||
+    filters.some((filter) => Boolean(filter.value));
 
-    filters.forEach((filter) => {
-      if (filter.value) {
-        count += 1;
-      }
-    });
-
-    if (dateFrom) {
-      count += 1;
-    }
-
-    if (dateTo) {
-      count += 1;
-    }
-
-    return count;
-  }, [
-    activeFilterCount,
-    searchValue,
-    filters,
-    dateFrom,
-    dateTo,
-  ]);
-
-  if (!hasControls && !header && !footer) {
-    return null;
-  }
+  const selectOptions = (
+    options: AdminFilterOption[] = [],
+  ): SelectOption[] =>
+    options.map((option) => ({
+      value: option.value,
+      label: option.label,
+    }));
 
   return (
-    <section
-      className={[
-        "w-full rounded-xl border border-slate-200 bg-white shadow-sm",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-      aria-label="Admin filters"
+    <div
+      className={`rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 ${className}`}
     >
-      <div
-        className={[
-          compact ? "p-3" : "p-4",
-          "space-y-4",
-        ].join(" ")}
-      >
-        {(header || computedActiveFilterCount > 0) && (
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-2">
-              {header ?? (
-                <>
-                  <Filter className="h-4 w-4 shrink-0 text-slate-500" />
-                  <span className="text-sm font-semibold text-slate-900">
-                    Filters
-                  </span>
-                </>
-              )}
+      {header && (
+        <div className="mb-4">
+          {header}
+        </div>
+      )}
 
-              {computedActiveFilterCount > 0 && (
-                <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
-                  {computedActiveFilterCount}
-                </span>
-              )}
+      <div className="flex flex-col gap-4">
+        {showSearch && onSearchChange && (
+          <div className="relative min-w-0 flex-1">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-gray-400"
+              aria-hidden="true"
+            />
+
+            <Input
+              value={searchValue}
+              onChange={handleSearchChange}
+              placeholder={searchPlaceholder}
+              disabled={isDisabled}
+              className="pl-9"
+            />
+          </div>
+        )}
+
+        {filters.length > 0 && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {filters.map((filter) => (
+              <Select
+                key={filter.key}
+                value={filter.value ?? ""}
+                onChange={(event) =>
+                  filter.onChange?.(event.target.value)
+                }
+                options={selectOptions(filter.options)}
+                placeholder={
+                  filter.placeholder ?? filter.label
+                }
+                disabled={
+                  isDisabled || Boolean(filter.disabled)
+                }
+              />
+            ))}
+          </div>
+        )}
+
+        {showDates && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="relative">
+              <Calendar
+                className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-gray-400"
+                aria-hidden="true"
+              />
+
+              <Input
+                type="date"
+                value={startDate}
+                onChange={handleStartDateChange}
+                disabled={isDisabled}
+                className="pl-9"
+                aria-label="Start date"
+              />
             </div>
 
-            {showResetButton && onReset && computedActiveFilterCount > 0 && (
-              <button
-                type="button"
-                onClick={onReset}
-                disabled={loading || disabled}
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 transition hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                {resetLabel}
-              </button>
-            )}
+            <div className="relative">
+              <Calendar
+                className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-gray-400"
+                aria-hidden="true"
+              />
+
+              <Input
+                type="date"
+                value={endDate}
+                onChange={handleEndDateChange}
+                disabled={isDisabled}
+                className="pl-9"
+                aria-label="End date"
+              />
+            </div>
           </div>
         )}
 
-        {hasControls && (
-          <div
-            className={[
-              "grid gap-3",
-              hasSearch
-                ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-4"
-                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
-            ].join(" ")}
-          >
-            {hasSearch && (
-              <div className="min-w-0 md:col-span-2">
-                <Input
-                  label="Search"
-                  value={searchValue}
-                  onChange={(event) =>
-                    onSearchChange?.(getInputValue(event))
-                  }
-                  placeholder={searchPlaceholder}
-                  leftIcon={<Search className="h-4 w-4" />}
-                  rightIcon={
-                    searchValue ? (
-                      <button
-                        type="button"
-                        aria-label="Clear search"
-                        onClick={() => onSearchChange?.("")}
-                        disabled={loading || disabled}
-                        className="rounded-md p-0.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    ) : undefined
-                  }
-                  disabled={loading || disabled}
-                  fullWidth
-                />
-              </div>
-            )}
-
-            {filters.map((filter) => (
-              <div
-                key={filter.id}
-                className={[
-                  "min-w-0",
-                  filter.className ?? "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                <Select
-                  label={filter.label}
-                  value={filter.value}
-                  onChange={(event) =>
-                    filter.onChange(event.target.value)
-                  }
-                  options={normalizeOptions(filter.options)}
-                  placeholder={filter.placeholder ?? `All ${filter.label}`}
-                  disabled={
-                    loading ||
-                    disabled ||
-                    Boolean(filter.disabled)
-                  }
-                  fullWidth
-                />
-              </div>
-            ))}
-
-            {hasDateRange && (
-              <>
-                {onDateFromChange && (
-                  <div className="min-w-0">
-                    <Input
-                      label={dateFromLabel}
-                      type="date"
-                      value={dateFrom}
-                      onChange={(event) =>
-                        onDateFromChange(getInputValue(event))
-                      }
-                      disabled={loading || disabled}
-                      leftIcon={
-                        <CalendarDays className="h-4 w-4" />
-                      }
-                      fullWidth
-                    />
-                  </div>
-                )}
-
-                {onDateToChange && (
-                  <div className="min-w-0">
-                    <Input
-                      label={dateToLabel}
-                      type="date"
-                      value={dateTo}
-                      onChange={(event) =>
-                        onDateToChange(getInputValue(event))
-                      }
-                      disabled={loading || disabled}
-                      leftIcon={
-                        <CalendarDays className="h-4 w-4" />
-                      }
-                      fullWidth
-                    />
-                  </div>
-                )}
-              </>
-            )}
+        {children && (
+          <div className="flex flex-wrap items-center gap-3">
+            {children}
           </div>
         )}
 
-        {(showApplyButton && onApply) || (showResetButton && onReset) ? (
-          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-3">
-            {showResetButton && onReset && (
+        {(showApplyButton ||
+          showResetButton ||
+          hasActiveFilters) && (
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
+            {showResetButton && hasActiveFilters && onReset && (
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={onReset}
-                disabled={loading || disabled}
+                disabled={isDisabled}
               >
-                <RotateCcw className="h-4 w-4" />
-                {resetLabel}
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Reset
               </Button>
             )}
 
             {showApplyButton && onApply && (
               <Button
                 type="button"
+                variant="primary"
                 size="sm"
                 onClick={onApply}
                 loading={loading}
                 disabled={disabled}
               >
-                <Filter className="h-4 w-4" />
-                {applyLabel}
+                <Filter className="mr-2 h-4 w-4" />
+                Apply Filters
               </Button>
             )}
           </div>
-        ) : null}
-
-        {footer && (
-          <div className="border-t border-slate-100 pt-3">
-            {footer}
-          </div>
         )}
       </div>
-    </section>
+
+      {footer && (
+        <div className="mt-4 border-t border-gray-100 pt-4 dark:border-gray-800">
+          {footer}
+        </div>
+      )}
+    </div>
   );
 }
 
