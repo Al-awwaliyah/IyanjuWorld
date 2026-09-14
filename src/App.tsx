@@ -91,9 +91,15 @@ function App() {
       <Route element={<PublicLayout />}>
         <Route index element={<Home />} />
 
-        <Route path="/explore" element={<Explore />} />
+        <Route
+          path="/explore"
+          element={<Explore />}
+        />
 
-        <Route path="/products" element={<Products />} />
+        <Route
+          path="/products"
+          element={<Products />}
+        />
 
         <Route
           path="/products/:productId"
@@ -105,33 +111,60 @@ function App() {
           element={<Category />}
         />
 
-        <Route path="/businesses" element={<Businesses />} />
+        <Route
+          path="/businesses"
+          element={<Businesses />}
+        />
 
         <Route
           path="/businesses/:slug"
           element={<BusinessDetails />}
         />
 
-        <Route path="/search" element={<Search />} />
+        <Route
+          path="/search"
+          element={<Search />}
+        />
 
-        <Route path="/about" element={<About />} />
+        <Route
+          path="/about"
+          element={<About />}
+        />
 
-        <Route path="/contact" element={<Contact />} />
+        <Route
+          path="/contact"
+          element={<Contact />}
+        />
 
-        <Route path="/terms" element={<Terms />} />
+        <Route
+          path="/terms"
+          element={<Terms />}
+        />
 
-        <Route path="/privacy" element={<Privacy />} />
+        <Route
+          path="/privacy"
+          element={<Privacy />}
+        />
 
-        <Route path="/404" element={<NotFound />} />
+        <Route
+          path="/404"
+          element={<NotFound />}
+        />
       </Route>
 
       {/* =========================
           AUTHENTICATION
       ========================== */}
       <Route element={<AuthLayout />}>
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/register"
+          element={<Register />}
+        />
 
         <Route
           path="/forgot-password"
@@ -156,7 +189,9 @@ function App() {
         <Route
           path="/customer/dashboard"
           element={
-            <ProtectedRoute allowedRoles={["customer"]}>
+            <ProtectedRoute
+              allowedRoles={["customer"]}
+            >
               <CustomerDashboard />
             </ProtectedRoute>
           }
@@ -165,7 +200,9 @@ function App() {
         <Route
           path="/customer/orders"
           element={
-            <ProtectedRoute allowedRoles={["customer"]}>
+            <ProtectedRoute
+              allowedRoles={["customer"]}
+            >
               <CustomerOrders />
             </ProtectedRoute>
           }
@@ -174,7 +211,9 @@ function App() {
         <Route
           path="/customer/orders/:orderId"
           element={
-            <ProtectedRoute allowedRoles={["customer"]}>
+            <ProtectedRoute
+              allowedRoles={["customer"]}
+            >
               <CustomerOrderDetails />
             </ProtectedRoute>
           }
@@ -183,19 +222,42 @@ function App() {
         <Route
           path="/customer/cart"
           element={
-            <ProtectedRoute allowedRoles={["customer"]}>
+            <ProtectedRoute
+              allowedRoles={["customer"]}
+            >
               <CustomerCart />
             </ProtectedRoute>
           }
         />
 
-        <Route path="/customer/checkout" element={<ProtectedRoute allowedRoles={["customer"]}><CustomerCheckout /></ProtectedRoute>} />
-        <Route path="/customer/payment-result" element={<ProtectedRoute allowedRoles={["customer"]}><CustomerPaymentResult /></ProtectedRoute>} />
+        <Route
+          path="/customer/checkout"
+          element={
+            <ProtectedRoute
+              allowedRoles={["customer"]}
+            >
+              <CustomerCheckout />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/customer/payment-result"
+          element={
+            <ProtectedRoute
+              allowedRoles={["customer"]}
+            >
+              <CustomerPaymentResult />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/customer/wallet"
           element={
-            <ProtectedRoute allowedRoles={["customer"]}>
+            <ProtectedRoute
+              allowedRoles={["customer"]}
+            >
               <CustomerWallet />
             </ProtectedRoute>
           }
@@ -204,7 +266,9 @@ function App() {
         <Route
           path="/customer/messages"
           element={
-            <ProtectedRoute allowedRoles={["customer"]}>
+            <ProtectedRoute
+              allowedRoles={["customer"]}
+            >
               <CustomerMessages />
             </ProtectedRoute>
           }
@@ -213,7 +277,9 @@ function App() {
         <Route
           path="/customer/profile"
           element={
-            <ProtectedRoute allowedRoles={["customer"]}>
+            <ProtectedRoute
+              allowedRoles={["customer"]}
+            >
               <CustomerProfile />
             </ProtectedRoute>
           }
@@ -227,7 +293,9 @@ function App() {
         <Route
           path="/business/dashboard"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessDashboard />
             </ProtectedRoute>
           }
@@ -236,7 +304,9 @@ function App() {
         <Route
           path="/business/products"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessProducts />
             </ProtectedRoute>
           }
@@ -245,7 +315,9 @@ function App() {
         <Route
           path="/business/products/new"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessProductForm />
             </ProtectedRoute>
           }
@@ -254,7 +326,9 @@ function App() {
         <Route
           path="/business/products/:productId/edit"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessProductEdit />
             </ProtectedRoute>
           }
@@ -263,7 +337,9 @@ function App() {
         <Route
           path="/business/orders"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessOrders />
             </ProtectedRoute>
           }
@@ -272,7 +348,9 @@ function App() {
         <Route
           path="/business/orders/:orderId"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessOrderDetails />
             </ProtectedRoute>
           }
@@ -281,7 +359,9 @@ function App() {
         <Route
           path="/business/customers"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessCustomers />
             </ProtectedRoute>
           }
@@ -290,7 +370,9 @@ function App() {
         <Route
           path="/business/earnings"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessEarnings />
             </ProtectedRoute>
           }
@@ -299,7 +381,9 @@ function App() {
         <Route
           path="/business/payouts"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessPayouts />
             </ProtectedRoute>
           }
@@ -308,7 +392,9 @@ function App() {
         <Route
           path="/business/messages"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessMessages />
             </ProtectedRoute>
           }
@@ -317,7 +403,9 @@ function App() {
         <Route
           path="/business/settings"
           element={
-            <ProtectedRoute allowedRoles={["business"]}>
+            <ProtectedRoute
+              allowedRoles={["business_owner"]}
+            >
               <BusinessSettings />
             </ProtectedRoute>
           }
@@ -331,7 +419,9 @@ function App() {
         <Route
           path="/rider/dashboard"
           element={
-            <ProtectedRoute allowedRoles={["rider"]}>
+            <ProtectedRoute
+              allowedRoles={["rider"]}
+            >
               <RiderDashboard />
             </ProtectedRoute>
           }
@@ -340,7 +430,9 @@ function App() {
         <Route
           path="/rider/requests"
           element={
-            <ProtectedRoute allowedRoles={["rider"]}>
+            <ProtectedRoute
+              allowedRoles={["rider"]}
+            >
               <RiderRequests />
             </ProtectedRoute>
           }
@@ -349,7 +441,9 @@ function App() {
         <Route
           path="/rider/deliveries"
           element={
-            <ProtectedRoute allowedRoles={["rider"]}>
+            <ProtectedRoute
+              allowedRoles={["rider"]}
+            >
               <RiderDeliveries />
             </ProtectedRoute>
           }
@@ -358,7 +452,9 @@ function App() {
         <Route
           path="/rider/deliveries/:orderId"
           element={
-            <ProtectedRoute allowedRoles={["rider"]}>
+            <ProtectedRoute
+              allowedRoles={["rider"]}
+            >
               <RiderDeliveryDetails />
             </ProtectedRoute>
           }
@@ -367,7 +463,9 @@ function App() {
         <Route
           path="/rider/earnings"
           element={
-            <ProtectedRoute allowedRoles={["rider"]}>
+            <ProtectedRoute
+              allowedRoles={["rider"]}
+            >
               <RiderEarnings />
             </ProtectedRoute>
           }
@@ -376,7 +474,9 @@ function App() {
         <Route
           path="/rider/messages"
           element={
-            <ProtectedRoute allowedRoles={["rider"]}>
+            <ProtectedRoute
+              allowedRoles={["rider"]}
+            >
               <RiderMessages />
             </ProtectedRoute>
           }
@@ -385,7 +485,9 @@ function App() {
         <Route
           path="/rider/profile"
           element={
-            <ProtectedRoute allowedRoles={["rider"]}>
+            <ProtectedRoute
+              allowedRoles={["rider"]}
+            >
               <RiderProfile />
             </ProtectedRoute>
           }
