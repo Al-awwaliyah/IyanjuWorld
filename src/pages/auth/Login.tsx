@@ -22,7 +22,7 @@ function getDashboardPath(role: UserRole) {
     case "admin":
       return "/admin/dashboard";
 
-    case "business":
+    case "business_owner":
       return "/business/dashboard";
 
     case "rider":
