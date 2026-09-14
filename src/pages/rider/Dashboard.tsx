@@ -1,7 +1,7 @@
 
 
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   Activity,
   ArrowRight,
@@ -420,6 +420,10 @@ export default function RiderDashboard() {
   }
 
   if (!rider) {
+    if (!error || error === "Your rider profile could not be found.") {
+      return <Navigate to="/rider/setup" replace />;
+    }
+
     return (
       <div className="mx-auto w-full max-w-3xl">
         <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">

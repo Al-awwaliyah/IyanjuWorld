@@ -6,25 +6,32 @@ import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { getSafeErrorMessage } from "../../libs/errors";
 import { supabase } from "../../libs/supabase";
+import { getCurrentProfile, type UserRole } from "../../libs/auth";
 
 type VerificationLocationState = {
   email?: string;
-  role?: "customer" | "business" | "rider";
+  role?: UserRole;
   redirectTo?: string;
 };
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN_SECONDS = 60;
 
-function getDashboardPath(role?: VerificationLocationState["role"]) {
-  switch (role) {
-    case "business":
-      return "/business/dashboard";
-    case "rider":
-      return "/rider/dashboard";
-    default:
-      return "/customer/dashboard";
+async function getPostVerificationPath(fallbackRole?: UserRole, fallbackRedirect?: string) {
+  const profile = await getCurrentProfile();
+  const role = profile?.role ?? fallbackRole ?? "customer";
+
+  if (role === "business_owner") {
+    const { data } = await supabase.from("businesses").select("id").eq("owner_id", profile?.id ?? "").maybeSingle();
+    return data ? "/business/dashboard" : "/business/setup";
   }
+
+  if (role === "rider") {
+    const { data } = await supabase.from("riders").select("id").eq("user_id", profile?.id ?? "").maybeSingle();
+    return data ? "/rider/dashboard" : "/rider/setup";
+  }
+
+  return fallbackRedirect?.startsWith("/") && !fallbackRedirect.startsWith("//") ? fallbackRedirect : "/customer/dashboard";
 }
 
 export default function VerifyEmail() {
@@ -78,9 +85,7 @@ export default function VerifyEmail() {
           return;
         }
 
-        const redirectTo =
-          locationState.redirectTo || getDashboardPath(locationState.role);
-
+        const redirectTo = await getPostVerificationPath(locationState.role, locationState.redirectTo);
         navigate(redirectTo, { replace: true });
       } catch {
         // Do not interrupt the OTP screen if session lookup fails.
@@ -144,9 +149,7 @@ export default function VerifyEmail() {
         return;
       }
 
-      const redirectTo =
-        locationState.redirectTo || getDashboardPath(locationState.role);
-
+      const redirectTo = await getPostVerificationPath(locationState.role, locationState.redirectTo);
       navigate(redirectTo, { replace: true });
     } catch (verificationError) {
       setError(getSafeErrorMessage(verificationError));

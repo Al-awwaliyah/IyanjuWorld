@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useMarketplaceProducts, useMarketplaceCategories, useMarketplaceBusinesses, useMarketplaceProduct, useMarketplaceBusiness } from "../../services/marketplace";
 import PageContainer from "../../components/layout/PageContainer";
 import SearchBar from "../../components/marketplace/SearchBar";
 import CategoryGrid from "../../components/marketplace/CategoryGrid";
@@ -20,208 +21,9 @@ import BusinessCard from "../../components/marketplace/BusinessCard";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
 
-const categories = [
-  {
-    id: "food",
-    name: "Food & Groceries",
-    slug: "food-groceries",
-    imageUrl: "/images/categories/food.jpg",
-  },
-  {
-    id: "fashion",
-    name: "Fashion",
-    slug: "fashion",
-    imageUrl: "/images/categories/fashion.jpg",
-  },
-  {
-    id: "electronics",
-    name: "Electronics",
-    slug: "electronics",
-    imageUrl: "/images/categories/electronics.jpg",
-  },
-  {
-    id: "beauty",
-    name: "Beauty & Personal Care",
-    slug: "beauty-personal-care",
-    imageUrl: "/images/categories/beauty.jpg",
-  },
-  {
-    id: "home",
-    name: "Home & Living",
-    slug: "home-living",
-    imageUrl: "/images/categories/home.jpg",
-  },
-  {
-    id: "phones",
-    name: "Phones & Accessories",
-    slug: "phones-accessories",
-    imageUrl: "/images/categories/phones.jpg",
-  },
-  {
-    id: "services",
-    name: "Services",
-    slug: "services",
-    imageUrl: "/images/categories/services.jpg",
-  },
-  {
-    id: "other",
-    name: "Other Products",
-    slug: "other",
-    imageUrl: "/images/categories/other.jpg",
-  },
-];
 
-const featuredProducts = [
-  {
-    id: "product-001",
-    name: "Premium Ankara Fabric",
-    slug: "premium-ankara-fabric",
-    price: 18500,
-    compareAtPrice: 22000,
-    imageUrl: "/images/products/ankara.jpg",
-    businessName: "Aderonke Fabrics",
-    businessSlug: "aderonke-fabrics",
-    stock: 18,
-    available: true,
-    featured: true,
-  },
-  {
-    id: "product-002",
-    name: "Wireless Bluetooth Headset",
-    slug: "wireless-bluetooth-headset",
-    price: 12500,
-    compareAtPrice: 15000,
-    imageUrl: "/images/products/headset.jpg",
-    businessName: "TechPoint Store",
-    businessSlug: "techpoint-store",
-    stock: 25,
-    available: true,
-    featured: true,
-  },
-  {
-    id: "product-003",
-    name: "Ladies Leather Handbag",
-    slug: "ladies-leather-handbag",
-    price: 28000,
-    compareAtPrice: 32000,
-    imageUrl: "/images/products/handbag.jpg",
-    businessName: "Elegance Collections",
-    businessSlug: "elegance-collections",
-    stock: 9,
-    available: true,
-    featured: true,
-  },
-  {
-    id: "product-004",
-    name: "Organic Black Soap",
-    slug: "organic-black-soap",
-    price: 6500,
-    compareAtPrice: 8000,
-    imageUrl: "/images/products/black-soap.jpg",
-    businessName: "PureGlow Naturals",
-    businessSlug: "pureglow-naturals",
-    stock: 32,
-    available: true,
-    featured: true,
-  },
-];
 
-const popularProducts = [
-  {
-    id: "product-005",
-    name: "Classic Sneakers",
-    slug: "classic-sneakers",
-    price: 24000,
-    compareAtPrice: null,
-    imageUrl: "/images/products/sneakers.jpg",
-    businessName: "Urban Steps",
-    businessSlug: "urban-steps",
-    stock: 14,
-    available: true,
-    featured: false,
-  },
-  {
-    id: "product-006",
-    name: "Smart LED Bulb",
-    slug: "smart-led-bulb",
-    price: 8500,
-    compareAtPrice: null,
-    imageUrl: "/images/products/led-bulb.jpg",
-    businessName: "HomeTech Hub",
-    businessSlug: "hometech-hub",
-    stock: 40,
-    available: true,
-    featured: false,
-  },
-  {
-    id: "product-007",
-    name: "Men's Native Wear",
-    slug: "mens-native-wear",
-    price: 35000,
-    compareAtPrice: 40000,
-    imageUrl: "/images/products/native-wear.jpg",
-    businessName: "Royal Stitch",
-    businessSlug: "royal-stitch",
-    stock: 7,
-    available: true,
-    featured: false,
-  },
-  {
-    id: "product-008",
-    name: "Natural Hair Growth Oil",
-    slug: "natural-hair-growth-oil",
-    price: 9000,
-    compareAtPrice: 11000,
-    imageUrl: "/images/products/hair-oil.jpg",
-    businessName: "Natural Touch",
-    businessSlug: "natural-touch",
-    stock: 21,
-    available: true,
-    featured: false,
-  },
-];
 
-const businesses = [
-  {
-    id: "business-001",
-    name: "Aderonke Fabrics",
-    slug: "aderonke-fabrics",
-    logo: "/images/businesses/aderonke-fabrics.jpg",
-    coverImage: "/images/businesses/aderonke-cover.jpg",
-    description:
-      "Quality Ankara, lace and premium fabrics for every occasion.",
-    city: "Ibadan",
-    state: "Oyo",
-    verified: true,
-    open: true,
-  },
-  {
-    id: "business-002",
-    name: "TechPoint Store",
-    slug: "techpoint-store",
-    logo: "/images/businesses/techpoint.jpg",
-    coverImage: "/images/businesses/techpoint-cover.jpg",
-    description:
-      "Phones, accessories and everyday technology products.",
-    city: "Ibadan",
-    state: "Oyo",
-    verified: true,
-    open: true,
-  },
-  {
-    id: "business-003",
-    name: "Elegance Collections",
-    slug: "elegance-collections",
-    logo: "/images/businesses/elegance.jpg",
-    coverImage: "/images/businesses/elegance-cover.jpg",
-    description:
-      "Fashion accessories, handbags and stylish everyday essentials.",
-    city: "Osogbo",
-    state: "Osun",
-    verified: true,
-    open: true,
-  },
-];
 
 function SectionHeader({
   eyebrow,
@@ -270,6 +72,12 @@ function SectionHeader({
 }
 
 export default function Home() {
+  const { categories, loading: categoriesLoading } = useMarketplaceCategories();
+  const { products, loading: productsLoading } = useMarketplaceProducts({ limit: 100 });
+  const { businesses, loading: businessesLoading } = useMarketplaceBusinesses();
+  const featuredProducts = products.filter((product) => product.featured).slice(0, 8);
+  const popularProducts = products.filter((product) => !product.featured).slice(0, 8);
+
   return (
     <PageContainer>
       <div className="space-y-16 pb-16">
@@ -423,7 +231,7 @@ export default function Home() {
             href="/explore?featured=true"
           />
 
-          <ProductGrid products={featuredProducts} />
+          <ProductGrid products={featuredProducts} loading={productsLoading} />
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
@@ -468,7 +276,7 @@ export default function Home() {
             href="/explore"
           />
 
-          <ProductGrid products={popularProducts} />
+          <ProductGrid products={popularProducts} loading={productsLoading} />
         </section>
 
         <section>

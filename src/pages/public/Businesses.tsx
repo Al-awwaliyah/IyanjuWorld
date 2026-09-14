@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useMarketplaceProducts, useMarketplaceCategories, useMarketplaceBusinesses, useMarketplaceProduct, useMarketplaceBusiness } from "../../services/marketplace";
 import PageContainer from "../../components/layout/PageContainer";
 import BusinessCard from "../../components/marketplace/BusinessCard";
 import Button from "../../components/ui/Button";
@@ -30,174 +31,6 @@ type Business = {
   productCount: number;
 };
 
-const businesses: Business[] = [
-  {
-    id: "business-001",
-    name: "Aderonke Fabrics",
-    slug: "aderonke-fabrics",
-    logo: "/images/businesses/aderonke-fabrics.jpg",
-    coverImage: "/images/businesses/aderonke-cover.jpg",
-    description:
-      "Quality Ankara, lace and premium fabrics for every occasion.",
-    category: "Fashion",
-    categorySlug: "fashion",
-    city: "Ibadan",
-    state: "Oyo",
-    verified: true,
-    open: true,
-    productCount: 48,
-  },
-  {
-    id: "business-002",
-    name: "TechPoint Store",
-    slug: "techpoint-store",
-    logo: "/images/businesses/techpoint.jpg",
-    coverImage: "/images/businesses/techpoint-cover.jpg",
-    description:
-      "Phones, accessories and everyday technology products.",
-    category: "Electronics",
-    categorySlug: "electronics",
-    city: "Ibadan",
-    state: "Oyo",
-    verified: true,
-    open: true,
-    productCount: 72,
-  },
-  {
-    id: "business-003",
-    name: "Elegance Collections",
-    slug: "elegance-collections",
-    logo: "/images/businesses/elegance.jpg",
-    coverImage: "/images/businesses/elegance-cover.jpg",
-    description:
-      "Fashion accessories, handbags and stylish everyday essentials.",
-    category: "Fashion",
-    categorySlug: "fashion",
-    city: "Osogbo",
-    state: "Osun",
-    verified: true,
-    open: true,
-    productCount: 36,
-  },
-  {
-    id: "business-004",
-    name: "PureGlow Naturals",
-    slug: "pureglow-naturals",
-    logo: "/images/businesses/pureglow.jpg",
-    coverImage: "/images/businesses/pureglow-cover.jpg",
-    description:
-      "Locally produced personal-care products and natural beauty essentials.",
-    category: "Beauty & Personal Care",
-    categorySlug: "beauty-personal-care",
-    city: "Akure",
-    state: "Ondo",
-    verified: true,
-    open: true,
-    productCount: 29,
-  },
-  {
-    id: "business-005",
-    name: "Urban Steps",
-    slug: "urban-steps",
-    logo: "/images/businesses/urban-steps.jpg",
-    coverImage: "/images/businesses/urban-steps-cover.jpg",
-    description:
-      "Everyday footwear, sneakers and stylish footwear accessories.",
-    category: "Fashion",
-    categorySlug: "fashion",
-    city: "Lagos",
-    state: "Lagos",
-    verified: true,
-    open: true,
-    productCount: 55,
-  },
-  {
-    id: "business-006",
-    name: "HomeTech Hub",
-    slug: "hometech-hub",
-    logo: "/images/businesses/hometech.jpg",
-    coverImage: "/images/businesses/hometech-cover.jpg",
-    description:
-      "Smart home products, lighting and practical home technology.",
-    category: "Home & Living",
-    categorySlug: "home-living",
-    city: "Ibadan",
-    state: "Oyo",
-    verified: true,
-    open: false,
-    productCount: 41,
-  },
-  {
-    id: "business-007",
-    name: "Royal Stitch",
-    slug: "royal-stitch",
-    logo: "/images/businesses/royal-stitch.jpg",
-    coverImage: "/images/businesses/royal-stitch-cover.jpg",
-    description:
-      "Premium native clothing and custom men's fashion.",
-    category: "Fashion",
-    categorySlug: "fashion",
-    city: "Osogbo",
-    state: "Osun",
-    verified: true,
-    open: true,
-    productCount: 33,
-  },
-  {
-    id: "business-008",
-    name: "FreshMart Stores",
-    slug: "freshmart-stores",
-    logo: "/images/businesses/freshmart.jpg",
-    coverImage: "/images/businesses/freshmart-cover.jpg",
-    description:
-      "Everyday groceries and household essentials.",
-    category: "Food & Groceries",
-    categorySlug: "food-groceries",
-    city: "Ibadan",
-    state: "Oyo",
-    verified: true,
-    open: true,
-    productCount: 96,
-  },
-  {
-    id: "business-009",
-    name: "Mobile World",
-    slug: "mobile-world",
-    logo: "/images/businesses/mobile-world.jpg",
-    coverImage: "/images/businesses/mobile-world-cover.jpg",
-    description:
-      "Smartphones, mobile accessories and consumer technology.",
-    category: "Phones & Accessories",
-    categorySlug: "phones-accessories",
-    city: "Lagos",
-    state: "Lagos",
-    verified: true,
-    open: true,
-    productCount: 64,
-  },
-];
-
-const categories = [
-  { value: "", label: "All categories" },
-  { value: "fashion", label: "Fashion" },
-  { value: "electronics", label: "Electronics" },
-  {
-    value: "beauty-personal-care",
-    label: "Beauty & Personal Care",
-  },
-  {
-    value: "home-living",
-    label: "Home & Living",
-  },
-  {
-    value: "food-groceries",
-    label: "Food & Groceries",
-  },
-  {
-    value: "phones-accessories",
-    label: "Phones & Accessories",
-  },
-];
 
 const states = [
   { value: "", label: "All locations" },
@@ -208,6 +41,9 @@ const states = [
 ];
 
 export default function Businesses() {
+  const { businesses, loading } = useMarketplaceBusinesses();
+  const { categories } = useMarketplaceCategories();
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [state, setState] = useState("");

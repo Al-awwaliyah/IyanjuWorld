@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "../../libs/supabase";
 import {
   Eye,
   MoreHorizontal,
@@ -41,54 +42,6 @@ type Business = {
   orders: number;
   createdAt: string;
 };
-
-const demoBusinesses: Business[] = [
-  {
-    id: "business-001",
-    name: "Aremu Fashion Store",
-    slug: "aremu-fashion-store",
-    ownerName: "Business Owner",
-    phone: "+234 800 000 0000",
-    city: "Ibadan",
-    state: "Oyo",
-    status: "active",
-    verified: true,
-    open: true,
-    products: 42,
-    orders: 128,
-    createdAt: "2026-09-10T10:00:00.000Z",
-  },
-  {
-    id: "business-002",
-    name: "Iyanju Foods",
-    slug: "iyanju-foods",
-    ownerName: "Business Owner",
-    phone: "+234 801 000 0000",
-    city: "Osogbo",
-    state: "Osun",
-    status: "pending",
-    verified: false,
-    open: false,
-    products: 18,
-    orders: 0,
-    createdAt: "2026-09-11T09:30:00.000Z",
-  },
-  {
-    id: "business-003",
-    name: "Tech Accessories Hub",
-    slug: "tech-accessories-hub",
-    ownerName: "Business Owner",
-    phone: "+234 802 000 0000",
-    city: "Lagos",
-    state: "Lagos",
-    status: "active",
-    verified: true,
-    open: true,
-    products: 76,
-    orders: 245,
-    createdAt: "2026-09-08T14:20:00.000Z",
-  },
-];
 
 const statusOptions = [
   { value: "", label: "All statuses" },
@@ -134,7 +87,51 @@ function getStatusLabel(status: BusinessStatus) {
 }
 
 export default function Businesses() {
-  const [businesses, setBusinesses] = useState<Business[]>(demoBusinesses);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("businesses")
+          .select(`
+        id,name,slug,phone,city,state,status,is_verified,is_open,created_at,
+        owner:profiles!businesses_created_by_fkey(full_name),
+        products(count),
+        orders(count)
+      `)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        if (!mounted) return;
+        setBusinesses((data ?? []).map((row: any) => ({
+          id: row.id,
+          name: row.name,
+          slug: row.slug,
+          ownerName: row.owner?.full_name ?? "—",
+          phone: row.phone ?? "—",
+          city: row.city ?? "—",
+          state: row.state ?? "—",
+          status: row.status,
+          verified: row.is_verified === true,
+          open: row.is_open !== false,
+          products: Number(row.products?.[0]?.count ?? 0),
+          orders: Number(row.orders?.[0]?.count ?? 0),
+          createdAt: row.created_at,
+        })));
+      } catch (error: unknown) {
+        console.error("Failed to load admin businesses", error);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    void load();
+    return () => { mounted = false; };
+  }, []);
+
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 

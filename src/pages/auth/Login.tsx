@@ -10,6 +10,7 @@ import {
   type UserRole,
 } from "../../libs/auth";
 import { getSafeErrorMessage } from "../../libs/errors";
+import { supabase } from "../../libs/supabase";
 
 type LoginLocationState = {
   from?: string;
@@ -34,6 +35,20 @@ function getDashboardPath(role: UserRole) {
   }
 }
 
+async function getEntryPath(role: UserRole, userId: string) {
+  if (role === "business_owner") {
+    const { data } = await supabase.from("businesses").select("id").eq("owner_id", userId).maybeSingle();
+    return data ? "/business/dashboard" : "/business/setup";
+  }
+
+  if (role === "rider") {
+    const { data } = await supabase.from("riders").select("id").eq("user_id", userId).maybeSingle();
+    return data ? "/rider/dashboard" : "/rider/setup";
+  }
+
+  return getDashboardPath(role);
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,7 +56,9 @@ export default function Login() {
   const locationState =
     (location.state as LoginLocationState | null) ?? null;
 
-  const [email, setEmail] = useState(locationState?.email ?? "");
+  const [email, setEmail] = useState(
+    locationState?.email ?? "",
+  );
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
 
@@ -65,14 +82,13 @@ export default function Login() {
           authState.profile &&
           authState.profile.active
         ) {
-          navigate(getDashboardPath(authState.profile.role), {
-            replace: true,
-          });
+          navigate(
+            await getEntryPath(authState.profile.role, authState.user.id),
+            { replace: true },
+          );
 
           return;
         }
-      } catch {
-        // If session checking fails, allow the login form to render.
       } finally {
         if (mounted) {
           setCheckingSession(false);
@@ -94,7 +110,8 @@ export default function Login() {
 
     setError("");
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail =
+      email.trim().toLowerCase();
 
     if (!normalizedEmail) {
       setError("Please enter your email address.");
@@ -127,12 +144,18 @@ export default function Login() {
       }
 
       /*
-       * Load the authoritative application profile after
-       * successful Supabase authentication.
+       * Supabase Auth normally blocks password sign-in
+       * for users who require email confirmation.
+       *
+       * If the account does authenticate, load the
+       * authoritative profile before routing.
        */
       const authState = await getAuthState();
 
-      if (!authState.user || !authState.profile) {
+      if (
+        !authState.user ||
+        !authState.profile
+      ) {
         setError(
           "Your account was authenticated, but your profile could not be loaded. Please try again.",
         );
@@ -146,7 +169,8 @@ export default function Login() {
         return;
       }
 
-      const redirectFromState = locationState?.from;
+      const redirectFromState =
+        locationState?.from;
 
       const safeRedirect =
         redirectFromState &&
@@ -157,17 +181,26 @@ export default function Login() {
           ? redirectFromState
           : null;
 
-      navigate(
-        safeRedirect ||
-          getDashboardPath(authState.profile.role),
-        {
-          replace: true,
-        },
+      const entryPath = await getEntryPath(
+        authState.profile.role,
+        authState.user.id,
       );
+
+      const destination =
+        authState.profile.role === "customer"
+          ? safeRedirect || entryPath
+          : entryPath;
+
+      navigate(destination, { replace: true });
     } catch (loginError) {
       const safeMessage =
         getSafeErrorMessage(loginError);
 
+      /*
+       * Keep the frontend message clean. In particular,
+       * never expose raw Supabase/Postgres/Edge Function
+       * errors.
+       */
       if (
         safeMessage
           .toLowerCase()
@@ -277,7 +310,9 @@ export default function Login() {
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(event) =>
-                  setRememberMe(event.target.checked)
+                  setRememberMe(
+                    event.target.checked,
+                  )
                 }
                 disabled={loading}
                 className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"

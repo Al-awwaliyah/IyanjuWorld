@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
+import { useMarketplaceProducts, useMarketplaceCategories, useMarketplaceBusinesses, useMarketplaceProduct, useMarketplaceBusiness } from "../../services/marketplace";
 import PageContainer from "../../components/layout/PageContainer";
 import ProductGrid from "../../components/marketplace/ProductGrid";
 import ProductPrice from "../../components/marketplace/ProductPrice";
@@ -44,181 +45,38 @@ type Product = {
   verifiedBusiness: boolean;
 };
 
-const productCatalog: Product[] = [
-  {
-    id: "product-001",
-    name: "Premium Ankara Fabric",
-    slug: "premium-ankara-fabric",
-    price: 18500,
-    compareAtPrice: 22000,
-    description:
-      "Premium-quality Ankara fabric suitable for native wear, dresses, family outfits and special occasions. The fabric is carefully selected for customers looking for durable material and vibrant patterns.",
-    imageUrl: "/images/products/ankara.jpg",
-    images: [
-      "/images/products/ankara.jpg",
-      "/images/products/ankara-2.jpg",
-      "/images/products/ankara-3.jpg",
-    ],
-    businessName: "Aderonke Fabrics",
-    businessSlug: "aderonke-fabrics",
-    businessId: "business-001",
-    category: "Fashion",
-    categorySlug: "fashion",
-    city: "Ibadan",
-    state: "Oyo",
-    stock: 18,
-    available: true,
-    featured: true,
-    verifiedBusiness: true,
-  },
-  {
-    id: "product-002",
-    name: "Wireless Bluetooth Headset",
-    slug: "wireless-bluetooth-headset",
-    price: 12500,
-    compareAtPrice: 15000,
-    description:
-      "A compact wireless Bluetooth headset designed for calls, music and everyday use. Comfortable, portable and suitable for customers who need dependable wireless audio.",
-    imageUrl: "/images/products/headset.jpg",
-    images: [
-      "/images/products/headset.jpg",
-      "/images/products/headset-2.jpg",
-    ],
-    businessName: "TechPoint Store",
-    businessSlug: "techpoint-store",
-    businessId: "business-002",
-    category: "Electronics",
-    categorySlug: "electronics",
-    city: "Ibadan",
-    state: "Oyo",
-    stock: 25,
-    available: true,
-    featured: true,
-    verifiedBusiness: true,
-  },
-  {
-    id: "product-003",
-    name: "Ladies Leather Handbag",
-    slug: "ladies-leather-handbag",
-    price: 28000,
-    compareAtPrice: 32000,
-    description:
-      "Stylish leather handbag designed for everyday use, work, outings and special occasions. Spacious enough for essential personal items while maintaining a clean and elegant appearance.",
-    imageUrl: "/images/products/handbag.jpg",
-    images: [
-      "/images/products/handbag.jpg",
-      "/images/products/handbag-2.jpg",
-    ],
-    businessName: "Elegance Collections",
-    businessSlug: "elegance-collections",
-    businessId: "business-003",
-    category: "Fashion",
-    categorySlug: "fashion",
-    city: "Osogbo",
-    state: "Osun",
-    stock: 9,
-    available: true,
-    featured: true,
-    verifiedBusiness: true,
-  },
-  {
-    id: "product-004",
-    name: "Organic Black Soap",
-    slug: "organic-black-soap",
-    price: 6500,
-    compareAtPrice: 8000,
-    description:
-      "Naturally inspired black soap prepared for everyday personal-care routines. A simple option for customers looking for locally produced personal-care products.",
-    imageUrl: "/images/products/black-soap.jpg",
-    images: [
-      "/images/products/black-soap.jpg",
-      "/images/products/black-soap-2.jpg",
-    ],
-    businessName: "PureGlow Naturals",
-    businessSlug: "pureglow-naturals",
-    businessId: "business-004",
-    category: "Beauty & Personal Care",
-    categorySlug: "beauty-personal-care",
-    city: "Akure",
-    state: "Ondo",
-    stock: 32,
-    available: true,
-    featured: true,
-    verifiedBusiness: true,
-  },
-];
-
-const relatedProducts = [
-  {
-    id: "product-005",
-    name: "Classic Sneakers",
-    slug: "classic-sneakers",
-    price: 24000,
-    compareAtPrice: null,
-    imageUrl: "/images/products/sneakers.jpg",
-    businessName: "Urban Steps",
-    businessSlug: "urban-steps",
-    stock: 14,
-    available: true,
-    featured: false,
-  },
-  {
-    id: "product-007",
-    name: "Men's Native Wear",
-    slug: "mens-native-wear",
-    price: 35000,
-    compareAtPrice: 40000,
-    imageUrl: "/images/products/native-wear.jpg",
-    businessName: "Royal Stitch",
-    businessSlug: "royal-stitch",
-    stock: 7,
-    available: true,
-    featured: false,
-  },
-  {
-    id: "product-012",
-    name: "Men's Leather Belt",
-    slug: "mens-leather-belt",
-    price: 7500,
-    compareAtPrice: null,
-    imageUrl: "/images/products/leather-belt.jpg",
-    businessName: "Gentleman's Hub",
-    businessSlug: "gentlemans-hub",
-    stock: 30,
-    available: true,
-    featured: false,
-  },
-];
-
-function findProduct(productId?: string) {
-  if (!productId) {
-    return productCatalog[0];
-  }
-
-  return (
-    productCatalog.find(
-      (product) =>
-        product.id === productId ||
-        product.slug === productId,
-    ) ?? productCatalog[0]
-  );
-}
 
 export default function ProductDetails() {
   const { productId } = useParams();
-  const product = findProduct(productId);
+  const { product, loading, error } = useMarketplaceProduct(productId);
+  const { products: relatedProducts } = useMarketplaceProducts({
+    categoryId: product?.categoryId,
+    limit: 8,
+  });
 
-  const [selectedImage, setSelectedImage] = useState(
-    product.imageUrl,
-  );
+  const [selectedImage, setSelectedImage] = useState("");
+  useEffect(() => {
+    setSelectedImage(product?.imageUrl ?? "");
+  }, [product?.imageUrl]);
+
   const [quantity, setQuantity] = useState(1);
   const [saved, setSaved] = useState(false);
   const [message, setMessage] = useState("");
 
   const total = useMemo(
-    () => product.price * quantity,
-    [product.price, quantity],
+    () => (product?.price ?? 0) * quantity,
+    [product?.price, quantity],
   );
+
+
+  if (loading) {
+    return <PageContainer><div className="py-16 text-center text-slate-500">Loading product...</div></PageContainer>;
+  }
+
+  if (!product) {
+    return <PageContainer><div className="py-16 text-center"><h1 className="text-2xl font-bold text-slate-900">Product not found</h1><p className="mt-2 text-slate-500">{error?.message ?? "This product is no longer available."}</p><Link to="/products" className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Browse products</Link></div></PageContainer>;
+  }
+
 
   const increaseQuantity = () => {
     setQuantity((current) =>
@@ -615,7 +473,7 @@ export default function ProductDetails() {
             </Link>
           </div>
 
-          <ProductGrid products={relatedProducts} />
+          <ProductGrid products={relatedProducts.filter((item) => item.id !== product.id)} />
         </section>
       </div>
     </PageContainer>
