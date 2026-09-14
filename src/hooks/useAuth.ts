@@ -207,11 +207,12 @@ export function useAuth(): UseAuthResult {
         /*
          * Supabase returns a session when the user can be
          * authenticated immediately. When email confirmation
-         * is required, the user is created but no session is
-         * returned.
+         * is required, the user is created but no session
+         * is returned.
          *
-         * Do NOT read result.requiresEmailConfirmation because
-         * signUpWithPassword() does not expose that property.
+         * Do NOT read result.requiresEmailConfirmation
+         * because signUpWithPassword() does not expose
+         * that property.
          */
         const requiresEmailConfirmation =
           !result.data?.session;
@@ -246,10 +247,9 @@ export function useAuth(): UseAuthResult {
       if (!result.success) {
         return {
           success: false,
-          error:
-            result.error
-              ? getSafeErrorMessage(result.error)
-              : "Unable to sign out.",
+          error: result.error
+            ? getSafeErrorMessage(result.error)
+            : "Unable to sign out.",
         };
       }
 
@@ -378,10 +378,23 @@ export function useAuth(): UseAuthResult {
     changePassword,
     refresh,
     isAuthenticated: Boolean(state.user),
-    isCustomer: state.role === "customer",
-    isBusiness: state.role === "business",
-    isRider: state.role === "rider",
-    isAdmin: state.role === "admin",
+
+    isCustomer:
+      state.role === "customer",
+
+    /*
+     * The actual application role is business_owner.
+     * isBusiness remains a convenient boolean name for
+     * components throughout the application.
+     */
+    isBusiness:
+      state.role === "business_owner",
+
+    isRider:
+      state.role === "rider",
+
+    isAdmin:
+      state.role === "admin",
   };
 }
 
