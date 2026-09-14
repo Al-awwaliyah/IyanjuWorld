@@ -1,10 +1,7 @@
-
-
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
-  Image as ImageIcon,
   Loader2,
   Package,
   Save,
@@ -37,7 +34,6 @@ type ProductForm = {
   price: string;
   stock_quantity: string;
   category_id: string;
-  image_url: string;
   active: boolean;
 };
 
@@ -47,7 +43,6 @@ const initialForm: ProductForm = {
   price: "",
   stock_quantity: "0",
   category_id: "",
-  image_url: "",
   active: true,
 };
 
@@ -63,6 +58,7 @@ export default function ProductCreate() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [categoryLoading, setCategoryLoading] = useState(true);
 
   useEffect(() => {
     void loadPage();
@@ -70,6 +66,7 @@ export default function ProductCreate() {
 
   async function loadPage() {
     setLoading(true);
+    setCategoryLoading(true);
     setError("");
 
     try {
@@ -94,6 +91,7 @@ export default function ProductCreate() {
         supabase
           .from("categories")
           .select("id, name")
+          .eq("is_active", true)
           .order("name", { ascending: true }),
       ]);
 
@@ -113,11 +111,18 @@ export default function ProductCreate() {
 
       setBusiness(businessData as Business);
       setCategories((categoryData ?? []) as Category[]);
+
+      if (!categoryData || categoryData.length === 0) {
+        setError(
+          "No active product categories are available. Please contact the administrator.",
+        );
+      }
     } catch (err) {
       logAppError("business-product-create-load", err);
       setError(getSafeErrorMessage(err));
     } finally {
       setLoading(false);
+      setCategoryLoading(false);
     }
   }
 
@@ -143,35 +148,6 @@ export default function ProductCreate() {
     return normalized || `product-${Date.now()}`;
   }
 
-  function suggestBestCategory(name: string, description: string) {
-    const text = `${name} ${description}`.toLowerCase();
-    const keywordGroups: Array<[string[], string[]]> = [
-      [["phone", "smartphone", "iphone", "android", "charger", "earphone", "power bank", "case"], ["phones-accessories", "phones & accessories"]],
-      [["laptop", "computer", "keyboard", "mouse", "monitor", "printer"], ["computers", "computer"]],
-      [["shoe", "sneaker", "shirt", "trouser", "dress", "bag", "handbag", "ankara", "fabric", "clothing"], ["fashion"]],
-      [["soap", "cream", "skincare", "cosmetic", "makeup", "hair", "shampoo", "oil"], ["beauty-personal-care", "beauty"]],
-      [["food", "rice", "beans", "grocery", "snack", "drink", "cooking oil"], ["food-groceries", "food"]],
-      [["chair", "table", "furniture", "lamp", "kitchen", "home", "bulb"], ["home-living", "home"]],
-      [["service", "repair", "cleaning", "delivery", "consulting"], ["services"]],
-    ];
-
-    let best: Category | undefined;
-    let bestScore = 0;
-
-    for (const [keywords, categoryKeys] of keywordGroups) {
-      const score = keywords.reduce((total, keyword) => total + (text.includes(keyword) ? 1 : 0), 0);
-      if (score <= bestScore) continue;
-
-      best = categories.find((category) => {
-        const haystack = `${category.name} ${category.id}`.toLowerCase();
-        return categoryKeys.some((key) => haystack.includes(key));
-      });
-      if (best) bestScore = score;
-    }
-
-    return best?.id ?? "";
-  }
-
   function validateForm() {
     const name = form.name.trim();
     const price = Number(form.price);
@@ -189,6 +165,14 @@ export default function ProductCreate() {
       return "Please select a product category.";
     }
 
+    const selectedCategory = categories.some(
+      (category) => category.id === form.category_id,
+    );
+
+    if (!selectedCategory) {
+      return "Please select a valid product category.";
+    }
+
     if (!form.price.trim()) {
       return "Please enter a product price.";
     }
@@ -197,15 +181,28 @@ export default function ProductCreate() {
       return "Please enter a valid product price.";
     }
 
+    if (!form.stock_quantity.trim()) {
+      return "Please enter a stock quantity.";
+    }
+
     if (!Number.isInteger(stock) || stock < 0) {
       return "Please enter a valid stock quantity.";
     }
 
-    if (form.image_url.trim()) {
-      try {
-        new URL(form.image_url.trim());
-      } catch {
-        return "Please enter a valid product image URL.";
+    if (imageFile && imageFile.size > 5 * 1024 * 1024) {
+      return "Product image must be 5 MB or smaller.";
+    }
+
+    if (imageFile) {
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+      ];
+
+      if (!allowedTypes.includes(imageFile.type)) {
+        return "Please upload a JPG, PNG, WEBP, or GIF image.";
       }
     }
 
@@ -238,93 +235,104 @@ export default function ProductCreate() {
       const description = form.description.trim();
       const price = Number(form.price);
       const stockQuantity = Number(form.stock_quantity);
-      let imageUrl = form.image_url.trim() || null;
+      const slug = generateSlug(name);
 
-      let slug = generateSlug(name);
-
-      const { data: existingProducts, error: slugCheckError } = await supabase
-        .from("products")
-        .select("id, slug")
-        .eq("business_id", business.id)
-        .like("slug", `${slug}%`);
-
-      if (slugCheckError) {
-        throw slugCheckError;
-      }
-
-      if (existingProducts && existingProducts.length > 0) {
-        const existingSlugs = new Set(
-          existingProducts.map((product) => product.slug),
-        );
-
-        if (existingSlugs.has(slug)) {
-          let counter = 2;
-
-          while (existingSlugs.has(`${slug}-${counter}`)) {
-            counter += 1;
-          }
-
-          slug = `${slug}-${counter}`;
-        }
-      }
-
-      const { data: createdProduct, error: createError } = await supabase
-        .from("products")
-        .insert({
-          business_id: business.id,
-          created_by: profile.id,
-          name,
-          slug,
-          description: description || null,
-          price,
-          stock_quantity: stockQuantity,
-          category_id: form.category_id || null,
-          image_url: imageUrl,
-          active: form.active,
-        })
-        .select("id")
-        .single();
+      /*
+       * Product creation is intentionally performed through the
+       * SECURITY DEFINER RPC.
+       *
+       * The RPC gets auth.uid() directly from Supabase and verifies
+       * that the authenticated user owns the selected business.
+       *
+       * Do NOT replace this with a direct products.insert().
+       */
+      const { data: createdProduct, error: createError } =
+        await supabase.rpc("create_business_product", {
+          p_business_id: business.id,
+          p_category_id: form.category_id,
+          p_name: name,
+          p_slug: slug,
+          p_description: description || null,
+          p_price: price,
+          p_stock_quantity: stockQuantity,
+          p_image_url: null,
+          p_active: form.active,
+        });
 
       if (createError) {
         throw createError;
       }
 
-      if (!createdProduct?.id) {
+      /*
+       * Supabase may return the RPC result either as an object or,
+       * depending on the generated client typing, as an array-like
+       * response. Normalize it here.
+       */
+      const product = Array.isArray(createdProduct)
+        ? createdProduct[0]
+        : createdProduct;
+
+      if (!product?.id) {
         throw new Error("The product could not be created.");
       }
 
+      /*
+       * Upload the image after the product exists so the product ID
+       * can be used safely in the storage path.
+       */
       if (imageFile) {
-        if (imageFile.size > 5 * 1024 * 1024) {
-          throw new Error("Product image must be 5 MB or smaller.");
-        }
+        const extension =
+          imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
 
-        const extension = imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
-        const storagePath = `${business.id}/${createdProduct.id}/${crypto.randomUUID()}.${extension}`;
+        const storagePath = `${business.id}/${product.id}/${crypto.randomUUID()}.${extension}`;
 
-        await uploadFile("product-images", storagePath, imageFile);
-        imageUrl = getPublicFileUrl("product-images", storagePath);
+        await uploadFile(
+          "product-images",
+          storagePath,
+          imageFile,
+        );
 
+        const imageUrl = getPublicFileUrl(
+          "product-images",
+          storagePath,
+        );
+
+        /*
+         * Store the uploaded image in product_images.
+         */
         const { error: imageRecordError } = await supabase
           .from("product_images")
           .insert({
-            product_id: createdProduct.id,
+            product_id: product.id,
             storage_path: storagePath,
             is_primary: true,
             sort_order: 0,
             alt_text: name,
           });
 
-        if (imageRecordError) throw imageRecordError;
+        if (imageRecordError) {
+          throw imageRecordError;
+        }
 
+        /*
+         * Update the product's image URL.
+         *
+         * This is intentionally done after the RPC-created product
+         * exists.
+         */
         const { error: imageUpdateError } = await supabase
           .from("products")
-          .update({ image_url: imageUrl })
-          .eq("id", createdProduct.id);
+          .update({
+            image_url: imageUrl,
+          })
+          .eq("id", product.id);
 
-        if (imageUpdateError) throw imageUpdateError;
+        if (imageUpdateError) {
+          throw imageUpdateError;
+        }
       }
 
-      navigate(`/business/products/${createdProduct.id}/edit`, {
+      navigate(`/business/products/${product.id}/edit`, {
         replace: true,
         state: {
           created: true,
@@ -370,6 +378,7 @@ export default function ProductCreate() {
               <h1 className="text-2xl font-bold text-gray-900">
                 Add Product
               </h1>
+
               <p className="text-sm text-gray-500">
                 Add a product to your business storefront.
               </p>
@@ -432,14 +441,9 @@ export default function ProductCreate() {
                   id="product-name"
                   type="text"
                   value={form.name}
-                  onChange={(event) => {
-                    const name = event.target.value;
-                    updateField("name", name);
-                    if (!form.category_id) {
-                      const suggested = suggestBestCategory(name, form.description);
-                      if (suggested) updateField("category_id", suggested);
-                    }
-                  }}
+                  onChange={(event) =>
+                    updateField("name", event.target.value)
+                  }
                   placeholder="e.g. Premium Leather Shoes"
                   maxLength={150}
                   required
@@ -483,16 +487,33 @@ export default function ProductCreate() {
                     onChange={(event) =>
                       updateField("category_id", event.target.value)
                     }
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10"
+                    disabled={categoryLoading || categories.length === 0}
+                    required
+                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 disabled:cursor-not-allowed disabled:bg-gray-100"
                   >
-                    <option value="">Select category</option>
+                    <option value="">
+                      {categoryLoading
+                        ? "Loading categories..."
+                        : categories.length === 0
+                          ? "No categories available"
+                          : "Select category"}
+                    </option>
 
                     {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
+                      <option
+                        key={category.id}
+                        value={category.id}
+                      >
                         {category.name}
                       </option>
                     ))}
                   </select>
+
+                  {!categoryLoading && categories.length > 0 && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Select the category that best matches this product.
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -535,7 +556,10 @@ export default function ProductCreate() {
                     step="1"
                     value={form.stock_quantity}
                     onChange={(event) =>
-                      updateField("stock_quantity", event.target.value)
+                      updateField(
+                        "stock_quantity",
+                        event.target.value,
+                      )
                     }
                     placeholder="0"
                     required
@@ -556,7 +580,9 @@ export default function ProductCreate() {
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     onChange={(event) =>
-                      setImageFile(event.target.files?.[0] ?? null)
+                      setImageFile(
+                        event.target.files?.[0] ?? null,
+                      )
                     }
                     className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm"
                   />
@@ -568,7 +594,7 @@ export default function ProductCreate() {
                   )}
 
                   <p className="mt-2 text-xs text-gray-500">
-                    Upload a real product image. Maximum 5 MB.
+                    Upload a JPG, PNG, WEBP, or GIF image. Maximum 5 MB.
                   </p>
                 </div>
               </div>
@@ -620,7 +646,11 @@ export default function ProductCreate() {
 
             <button
               type="submit"
-              disabled={saving}
+              disabled={
+                saving ||
+                categoryLoading ||
+                categories.length === 0
+              }
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? (
