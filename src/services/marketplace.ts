@@ -31,7 +31,9 @@ export type MarketplaceBusiness = {
   name: string;
   slug: string;
   logo: string;
+  logoUrl: string;
   coverImage: string;
+  coverUrl: string;
   description: string;
   city: string;
   state: string;
@@ -42,6 +44,8 @@ export type MarketplaceBusiness = {
   address: string;
   verified: boolean;
   open: boolean;
+  category: string;
+  categorySlug: string;
   productCount: number;
   products: MarketplaceProduct[];
 };
@@ -54,8 +58,8 @@ export type MarketplaceCategory = {
   imageUrl: string;
   parentId: string | null;
   productCount: number;
-  value?: string;
-  label?: string;
+  value: string;
+  label: string;
 };
 
 type RawProduct = Record<string, any>;

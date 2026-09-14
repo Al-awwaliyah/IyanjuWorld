@@ -91,16 +91,19 @@ export default function Businesses() {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     let mounted = true;
-    void supabase
-      .from("businesses")
-      .select(`
+
+    const load = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("businesses")
+          .select(`
         id,name,slug,phone,city,state,status,is_verified,is_open,created_at,
         owner:profiles!businesses_created_by_fkey(full_name),
         products(count),
         orders(count)
       `)
-      .order("created_at", { ascending: false })
-      .then(({ data, error }) => {
+          .order("created_at", { ascending: false });
+
         if (error) throw error;
         if (!mounted) return;
         setBusinesses((data ?? []).map((row: any) => ({
@@ -118,9 +121,14 @@ export default function Businesses() {
           orders: Number(row.orders?.[0]?.count ?? 0),
           createdAt: row.created_at,
         })));
-      })
-      .catch((error) => console.error("Failed to load admin businesses", error))
-      .finally(() => mounted && setLoading(false));
+      } catch (error: unknown) {
+        console.error("Failed to load admin businesses", error);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    void load();
     return () => { mounted = false; };
   }, []);
 
