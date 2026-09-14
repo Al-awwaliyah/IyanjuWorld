@@ -5,7 +5,10 @@ import { Check, ChevronLeft, UserRound } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { getSafeErrorMessage } from "../../libs/errors";
-import { signUpWithPassword } from "../../libs/auth";
+import {
+  signUpWithPassword,
+  type UserRole,
+} from "../../libs/auth";
 
 type AccountType = "customer" | "business" | "rider";
 
@@ -35,12 +38,32 @@ const accountTypes: {
   },
 ];
 
-function getDashboardPath(accountType: AccountType) {
+function getUserRole(accountType: AccountType): UserRole {
   switch (accountType) {
     case "business":
+      return "business_owner";
+
+    case "rider":
+      return "rider";
+
+    case "customer":
+    default:
+      return "customer";
+  }
+}
+
+function getDashboardPath(role: UserRole) {
+  switch (role) {
+    case "business_owner":
       return "/business/dashboard";
+
     case "rider":
       return "/rider/dashboard";
+
+    case "admin":
+      return "/admin/dashboard";
+
+    case "customer":
     default:
       return "/customer/dashboard";
   }
@@ -66,7 +89,9 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     setError("");
@@ -91,7 +116,9 @@ export default function Register() {
     }
 
     if (password.length < 8) {
-      setError("Your password must contain at least 8 characters.");
+      setError(
+        "Your password must contain at least 8 characters.",
+      );
       return;
     }
 
@@ -107,6 +134,13 @@ export default function Register() {
       return;
     }
 
+    /*
+     * "business" is only the label/UI value.
+     *
+     * The actual application role must be "business_owner".
+     */
+    const userRole = getUserRole(accountType);
+
     setLoading(true);
 
     try {
@@ -117,7 +151,7 @@ export default function Register() {
           {
             full_name: normalizedFullName,
             phone: normalizedPhone,
-            role: accountType,
+            role: userRole,
           },
         );
 
@@ -125,23 +159,24 @@ export default function Register() {
         throw signUpError;
       }
 
+      const dashboardPath = getDashboardPath(userRole);
+
       /*
-       * When email confirmation is enabled, Supabase normally
-       * returns a user without an active session.
+       * When email confirmation is enabled, registration
+       * normally returns a user without an active session.
        *
-       * IyanjuWorld now uses a 6-digit email OTP verification
-       * screen, so registration always continues there when
-       * an active session is not available.
+       * Send the user to email verification and preserve
+       * the actual application role.
        */
       if (!data?.session) {
         navigate("/verify-email", {
           replace: true,
           state: {
             email: normalizedEmail,
-            role: accountType,
+            role: userRole,
             redirectTo:
               locationState?.redirectTo ||
-              getDashboardPath(accountType),
+              dashboardPath,
           },
         });
 
@@ -149,18 +184,23 @@ export default function Register() {
       }
 
       /*
-       * If Supabase has already authenticated the account,
-       * continue directly to the appropriate dashboard.
+       * If Supabase authenticated immediately, continue to
+       * the appropriate dashboard.
+       *
+       * Setup pages should handle missing business/rider
+       * profiles where applicable.
        */
       navigate(
         locationState?.redirectTo ||
-          getDashboardPath(accountType),
+          dashboardPath,
         {
           replace: true,
         },
       );
     } catch (registrationError) {
-      setError(getSafeErrorMessage(registrationError));
+      setError(
+        getSafeErrorMessage(registrationError),
+      );
     } finally {
       setLoading(false);
     }
@@ -194,7 +234,10 @@ export default function Register() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
             <div>
               <label className="mb-3 block text-sm font-semibold text-slate-800">
                 Account type
@@ -202,7 +245,8 @@ export default function Register() {
 
               <div className="grid gap-3 sm:grid-cols-3">
                 {accountTypes.map((type) => {
-                  const selected = accountType === type.value;
+                  const selected =
+                    accountType === type.value;
 
                   return (
                     <button
