@@ -35,11 +35,40 @@ export default function BusinessSetup() {
   useEffect(() => {
     const load = async () => {
       try {
+        /*
+         * Verify the actual Supabase authentication session first.
+         */
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (userError) {
+          throw userError;
+        }
+
+        if (!user) {
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        /*
+         * Get the current application profile.
+         */
         const profile = await getCurrentProfile();
 
         if (!profile) {
           navigate("/login", { replace: true });
           return;
+        }
+
+        /*
+         * The profile ID should correspond to auth.users.id.
+         */
+        if (profile.id !== user.id) {
+          throw new Error(
+            "Your account session and profile do not match. Please log in again."
+          );
         }
 
         setEmail(profile.email ?? "");
@@ -51,8 +80,7 @@ export default function BusinessSetup() {
         );
 
         /*
-         * Check whether this authenticated user already owns
-         * a business profile.
+         * Check whether this user already owns a business.
          */
         const {
           data,
@@ -60,7 +88,7 @@ export default function BusinessSetup() {
         } = await supabase
           .from("businesses")
           .select("id")
-          .eq("owner_id", profile.id)
+          .eq("owner_id", user.id)
           .maybeSingle();
 
         if (queryError) {
@@ -68,7 +96,9 @@ export default function BusinessSetup() {
         }
 
         if (data?.id) {
-          navigate("/business/dashboard", { replace: true });
+          navigate("/business/dashboard", {
+            replace: true,
+          });
           return;
         }
       } catch (err) {
@@ -116,14 +146,16 @@ export default function BusinessSetup() {
 
     try {
       /*
-       * Get the authenticated Supabase user directly.
+       * =====================================================
+       * 1. VERIFY THE SUPABASE AUTHENTICATION SESSION
+       * =====================================================
        *
-       * This is important because your RLS policy is:
+       * Your INSERT RLS policy requires:
        *
-       * created_by = auth.uid()
+       *     created_by = auth.uid()
        *
-       * Therefore the value inserted into created_by must
-       * exactly match the authenticated user's UUID.
+       * Therefore we must use the authenticated Supabase
+       * user's UUID, not an arbitrary profile identifier.
        */
       const {
         data: { user },
@@ -141,7 +173,59 @@ export default function BusinessSetup() {
       }
 
       /*
-       * Get the application profile as well.
+       * Get the current session so we can verify that the
+       * Supabase client actually has an access token.
+       */
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      /*
+       * Development diagnostics.
+       *
+       * These do NOT expose the access token itself.
+       */
+      console.log(
+        "=== BUSINESS SETUP AUTH DEBUG ==="
+      );
+      console.log("User ID:", user.id);
+      console.log(
+        "Session User ID:",
+        session?.user?.id ?? null
+      );
+      console.log(
+        "Has Session:",
+        !!session
+      );
+      console.log(
+        "Has Access Token:",
+        !!session?.access_token
+      );
+      console.log(
+        "================================"
+      );
+
+      if (!session) {
+        throw new Error(
+          "Your Supabase session has expired. Please log in again."
+        );
+      }
+
+      if (!session.access_token) {
+        throw new Error(
+          "Your authentication session does not contain a valid access token. Please log in again."
+        );
+      }
+
+      /*
+       * =====================================================
+       * 2. GET APPLICATION PROFILE
+       * =====================================================
        */
       const profile = await getCurrentProfile();
 
@@ -152,21 +236,31 @@ export default function BusinessSetup() {
       }
 
       /*
-       * Make sure the profile belongs to the authenticated
-       * Supabase user.
+       * Make absolutely sure the application profile belongs
+       * to the authenticated Supabase user.
        */
       if (profile.id !== user.id) {
+        console.error(
+          "BUSINESS SETUP PROFILE/AUTH MISMATCH",
+          {
+            profileId: profile.id,
+            authUserId: user.id,
+          }
+        );
+
         throw new Error(
-          "Your account session is invalid. Please log in again."
+          "Your account session is invalid because your profile does not match your authenticated account. Please log out and log in again."
         );
       }
 
+      /*
+       * =====================================================
+       * 3. CREATE A UNIQUE BUSINESS SLUG
+       * =====================================================
+       */
       const baseSlug = slugify(name);
       let slug = baseSlug;
 
-      /*
-       * Check whether the generated slug is already being used.
-       */
       const {
         data: existing,
         error: slugError,
@@ -184,32 +278,41 @@ export default function BusinessSetup() {
         slug = `${baseSlug}-${Date.now().toString(36)}`;
       }
 
-      const now = new Date().toISOString();
-
       /*
+       * =====================================================
+       * 4. PREPARE BUSINESS RECORD
+       * =====================================================
+       *
        * IMPORTANT:
        *
-       * created_by MUST equal auth.uid()
-       * because of your RLS INSERT policy:
+       * created_by = user.id
        *
-       * created_by = auth.uid()
+       * This is the field checked by the current INSERT RLS
+       * policy:
        *
-       * owner_id is also set to the same user because the
-       * application uses owner_id to identify the business owner.
+       *     created_by = auth.uid()
        *
-       * The additional NOT NULL fields are supplied explicitly
-       * to make this insert compatible with your current table.
+       * owner_id is also set to user.id because the rest of
+       * the application uses owner_id to identify the owner.
        */
+      const now = new Date().toISOString();
+
       const businessPayload = {
         id: crypto.randomUUID(),
 
         name: name.trim(),
         slug,
-        description: description.trim() || null,
+
+        description:
+          description.trim() || null,
 
         phone: phone.trim(),
-        whatsapp_number: whatsapp.trim() || null,
-        email: email.trim() || null,
+
+        whatsapp_number:
+          whatsapp.trim() || null,
+
+        email:
+          email.trim() || null,
 
         address_line: address.trim(),
         address: address.trim(),
@@ -219,39 +322,72 @@ export default function BusinessSetup() {
         country: "Nigeria",
 
         /*
-         * Ownership / RLS
+         * AUTHENTICATION / OWNERSHIP
          */
         created_by: user.id,
         owner_id: user.id,
 
         /*
-         * Business state
+         * BUSINESS STATUS
          */
         status: "pending",
         is_verified: false,
         is_open: true,
 
         /*
-         * Existing legacy/duplicate fields in your table.
-         * Keeping these synchronized prevents null/default
-         * problems in parts of the application that use them.
+         * COMPATIBILITY FIELDS
          */
         active: true,
         verified: false,
         open: true,
 
         logo_url: null,
-        cover_image_url: null,
         logo: null,
+
+        cover_image_url: null,
         cover: null,
-        whatsapp: whatsapp.trim() || null,
+
+        whatsapp:
+          whatsapp.trim() || null,
 
         verification_status: "pending",
 
+        /*
+         * TIMESTAMPS
+         */
         created_at: now,
         updated_at: now,
       };
 
+      /*
+       * Diagnostic output.
+       *
+       * This intentionally does NOT print the access token.
+       */
+      console.log(
+        "=== BUSINESS INSERT DEBUG ==="
+      );
+      console.log(
+        "created_by:",
+        businessPayload.created_by
+      );
+      console.log(
+        "owner_id:",
+        businessPayload.owner_id
+      );
+      console.log(
+        "auth user:",
+        user.id
+      );
+      console.log(
+        "============================="
+      );
+
+      /*
+       * =====================================================
+       * 5. CREATE BUSINESS
+       * =====================================================
+       */
       const {
         data,
         error: insertError,
@@ -262,6 +398,25 @@ export default function BusinessSetup() {
         .single();
 
       if (insertError) {
+        console.error(
+          "BUSINESS INSERT FAILED:",
+          insertError
+        );
+
+        /*
+         * Give a clearer message for the specific RLS error.
+         */
+        if (
+          insertError.code === "42501" ||
+          insertError.message
+            ?.toLowerCase()
+            .includes("row-level security")
+        ) {
+          throw new Error(
+            "Supabase rejected the business creation because the authenticated user is not permitted to create this business. Please check the businesses INSERT RLS policy."
+          );
+        }
+
         throw insertError;
       }
 
@@ -272,7 +427,9 @@ export default function BusinessSetup() {
       }
 
       /*
-       * Business profile successfully created.
+       * =====================================================
+       * 6. SUCCESS
+       * =====================================================
        */
       navigate("/business/dashboard", {
         replace: true,
@@ -318,12 +475,17 @@ export default function BusinessSetup() {
             </p>
           </div>
 
-          <form onSubmit={submit} className="space-y-5">
+          <form
+            onSubmit={submit}
+            className="space-y-5"
+          >
             <input
               className={input}
               placeholder="Business name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) =>
+                setName(e.target.value)
+              }
               disabled={saving}
               required
             />
@@ -366,7 +528,9 @@ export default function BusinessSetup() {
               type="email"
               placeholder="Business email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
               disabled={saving}
             />
 
@@ -435,3 +599,4 @@ export default function BusinessSetup() {
     </main>
   );
 }
+
