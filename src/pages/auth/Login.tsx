@@ -22,7 +22,7 @@ function getDashboardPath(role: UserRole) {
     case "admin":
       return "/admin/dashboard";
 
-    case "business":
+    case "business_owner":
       return "/business/dashboard";
 
     case "rider":
@@ -41,9 +41,7 @@ export default function Login() {
   const locationState =
     (location.state as LoginLocationState | null) ?? null;
 
-  const [email, setEmail] = useState(
-    locationState?.email ?? "",
-  );
+  const [email, setEmail] = useState(locationState?.email ?? "");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
 
@@ -67,15 +65,14 @@ export default function Login() {
           authState.profile &&
           authState.profile.active
         ) {
-          navigate(
-            getDashboardPath(authState.profile.role),
-            {
-              replace: true,
-            },
-          );
+          navigate(getDashboardPath(authState.profile.role), {
+            replace: true,
+          });
 
           return;
         }
+      } catch {
+        // If session checking fails, allow the login form to render.
       } finally {
         if (mounted) {
           setCheckingSession(false);
@@ -97,8 +94,7 @@ export default function Login() {
 
     setError("");
 
-    const normalizedEmail =
-      email.trim().toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
 
     if (!normalizedEmail) {
       setError("Please enter your email address.");
@@ -131,18 +127,12 @@ export default function Login() {
       }
 
       /*
-       * Supabase Auth normally blocks password sign-in
-       * for users who require email confirmation.
-       *
-       * If the account does authenticate, load the
-       * authoritative profile before routing.
+       * Load the authoritative application profile after
+       * successful Supabase authentication.
        */
       const authState = await getAuthState();
 
-      if (
-        !authState.user ||
-        !authState.profile
-      ) {
+      if (!authState.user || !authState.profile) {
         setError(
           "Your account was authenticated, but your profile could not be loaded. Please try again.",
         );
@@ -156,8 +146,7 @@ export default function Login() {
         return;
       }
 
-      const redirectFromState =
-        locationState?.from;
+      const redirectFromState = locationState?.from;
 
       const safeRedirect =
         redirectFromState &&
@@ -170,9 +159,7 @@ export default function Login() {
 
       navigate(
         safeRedirect ||
-          getDashboardPath(
-            authState.profile.role,
-          ),
+          getDashboardPath(authState.profile.role),
         {
           replace: true,
         },
@@ -181,11 +168,6 @@ export default function Login() {
       const safeMessage =
         getSafeErrorMessage(loginError);
 
-      /*
-       * Keep the frontend message clean. In particular,
-       * never expose raw Supabase/Postgres/Edge Function
-       * errors.
-       */
       if (
         safeMessage
           .toLowerCase()
@@ -295,9 +277,7 @@ export default function Login() {
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(event) =>
-                  setRememberMe(
-                    event.target.checked,
-                  )
+                  setRememberMe(event.target.checked)
                 }
                 disabled={loading}
                 className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
