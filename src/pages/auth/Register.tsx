@@ -5,7 +5,10 @@ import { Check, ChevronLeft, UserRound } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { getSafeErrorMessage } from "../../libs/errors";
-import { signUpWithPassword } from "../../libs/auth";
+import {
+  signUpWithPassword,
+  type UserRole,
+} from "../../libs/auth";
 
 type AccountType = "customer" | "business" | "rider";
 
@@ -35,12 +38,29 @@ const accountTypes: {
   },
 ];
 
+function getUserRole(accountType: AccountType): UserRole {
+  switch (accountType) {
+    case "business":
+      return "business_owner";
+
+    case "rider":
+      return "rider";
+
+    case "customer":
+    default:
+      return "customer";
+  }
+}
+
 function getDashboardPath(accountType: AccountType) {
   switch (accountType) {
     case "business":
       return "/business/dashboard";
+
     case "rider":
       return "/rider/dashboard";
+
+    case "customer":
     default:
       return "/customer/dashboard";
   }
@@ -66,7 +86,9 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     setError("");
@@ -91,7 +113,9 @@ export default function Register() {
     }
 
     if (password.length < 8) {
-      setError("Your password must contain at least 8 characters.");
+      setError(
+        "Your password must contain at least 8 characters.",
+      );
       return;
     }
 
@@ -110,6 +134,14 @@ export default function Register() {
     setLoading(true);
 
     try {
+      /*
+       * AccountType is the user-facing registration choice.
+       * UserRole is the actual role stored/used by the application.
+       *
+       * Business -> business_owner
+       */
+      const userRole = getUserRole(accountType);
+
       const { data, error: signUpError } =
         await signUpWithPassword(
           normalizedEmail,
@@ -117,7 +149,7 @@ export default function Register() {
           {
             full_name: normalizedFullName,
             phone: normalizedPhone,
-            role: accountType,
+            role: userRole,
           },
         );
 
@@ -129,16 +161,16 @@ export default function Register() {
        * When email confirmation is enabled, Supabase normally
        * returns a user without an active session.
        *
-       * IyanjuWorld now uses a 6-digit email OTP verification
-       * screen, so registration always continues there when
-       * an active session is not available.
+       * IyanjuWorld uses a 6-digit email OTP verification
+       * screen, so registration continues there when an
+       * active session is not available.
        */
       if (!data?.session) {
         navigate("/verify-email", {
           replace: true,
           state: {
             email: normalizedEmail,
-            role: accountType,
+            role: userRole,
             redirectTo:
               locationState?.redirectTo ||
               getDashboardPath(accountType),
@@ -160,7 +192,9 @@ export default function Register() {
         },
       );
     } catch (registrationError) {
-      setError(getSafeErrorMessage(registrationError));
+      setError(
+        getSafeErrorMessage(registrationError),
+      );
     } finally {
       setLoading(false);
     }
@@ -194,7 +228,10 @@ export default function Register() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
             <div>
               <label className="mb-3 block text-sm font-semibold text-slate-800">
                 Account type
@@ -202,7 +239,8 @@ export default function Register() {
 
               <div className="grid gap-3 sm:grid-cols-3">
                 {accountTypes.map((type) => {
-                  const selected = accountType === type.value;
+                  const selected =
+                    accountType === type.value;
 
                   return (
                     <button
@@ -316,7 +354,9 @@ export default function Register() {
                 type="checkbox"
                 checked={acceptedTerms}
                 onChange={(event) => {
-                  setAcceptedTerms(event.target.checked);
+                  setAcceptedTerms(
+                    event.target.checked,
+                  );
                   setError("");
                 }}
                 disabled={loading}
