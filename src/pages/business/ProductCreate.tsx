@@ -7,7 +7,7 @@ import {
   Save,
 } from "lucide-react";
 import { supabase } from "../../libs/supabase";
-import { getPublicFileUrl, uploadFile } from "../../libs/storage";
+import { uploadFile } from "../../libs/storage";
 import {
   getCurrentProfile,
   type Profile,
@@ -35,6 +35,10 @@ type ProductForm = {
   stock_quantity: string;
   category_id: string;
   active: boolean;
+};
+
+type CreatedProduct = {
+  id: string;
 };
 
 const initialForm: ProductForm = {
@@ -238,11 +242,15 @@ export default function ProductCreate() {
       const slug = generateSlug(name);
 
       /*
-       * Product creation is intentionally performed through the
-       * SECURITY DEFINER RPC.
+       * Product creation is performed through the SECURITY DEFINER RPC.
        *
-       * The RPC gets auth.uid() directly from Supabase and verifies
-       * that the authenticated user owns the selected business.
+       * The RPC:
+       * - Gets the authenticated user with auth.uid()
+       * - Verifies business ownership
+       * - Verifies the category
+       * - Generates a unique product slug
+       * - Creates the product
+       * - Sets the correct product status/availability
        *
        * Do NOT replace this with a direct products.insert().
        */
@@ -264,21 +272,26 @@ export default function ProductCreate() {
       }
 
       /*
-       * Supabase may return the RPC result either as an object or,
-       * depending on the generated client typing, as an array-like
-       * response. Normalize it here.
+       * Normalize the RPC response.
+       *
+       * Depending on the Supabase generated client typing,
+       * the RPC response may be represented as an object or array.
        */
-      const product = Array.isArray(createdProduct)
-        ? createdProduct[0]
-        : createdProduct;
+      const product = (
+        Array.isArray(createdProduct)
+          ? createdProduct[0]
+          : createdProduct
+      ) as CreatedProduct | null;
 
       if (!product?.id) {
         throw new Error("The product could not be created.");
       }
 
       /*
-       * Upload the image after the product exists so the product ID
-       * can be used safely in the storage path.
+       * Upload product image after the product has been created.
+       *
+       * Storage upload remains a direct Storage operation.
+       * Database metadata is handled by the secure add_product_image RPC.
        */
       if (imageFile) {
         const extension =
@@ -286,52 +299,49 @@ export default function ProductCreate() {
 
         const storagePath = `${business.id}/${product.id}/${crypto.randomUUID()}.${extension}`;
 
+        /*
+         * Upload the physical file to the product-images bucket.
+         */
         await uploadFile(
           "product-images",
           storagePath,
           imageFile,
         );
 
-        const imageUrl = getPublicFileUrl(
-          "product-images",
-          storagePath,
+        /*
+         * IMPORTANT:
+         *
+         * Do NOT directly insert into product_images.
+         * Do NOT directly update products.image_url.
+         *
+         * Both operations are handled securely inside
+         * add_product_image(), which verifies that the
+         * authenticated user owns the product's business.
+         */
+        const { error: imageRecordError } = await supabase.rpc(
+          "add_product_image",
+          {
+            p_product_id: product.id,
+            p_storage_path: storagePath,
+            p_alt_text: name,
+          },
         );
 
-        /*
-         * Store the uploaded image in product_images.
-         */
-        const { error: imageRecordError } = await supabase
-          .from("product_images")
-          .insert({
-            product_id: product.id,
-            storage_path: storagePath,
-            is_primary: true,
-            sort_order: 0,
-            alt_text: name,
-          });
-
         if (imageRecordError) {
+          /*
+           * The database metadata failed after the Storage upload.
+           *
+           * The product itself still exists. The error is surfaced
+           * clearly so it can be diagnosed instead of silently
+           * pretending the image was saved.
+           */
           throw imageRecordError;
-        }
-
-        /*
-         * Update the product's image URL.
-         *
-         * This is intentionally done after the RPC-created product
-         * exists.
-         */
-        const { error: imageUpdateError } = await supabase
-          .from("products")
-          .update({
-            image_url: imageUrl,
-          })
-          .eq("id", product.id);
-
-        if (imageUpdateError) {
-          throw imageUpdateError;
         }
       }
 
+      /*
+       * Product creation completed successfully.
+       */
       navigate(`/business/products/${product.id}/edit`, {
         replace: true,
         state: {
@@ -487,7 +497,9 @@ export default function ProductCreate() {
                     onChange={(event) =>
                       updateField("category_id", event.target.value)
                     }
-                    disabled={categoryLoading || categories.length === 0}
+                    disabled={
+                      categoryLoading || categories.length === 0
+                    }
                     required
                     className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 disabled:cursor-not-allowed disabled:bg-gray-100"
                   >
@@ -509,11 +521,13 @@ export default function ProductCreate() {
                     ))}
                   </select>
 
-                  {!categoryLoading && categories.length > 0 && (
-                    <p className="mt-2 text-xs text-gray-500">
-                      Select the category that best matches this product.
-                    </p>
-                  )}
+                  {!categoryLoading &&
+                    categories.length > 0 && (
+                      <p className="mt-2 text-xs text-gray-500">
+                        Select the category that best matches this
+                        product.
+                      </p>
+                    )}
                 </div>
 
                 <div>
@@ -594,7 +608,8 @@ export default function ProductCreate() {
                   )}
 
                   <p className="mt-2 text-xs text-gray-500">
-                    Upload a JPG, PNG, WEBP, or GIF image. Maximum 5 MB.
+                    Upload a JPG, PNG, WEBP, or GIF image. Maximum 5
+                    MB.
                   </p>
                 </div>
               </div>
@@ -609,7 +624,8 @@ export default function ProductCreate() {
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-500">
-                  Choose whether customers can see and purchase this product.
+                  Choose whether customers can see and purchase this
+                  product.
                 </p>
               </div>
 
@@ -631,7 +647,7 @@ export default function ProductCreate() {
 
             <div className="mt-4 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600">
               {form.active
-                ? "This product will be active and eligible for marketplace discovery."
+                ? "This product will be active and eligible for marketplace discovery when it has stock available."
                 : "This product will be saved as inactive and will not be available for customers to purchase."}
             </div>
           </div>
