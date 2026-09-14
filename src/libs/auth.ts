@@ -7,7 +7,7 @@ import {
 
 export type UserRole =
   | "customer"
-  | "business"
+  | "business_owner"
   | "rider"
   | "admin";
 
