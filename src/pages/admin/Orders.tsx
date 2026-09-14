@@ -187,20 +187,17 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     let mounted = true;
-
-    const load = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("orders")
-          .select(`
+    void supabase
+      .from("orders")
+      .select(`
         id,order_reference,customer_id,business_id,status,payment_status,
         subtotal,delivery_fee,platform_fee,customer_total,created_at,
         businesses!orders_business_id_fkey(name),
         customer:profiles!orders_customer_id_fkey(full_name,phone)
       `)
-          .order("created_at", { ascending: false })
-          .limit(100);
-
+      .order("created_at", { ascending: false })
+      .limit(100)
+      .then(({ data, error }) => {
         if (error) throw error;
         if (!mounted) return;
         setOrders((data ?? []).map((row: any) => ({
@@ -218,14 +215,9 @@ export default function Orders() {
           customerTotal: Number(row.customer_total ?? 0),
           createdAt: row.created_at,
         })));
-      } catch (error: unknown) {
-        console.error("Failed to load admin orders", error);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
-    void load();
+      })
+      .catch((error) => console.error("Failed to load admin orders", error))
+      .finally(() => mounted && setLoading(false));
     return () => { mounted = false; };
   }, []);
 
