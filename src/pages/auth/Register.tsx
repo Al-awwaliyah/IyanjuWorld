@@ -7,7 +7,7 @@ import { Input } from "../../components/ui/Input";
 import { getSafeErrorMessage } from "../../libs/errors";
 import { signUpWithPassword } from "../../libs/auth";
 
-type AccountType = "customer" | "business" | "rider";
+type AccountType = "customer" | "business_owner" | "rider";
 
 type RegisterLocationState = {
   redirectTo?: string;
