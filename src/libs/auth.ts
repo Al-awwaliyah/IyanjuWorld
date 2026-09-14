@@ -52,7 +52,7 @@ const PROFILE_FIELDS =
 function normalizeRole(value: unknown): UserRole {
   if (
     value === "customer" ||
-    value === "business" ||
+    value === "business_owner" ||
     value === "rider" ||
     value === "admin"
   ) {
