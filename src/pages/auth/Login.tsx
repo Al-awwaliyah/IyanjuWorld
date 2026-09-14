@@ -10,7 +10,6 @@ import {
   type UserRole,
 } from "../../libs/auth";
 import { getSafeErrorMessage } from "../../libs/errors";
-import { supabase } from "../../libs/supabase";
 
 type LoginLocationState = {
   from?: string;
@@ -23,7 +22,7 @@ function getDashboardPath(role: UserRole) {
     case "admin":
       return "/admin/dashboard";
 
-    case "business_owner":
+    case "business":
       return "/business/dashboard";
 
     case "rider":
@@ -33,20 +32,6 @@ function getDashboardPath(role: UserRole) {
     default:
       return "/customer/dashboard";
   }
-}
-
-async function getEntryPath(role: UserRole, userId: string) {
-  if (role === "business_owner") {
-    const { data } = await supabase.from("businesses").select("id").eq("owner_id", userId).maybeSingle();
-    return data ? "/business/dashboard" : "/business/setup";
-  }
-
-  if (role === "rider") {
-    const { data } = await supabase.from("riders").select("id").eq("user_id", userId).maybeSingle();
-    return data ? "/rider/dashboard" : "/rider/setup";
-  }
-
-  return getDashboardPath(role);
 }
 
 export default function Login() {
@@ -83,8 +68,10 @@ export default function Login() {
           authState.profile.active
         ) {
           navigate(
-            await getEntryPath(authState.profile.role, authState.user.id),
-            { replace: true },
+            getDashboardPath(authState.profile.role),
+            {
+              replace: true,
+            },
           );
 
           return;
@@ -181,17 +168,15 @@ export default function Login() {
           ? redirectFromState
           : null;
 
-      const entryPath = await getEntryPath(
-        authState.profile.role,
-        authState.user.id,
+      navigate(
+        safeRedirect ||
+          getDashboardPath(
+            authState.profile.role,
+          ),
+        {
+          replace: true,
+        },
       );
-
-      const destination =
-        authState.profile.role === "customer"
-          ? safeRedirect || entryPath
-          : entryPath;
-
-      navigate(destination, { replace: true });
     } catch (loginError) {
       const safeMessage =
         getSafeErrorMessage(loginError);

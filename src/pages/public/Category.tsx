@@ -12,7 +12,6 @@ import {
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { useMarketplaceProducts, useMarketplaceCategories, useMarketplaceBusinesses, useMarketplaceProduct, useMarketplaceBusiness } from "../../services/marketplace";
 import { PageContainer } from "../../components/layout/PageContainer";
 import { MarketplaceFilters } from "../../components/marketplace/MarketplaceFilters";
 import { ProductGrid } from "../../components/marketplace/ProductGrid";
@@ -48,6 +47,193 @@ type CategoryProduct = {
   featured: boolean;
 };
 
+const categories: CategoryInfo[] = [
+  {
+    slug: "electronics",
+    name: "Electronics",
+    description:
+      "Discover phones, accessories, gadgets, computers, and other electronic products from local businesses.",
+    productCount: 128,
+  },
+  {
+    slug: "fashion",
+    name: "Fashion",
+    description:
+      "Shop clothing, footwear, bags, accessories, and other fashion products from businesses around Nigeria.",
+    productCount: 214,
+  },
+  {
+    slug: "beauty",
+    name: "Beauty",
+    description:
+      "Find beauty, skincare, haircare, cosmetics, and personal-care products from marketplace sellers.",
+    productCount: 96,
+  },
+  {
+    slug: "home-living",
+    name: "Home & Living",
+    description:
+      "Explore furniture, home accessories, kitchen products, appliances, and everyday household items.",
+    productCount: 143,
+  },
+  {
+    slug: "food-groceries",
+    name: "Food & Groceries",
+    description:
+      "Discover food items, groceries, snacks, beverages, and other everyday essentials.",
+    productCount: 187,
+  },
+  {
+    slug: "phones-accessories",
+    name: "Phones & Accessories",
+    description:
+      "Shop smartphones, chargers, cases, earphones, power banks, and other mobile accessories.",
+    productCount: 112,
+  },
+  {
+    slug: "computers",
+    name: "Computers",
+    description:
+      "Find laptops, desktops, monitors, storage devices, networking equipment, and computer accessories.",
+    productCount: 74,
+  },
+  {
+    slug: "health",
+    name: "Health",
+    description:
+      "Browse eligible health, wellness, personal-care, and related marketplace products.",
+    productCount: 68,
+  },
+];
+
+const products: CategoryProduct[] = [
+  {
+    id: "cat-prod-1",
+    name: "Wireless Bluetooth Earbuds",
+    slug: "wireless-bluetooth-earbuds",
+    price: 18500,
+    compareAtPrice: 22000,
+    imageUrl: "/placeholder-product.jpg",
+    businessName: "TechHub Store",
+    businessSlug: "techhub-store",
+    category: "Electronics",
+    categorySlug: "electronics",
+    state: "Oyo",
+    stock: 18,
+    available: true,
+    featured: true,
+  },
+  {
+    id: "cat-prod-2",
+    name: "Fast Charging Power Bank",
+    slug: "fast-charging-power-bank",
+    price: 24000,
+    compareAtPrice: 28000,
+    imageUrl: "/placeholder-product.jpg",
+    businessName: "TechHub Store",
+    businessSlug: "techhub-store",
+    category: "Electronics",
+    categorySlug: "electronics",
+    state: "Oyo",
+    stock: 12,
+    available: true,
+    featured: false,
+  },
+  {
+    id: "cat-prod-3",
+    name: "Premium Leather Sneakers",
+    slug: "premium-leather-sneakers",
+    price: 32000,
+    compareAtPrice: 38000,
+    imageUrl: "/placeholder-product.jpg",
+    businessName: "Urban Styles",
+    businessSlug: "urban-styles",
+    category: "Fashion",
+    categorySlug: "fashion",
+    state: "Lagos",
+    stock: 9,
+    available: true,
+    featured: true,
+  },
+  {
+    id: "cat-prod-4",
+    name: "Classic Casual Shirt",
+    slug: "classic-casual-shirt",
+    price: 14500,
+    imageUrl: "/placeholder-product.jpg",
+    businessName: "Urban Styles",
+    businessSlug: "urban-styles",
+    category: "Fashion",
+    categorySlug: "fashion",
+    state: "Lagos",
+    stock: 25,
+    available: true,
+    featured: false,
+  },
+  {
+    id: "cat-prod-5",
+    name: "Smart LED Table Lamp",
+    slug: "smart-led-table-lamp",
+    price: 19500,
+    compareAtPrice: 24000,
+    imageUrl: "/placeholder-product.jpg",
+    businessName: "Home Essentials",
+    businessSlug: "home-essentials",
+    category: "Home & Living",
+    categorySlug: "home-living",
+    state: "Osun",
+    stock: 14,
+    available: true,
+    featured: true,
+  },
+  {
+    id: "cat-prod-6",
+    name: "Kitchen Storage Set",
+    slug: "kitchen-storage-set",
+    price: 12500,
+    imageUrl: "/placeholder-product.jpg",
+    businessName: "Home Essentials",
+    businessSlug: "home-essentials",
+    category: "Home & Living",
+    categorySlug: "home-living",
+    state: "Osun",
+    stock: 21,
+    available: true,
+    featured: false,
+  },
+  {
+    id: "cat-prod-7",
+    name: "Natural Hair Care Bundle",
+    slug: "natural-hair-care-bundle",
+    price: 17500,
+    compareAtPrice: 21000,
+    imageUrl: "/placeholder-product.jpg",
+    businessName: "Glow Beauty Store",
+    businessSlug: "glow-beauty-store",
+    category: "Beauty",
+    categorySlug: "beauty",
+    state: "Lagos",
+    stock: 16,
+    available: true,
+    featured: true,
+  },
+  {
+    id: "cat-prod-8",
+    name: "Organic Body Care Set",
+    slug: "organic-body-care-set",
+    price: 22000,
+    imageUrl: "/placeholder-product.jpg",
+    businessName: "Glow Beauty Store",
+    businessSlug: "glow-beauty-store",
+    category: "Beauty",
+    categorySlug: "beauty",
+    state: "Lagos",
+    stock: 11,
+    available: true,
+    featured: false,
+  },
+];
+
 const stateOptions = [
   "All states",
   "Lagos",
@@ -60,8 +246,7 @@ const stateOptions = [
 
 export default function Category() {
   const { slug } = useParams<{ slug: string }>();
-  const { categories, loading: categoriesLoading } = useMarketplaceCategories();
-  const { products, loading: productsLoading } = useMarketplaceProducts({ limit: 1000 });
+
   const category = categories.find((item) => item.slug === slug);
 
   const [search, setSearch] = useState("");
@@ -80,7 +265,7 @@ export default function Category() {
     return products.filter(
       (product) => product.categorySlug === category.slug,
     );
-  }, [category, products]);
+  }, [category]);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();

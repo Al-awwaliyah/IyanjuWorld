@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../../libs/supabase";
+import { useMemo, useState } from "react";
 import {
   Eye,
   Search,
@@ -57,6 +56,71 @@ type Order = {
   riderName?: string;
   createdAt: string;
 };
+
+const demoOrders: Order[] = [
+  {
+    id: "order-001",
+    orderReference: "ORDER-AX1024",
+    customerName: "Customer One",
+    customerPhone: "+234 800 000 0001",
+    businessName: "Aremu Fashion Store",
+    businessId: "business-001",
+    status: "out_for_delivery",
+    paymentStatus: "paid",
+    subtotal: 45000,
+    deliveryFee: 2500,
+    platformFee: 2250,
+    customerTotal: 47500,
+    riderName: "Rider One",
+    createdAt: "2026-09-12T08:20:00.000Z",
+  },
+  {
+    id: "order-002",
+    orderReference: "ORDER-BX2048",
+    customerName: "Customer Two",
+    customerPhone: "+234 800 000 0002",
+    businessName: "Iyanju Foods",
+    businessId: "business-002",
+    status: "business_confirmed",
+    paymentStatus: "paid",
+    subtotal: 18500,
+    deliveryFee: 1800,
+    platformFee: 925,
+    customerTotal: 20300,
+    createdAt: "2026-09-12T09:15:00.000Z",
+  },
+  {
+    id: "order-003",
+    orderReference: "ORDER-CX4096",
+    customerName: "Customer Three",
+    customerPhone: "+234 800 000 0003",
+    businessName: "Tech Accessories Hub",
+    businessId: "business-003",
+    status: "completed",
+    paymentStatus: "paid",
+    subtotal: 72000,
+    deliveryFee: 3000,
+    platformFee: 3600,
+    customerTotal: 75000,
+    riderName: "Rider Three",
+    createdAt: "2026-09-11T14:40:00.000Z",
+  },
+  {
+    id: "order-004",
+    orderReference: "ORDER-DX8192",
+    customerName: "Customer Four",
+    customerPhone: "+234 800 000 0004",
+    businessName: "Aremu Fashion Store",
+    businessId: "business-001",
+    status: "pending_payment",
+    paymentStatus: "pending",
+    subtotal: 12000,
+    deliveryFee: 1500,
+    platformFee: 600,
+    customerTotal: 13500,
+    createdAt: "2026-09-12T10:05:00.000Z",
+  },
+];
 
 const statusOptions = [
   { value: "", label: "All order statuses" },
@@ -183,44 +247,7 @@ function formatAmount(amount: number) {
 }
 
 export default function Orders() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    let mounted = true;
-    void supabase
-      .from("orders")
-      .select(`
-        id,order_reference,customer_id,business_id,status,payment_status,
-        subtotal,delivery_fee,platform_fee,customer_total,created_at,
-        businesses!orders_business_id_fkey(name),
-        customer:profiles!orders_customer_id_fkey(full_name,phone)
-      `)
-      .order("created_at", { ascending: false })
-      .limit(100)
-      .then(({ data, error }) => {
-        if (error) throw error;
-        if (!mounted) return;
-        setOrders((data ?? []).map((row: any) => ({
-          id: row.id,
-          orderReference: row.order_reference,
-          customerName: row.customer?.full_name ?? "Customer",
-          customerPhone: row.customer?.phone ?? "—",
-          businessName: row.businesses?.name ?? "Business",
-          businessId: row.business_id,
-          status: row.status,
-          paymentStatus: row.payment_status,
-          subtotal: Number(row.subtotal ?? 0),
-          deliveryFee: Number(row.delivery_fee ?? 0),
-          platformFee: Number(row.platform_fee ?? 0),
-          customerTotal: Number(row.customer_total ?? 0),
-          createdAt: row.created_at,
-        })));
-      })
-      .catch((error) => console.error("Failed to load admin orders", error))
-      .finally(() => mounted && setLoading(false));
-    return () => { mounted = false; };
-  }, []);
-
+  const [orders, setOrders] = useState<Order[]>(demoOrders);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("");

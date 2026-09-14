@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
-import { useMarketplaceProducts, useMarketplaceCategories, useMarketplaceBusinesses, useMarketplaceProduct, useMarketplaceBusiness } from "../../services/marketplace";
 import PageContainer from "../../components/layout/PageContainer";
 import ProductGrid from "../../components/marketplace/ProductGrid";
 import Button from "../../components/ui/Button";
@@ -56,9 +55,288 @@ type Business = {
   products: StoreProduct[];
 };
 
+const businessCatalog: Business[] = [
+  {
+    id: "business-001",
+    name: "Aderonke Fabrics",
+    slug: "aderonke-fabrics",
+    logo: "/images/businesses/aderonke-fabrics.jpg",
+    coverImage: "/images/businesses/aderonke-cover.jpg",
+    description:
+      "Aderonke Fabrics provides quality Ankara, lace and premium fabrics for customers looking for beautiful materials for everyday wear, events and special occasions.",
+    category: "Fashion",
+    categorySlug: "fashion",
+    city: "Ibadan",
+    state: "Oyo",
+    country: "Nigeria",
+    phone: "+234 801 234 5678",
+    whatsapp: "+234 801 234 5678",
+    email: "hello@aderonkefabrics.com",
+    address: "Bodija, Ibadan, Oyo State",
+    verified: true,
+    open: true,
+    productCount: 48,
+    products: [
+      {
+        id: "product-001",
+        name: "Premium Ankara Fabric",
+        slug: "premium-ankara-fabric",
+        price: 18500,
+        compareAtPrice: 22000,
+        imageUrl: "/images/products/ankara.jpg",
+        businessName: "Aderonke Fabrics",
+        businessSlug: "aderonke-fabrics",
+        category: "Fashion",
+        categorySlug: "fashion",
+        stock: 18,
+        available: true,
+        featured: true,
+      },
+      {
+        id: "store-product-002",
+        name: "Premium Lace Fabric",
+        slug: "premium-lace-fabric",
+        price: 42000,
+        compareAtPrice: 47000,
+        imageUrl: "/images/products/lace.jpg",
+        businessName: "Aderonke Fabrics",
+        businessSlug: "aderonke-fabrics",
+        category: "Fashion",
+        categorySlug: "fashion",
+        stock: 8,
+        available: true,
+        featured: true,
+      },
+      {
+        id: "store-product-003",
+        name: "Plain Senator Fabric",
+        slug: "plain-senator-fabric",
+        price: 28000,
+        compareAtPrice: null,
+        imageUrl: "/images/products/senator.jpg",
+        businessName: "Aderonke Fabrics",
+        businessSlug: "aderonke-fabrics",
+        category: "Fashion",
+        categorySlug: "fashion",
+        stock: 15,
+        available: true,
+        featured: false,
+      },
+      {
+        id: "store-product-004",
+        name: "Traditional Print Fabric",
+        slug: "traditional-print-fabric",
+        price: 16000,
+        compareAtPrice: 19000,
+        imageUrl: "/images/products/traditional-print.jpg",
+        businessName: "Aderonke Fabrics",
+        businessSlug: "aderonke-fabrics",
+        category: "Fashion",
+        categorySlug: "fashion",
+        stock: 24,
+        available: true,
+        featured: false,
+      },
+      {
+        id: "store-product-005",
+        name: "Premium Cotton Fabric",
+        slug: "premium-cotton-fabric",
+        price: 14500,
+        compareAtPrice: null,
+        imageUrl: "/images/products/cotton.jpg",
+        businessName: "Aderonke Fabrics",
+        businessSlug: "aderonke-fabrics",
+        category: "Fashion",
+        categorySlug: "fashion",
+        stock: 20,
+        available: true,
+        featured: false,
+      },
+      {
+        id: "store-product-006",
+        name: "Event Collection Ankara",
+        slug: "event-collection-ankara",
+        price: 22000,
+        compareAtPrice: 25000,
+        imageUrl: "/images/products/event-ankara.jpg",
+        businessName: "Aderonke Fabrics",
+        businessSlug: "aderonke-fabrics",
+        category: "Fashion",
+        categorySlug: "fashion",
+        stock: 12,
+        available: true,
+        featured: true,
+      },
+    ],
+  },
+  {
+    id: "business-002",
+    name: "TechPoint Store",
+    slug: "techpoint-store",
+    logo: "/images/businesses/techpoint.jpg",
+    coverImage: "/images/businesses/techpoint-cover.jpg",
+    description:
+      "TechPoint Store provides phones, accessories and everyday technology products for customers across the marketplace.",
+    category: "Electronics",
+    categorySlug: "electronics",
+    city: "Ibadan",
+    state: "Oyo",
+    country: "Nigeria",
+    phone: "+234 802 345 6789",
+    whatsapp: "+234 802 345 6789",
+    email: "sales@techpointstore.com",
+    address: "Ring Road, Ibadan, Oyo State",
+    verified: true,
+    open: true,
+    productCount: 72,
+    products: [
+      {
+        id: "product-002",
+        name: "Wireless Bluetooth Headset",
+        slug: "wireless-bluetooth-headset",
+        price: 12500,
+        compareAtPrice: 15000,
+        imageUrl: "/images/products/headset.jpg",
+        businessName: "TechPoint Store",
+        businessSlug: "techpoint-store",
+        category: "Electronics",
+        categorySlug: "electronics",
+        stock: 25,
+        available: true,
+        featured: true,
+      },
+      {
+        id: "tech-product-002",
+        name: "Fast Charging Adapter",
+        slug: "fast-charging-adapter",
+        price: 7500,
+        compareAtPrice: 9000,
+        imageUrl: "/images/products/charger.jpg",
+        businessName: "TechPoint Store",
+        businessSlug: "techpoint-store",
+        category: "Electronics",
+        categorySlug: "electronics",
+        stock: 31,
+        available: true,
+        featured: false,
+      },
+      {
+        id: "tech-product-003",
+        name: "USB-C Cable",
+        slug: "usb-c-cable",
+        price: 4500,
+        compareAtPrice: null,
+        imageUrl: "/images/products/usb-c.jpg",
+        businessName: "TechPoint Store",
+        businessSlug: "techpoint-store",
+        category: "Electronics",
+        categorySlug: "electronics",
+        stock: 45,
+        available: true,
+        featured: false,
+      },
+      {
+        id: "tech-product-004",
+        name: "Portable Power Bank",
+        slug: "portable-power-bank",
+        price: 18500,
+        compareAtPrice: 21000,
+        imageUrl: "/images/products/power-bank.jpg",
+        businessName: "TechPoint Store",
+        businessSlug: "techpoint-store",
+        category: "Electronics",
+        categorySlug: "electronics",
+        stock: 16,
+        available: true,
+        featured: true,
+      },
+    ],
+  },
+  {
+    id: "business-003",
+    name: "Elegance Collections",
+    slug: "elegance-collections",
+    logo: "/images/businesses/elegance.jpg",
+    coverImage: "/images/businesses/elegance-cover.jpg",
+    description:
+      "Elegance Collections offers handbags, fashion accessories and stylish everyday essentials.",
+    category: "Fashion",
+    categorySlug: "fashion",
+    city: "Osogbo",
+    state: "Osun",
+    country: "Nigeria",
+    phone: "+234 803 456 7890",
+    whatsapp: "+234 803 456 7890",
+    email: "hello@elegancecollections.com",
+    address: "Oke-Fia, Osogbo, Osun State",
+    verified: true,
+    open: true,
+    productCount: 36,
+    products: [
+      {
+        id: "product-003",
+        name: "Ladies Leather Handbag",
+        slug: "ladies-leather-handbag",
+        price: 28000,
+        compareAtPrice: 32000,
+        imageUrl: "/images/products/handbag.jpg",
+        businessName: "Elegance Collections",
+        businessSlug: "elegance-collections",
+        category: "Fashion",
+        categorySlug: "fashion",
+        stock: 9,
+        available: true,
+        featured: true,
+      },
+      {
+        id: "elegance-product-002",
+        name: "Classic Shoulder Bag",
+        slug: "classic-shoulder-bag",
+        price: 22000,
+        compareAtPrice: null,
+        imageUrl: "/images/products/shoulder-bag.jpg",
+        businessName: "Elegance Collections",
+        businessSlug: "elegance-collections",
+        category: "Fashion",
+        categorySlug: "fashion",
+        stock: 13,
+        available: true,
+        featured: false,
+      },
+      {
+        id: "elegance-product-003",
+        name: "Women's Purse",
+        slug: "womens-purse",
+        price: 9500,
+        compareAtPrice: 12000,
+        imageUrl: "/images/products/purse.jpg",
+        businessName: "Elegance Collections",
+        businessSlug: "elegance-collections",
+        category: "Fashion",
+        categorySlug: "fashion",
+        stock: 18,
+        available: true,
+        featured: false,
+      },
+    ],
+  },
+];
+
+function findBusiness(slug?: string) {
+  if (!slug) {
+    return businessCatalog[0];
+  }
+
+  return (
+    businessCatalog.find(
+      (business) => business.slug === slug,
+    ) ?? businessCatalog[0]
+  );
+}
+
 export default function BusinessDetails() {
   const { slug } = useParams();
-  const { business, loading, error } = useMarketplaceBusiness(slug);
+  const business = findBusiness(slug);
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -69,7 +347,7 @@ export default function BusinessDetails() {
   const categories = useMemo(() => {
     const values = Array.from(
       new Set(
-        (business?.products ?? []).map(
+        business.products.map(
           (product) => product.category,
         ),
       ),
@@ -85,18 +363,18 @@ export default function BusinessDetails() {
         label: value,
       })),
     ];
-  }, [business?.products]);
+  }, [business.products]);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    return (business?.products ?? []).filter((product) => {
+    return business.products.filter((product) => {
       const matchesSearch =
         !query ||
         [
           product.name,
           product.category,
-          (business?.name ?? ""),
+          business.name,
         ]
           .join(" ")
           .toLowerCase()
@@ -116,14 +394,14 @@ export default function BusinessDetails() {
       );
     });
   }, [
-    (business?.name ?? ""),
-    business?.products,
+    business.name,
+    business.products,
     search,
     category,
     availableOnly,
   ]);
 
-  const featuredProducts = (business?.products ?? []).filter(
+  const featuredProducts = business.products.filter(
     (product) =>
       product.featured &&
       product.available,
@@ -134,31 +412,22 @@ export default function BusinessDetails() {
   ) => {
     if (type === "call") {
       setMessage(
-        `Call ${business?.name ?? "this business"} using the seller's verified business phone number.`,
+        `Call ${business.name} using the seller's verified business phone number.`,
       );
       return;
     }
 
     if (type === "whatsapp") {
       setMessage(
-        `WhatsApp will open the verified WhatsApp contact for ${business?.name ?? "this business"}.`,
+        `WhatsApp will open the verified WhatsApp contact for ${business.name}.`,
       );
       return;
     }
 
     setMessage(
-      `Chat with ${business?.name ?? "this business"} will open through the marketplace messaging system after authentication.`,
+      `Chat with ${business.name} will open through the marketplace messaging system after authentication.`,
     );
   };
-
-
-  if (loading) {
-    return <PageContainer><div className="py-16 text-center text-slate-500">Loading business...</div></PageContainer>;
-  }
-
-  if (!business) {
-    return <PageContainer><div className="py-16 text-center"><h1 className="text-2xl font-bold text-slate-900">Business not found</h1><p className="mt-2 text-slate-500">{error?.message ?? "This business is no longer available."}</p><Link to="/businesses" className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Browse businesses</Link></div></PageContainer>;
-  }
 
   return (
     <PageContainer>

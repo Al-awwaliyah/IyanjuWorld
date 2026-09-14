@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -24,7 +24,6 @@ import OrderStatus from "../../components/orders/OrderStatus";
 import OrderTimeline from "../../components/orders/OrderTimeline";
 import OrderSummary from "../../components/orders/OrderSummary";
 import { formatDateTime, formatOrderReference } from "../../libs/format";
-import { supabase } from "../../libs/supabase";
 
 type OrderStatusValue =
   | "pending_payment"
@@ -105,6 +104,99 @@ type OrderDetailsData = {
   timeline: TimelineEvent[];
 };
 
+const demoOrder: OrderDetailsData = {
+  id: "order-001",
+  orderReference: "ORDER-AX1024",
+  status: "out_for_delivery",
+  paymentStatus: "paid",
+  customer: {
+    id: "customer-001",
+    name: "Customer One",
+    phone: "+234 800 000 0001",
+  },
+  business: {
+    id: "business-001",
+    name: "Aremu Fashion Store",
+    phone: "+234 800 000 0010",
+  },
+  rider: {
+    id: "rider-001",
+    name: "Rider One",
+    phone: "+234 803 000 0000",
+  },
+  items: [
+    {
+      id: "item-001",
+      productName: "Premium Native Wear",
+      sku: "ANW-001",
+      quantity: 1,
+      unitPrice: 30000,
+      lineTotal: 30000,
+    },
+    {
+      id: "item-002",
+      productName: "Traditional Cap",
+      sku: "CAP-002",
+      quantity: 1,
+      unitPrice: 15000,
+      lineTotal: 15000,
+    },
+  ],
+  subtotal: 45000,
+  deliveryFee: 2500,
+  platformFeeRate: 5,
+  platformFee: 2250,
+  businessNetAmount: 42750,
+  customerTotal: 47500,
+  deliveryAddress: "12 Example Street, Ibadan, Oyo State",
+  deliveryZone: "Ibadan Central",
+  deliveryDistanceKm: 6.4,
+  deliveryNote: "Please call when you arrive.",
+  customerNote: "Handle package carefully.",
+  paymentReference: "PAY-FLW-AX1024",
+  paymentMethod: "Flutterwave",
+  createdAt: "2026-09-12T08:20:00.000Z",
+  updatedAt: "2026-09-12T10:45:00.000Z",
+  timeline: [
+    {
+      id: "event-001",
+      status: "pending_payment",
+      createdAt: "2026-09-12T08:20:00.000Z",
+    },
+    {
+      id: "event-002",
+      status: "paid",
+      createdAt: "2026-09-12T08:22:00.000Z",
+      note: "Payment verified successfully.",
+    },
+    {
+      id: "event-003",
+      status: "business_confirmed",
+      createdAt: "2026-09-12T08:40:00.000Z",
+    },
+    {
+      id: "event-004",
+      status: "delivery_requested",
+      createdAt: "2026-09-12T08:42:00.000Z",
+    },
+    {
+      id: "event-005",
+      status: "rider_assigned",
+      createdAt: "2026-09-12T08:48:00.000Z",
+    },
+    {
+      id: "event-006",
+      status: "picked_up",
+      createdAt: "2026-09-12T10:10:00.000Z",
+    },
+    {
+      id: "event-007",
+      status: "out_for_delivery",
+      createdAt: "2026-09-12T10:30:00.000Z",
+    },
+  ],
+};
+
 const statusOrder: OrderStatusValue[] = [
   "pending_payment",
   "paid",
@@ -160,85 +252,12 @@ function formatAmount(amount: number) {
 export default function OrderDetails() {
   const { orderId } = useParams();
 
-  const [order, setOrder] = useState<OrderDetailsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
+  const [order, setOrder] = useState<OrderDetailsData>({
+    ...demoOrder,
+    id: orderId || demoOrder.id,
+  });
 
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-
-  useEffect(() => {
-    if (!orderId) {
-      setLoadError("No order was specified.");
-      setLoading(false);
-      return;
-    }
-
-    let mounted = true;
-    void Promise.all([
-      supabase.from("orders").select(`
-        id,order_reference,status,payment_status,customer_id,business_id,
-        subtotal,delivery_fee,platform_fee_rate,platform_fee,business_net_amount,
-        customer_total,delivery_address_line,delivery_city,delivery_state,
-        delivery_country,delivery_notes,customer_note,created_at,updated_at,
-        businesses!orders_business_id_fkey(id,name,phone),
-        customer:profiles!orders_customer_id_fkey(id,full_name,phone),
-        order_items(id,product_name,sku,image_url,quantity,unit_price,line_total)
-      `).eq("id", orderId).maybeSingle(),
-      supabase.from("order_status_history").select("id,new_status,created_at,note").eq("order_id", orderId).order("created_at", { ascending: true }),
-    ]).then(([orderResult, historyResult]) => {
-      if (orderResult.error) throw orderResult.error;
-      if (historyResult.error) throw historyResult.error;
-      if (!orderResult.data || !mounted) return;
-
-      const row: any = orderResult.data;
-      setOrder({
-        id: row.id,
-        orderReference: row.order_reference,
-        status: row.status,
-        paymentStatus: row.payment_status,
-        customer: {
-          id: row.customer_id,
-          name: row.customer?.full_name ?? "Customer",
-          phone: row.customer?.phone ?? "—",
-        },
-        business: {
-          id: row.business_id,
-          name: row.businesses?.name ?? "Business",
-          phone: row.businesses?.phone ?? "—",
-        },
-        items: (row.order_items ?? []).map((item: any) => ({
-          id: item.id,
-          productName: item.product_name,
-          sku: item.sku ?? undefined,
-          imageUrl: item.image_url ?? undefined,
-          quantity: Number(item.quantity ?? 0),
-          unitPrice: Number(item.unit_price ?? 0),
-          lineTotal: Number(item.line_total ?? 0),
-        })),
-        subtotal: Number(row.subtotal ?? 0),
-        deliveryFee: Number(row.delivery_fee ?? 0),
-        platformFeeRate: Number(row.platform_fee_rate ?? 0),
-        platformFee: Number(row.platform_fee ?? 0),
-        businessNetAmount: Number(row.business_net_amount ?? 0),
-        customerTotal: Number(row.customer_total ?? 0),
-        deliveryAddress: [row.delivery_address_line, row.delivery_city, row.delivery_state, row.delivery_country].filter(Boolean).join(", "),
-        deliveryNote: row.delivery_notes ?? undefined,
-        customerNote: row.customer_note ?? undefined,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        timeline: (historyResult.data ?? []).map((event: any) => ({
-          id: event.id,
-          status: event.new_status,
-          createdAt: event.created_at,
-          note: event.note ?? undefined,
-        })),
-      });
-    }).catch((error) => {
-      if (mounted) setLoadError(error instanceof Error ? error.message : "Unable to load order.");
-    }).finally(() => mounted && setLoading(false));
-
-    return () => { mounted = false; };
-  }, [orderId]);
 
   const canCancel = useMemo(
     () =>
@@ -247,27 +266,25 @@ export default function OrderDetails() {
         "completed",
         "delivered",
         "refunded",
-      ].includes(order?.status as OrderStatusValue),
-    [order?.status],
+      ].includes(order.status),
+    [order.status],
   );
 
   const canRequestDelivery =
-    order?.paymentStatus === "paid" &&
-    order?.status === "paid";
+    order.paymentStatus === "paid" &&
+    order.status === "paid";
 
   const canMarkDelivered =
-    order?.status === "out_for_delivery";
+    order.status === "out_for_delivery";
 
   const canComplete =
-    order?.status === "delivered";
+    order.status === "delivered";
 
   const addTimelineEvent = (
     status: OrderStatusValue,
     note?: string,
   ) => {
-    setOrder((current) => {
-      if (!current) return current;
-      return {
+    setOrder((current) => ({
       ...current,
       status,
       updatedAt: new Date().toISOString(),
@@ -280,8 +297,7 @@ export default function OrderDetails() {
           note,
         },
       ],
-    };
-    });
+    }));
   };
 
   const handleCancel = () => {
@@ -312,14 +328,6 @@ export default function OrderDetails() {
       "Order marked as completed.",
     );
   };
-
-  if (loading) {
-    return <PageContainer><div className="py-16 text-center text-slate-500">Loading order...</div></PageContainer>;
-  }
-
-  if (!order) {
-    return <PageContainer><div className="py-16 text-center"><h1 className="text-2xl font-bold text-slate-900">Order not found</h1><p className="mt-2 text-slate-500">{loadError || "The order could not be loaded."}</p><Link to="/admin/orders" className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Back to orders</Link></div></PageContainer>;
-  }
 
   return (
     <PageContainer
