@@ -114,7 +114,7 @@ export default function About() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-slate-950 p-8 shadow-sm sm:p-10">
+            <div className="rounded-3xl border border-slate-200 bg-ink-950 p-8 shadow-sm sm:p-10 dark-surface">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10">
                 <Store className="h-7 w-7 text-white" />
               </div>

@@ -173,7 +173,7 @@ function getEarningStatusClasses(status: string) {
   const normalized = normalizeStatus(status);
 
   if (isAvailableEarning(normalized)) {
-    return "bg-blue-50 text-blue-700";
+    return "bg-brand-50 text-brand-700";
   }
 
   if (normalized === "paid") {
@@ -522,7 +522,7 @@ export default function RiderEarnings() {
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-700">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-brand-700">
               <TrendingUp className="h-4 w-4" />
               Rider earnings
             </div>
@@ -568,7 +568,7 @@ export default function RiderEarnings() {
 
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
               <TrendingUp className="h-5 w-5" />
             </div>
 
@@ -624,16 +624,16 @@ export default function RiderEarnings() {
           </div>
         </div>
 
-        <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-5">
+        <div className="mb-6 rounded-2xl border border-brand-200 bg-brand-50 p-5">
           <div className="flex items-start gap-3">
-            <ArrowDownToLine className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+            <ArrowDownToLine className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
 
             <div>
-              <p className="text-sm font-bold text-blue-900">
+              <p className="text-sm font-bold text-brand-900">
                 Direct bank payout
               </p>
 
-              <p className="mt-1 text-sm leading-6 text-blue-800">
+              <p className="mt-1 text-sm leading-6 text-brand-800">
                 Your earnings are paid directly to your verified bank account
                 after the customer confirms delivery. There is no rider wallet,
                 wallet balance, deposit, or manual withdrawal process.
@@ -671,7 +671,7 @@ export default function RiderEarnings() {
                     onClick={() => setFilter(item.key)}
                     className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
                       selected
-                        ? "bg-slate-900 text-white"
+                        ? "bg-ink-900 text-white"
                         : "text-slate-600 hover:bg-slate-100"
                     }`}
                   >

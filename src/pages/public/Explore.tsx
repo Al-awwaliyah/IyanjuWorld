@@ -299,7 +299,7 @@ export default function Explore() {
                     onClick={() => setView("grid")}
                     className={`flex h-8 w-8 items-center justify-center rounded-md transition ${
                       view === "grid"
-                        ? "bg-slate-900 text-white"
+                        ? "bg-ink-900 text-white"
                         : "text-slate-400 hover:text-slate-700"
                     }`}
                     aria-label="Grid view"
@@ -312,7 +312,7 @@ export default function Explore() {
                     onClick={() => setView("list")}
                     className={`flex h-8 w-8 items-center justify-center rounded-md transition ${
                       view === "list"
-                        ? "bg-slate-900 text-white"
+                        ? "bg-ink-900 text-white"
                         : "text-slate-400 hover:text-slate-700"
                     }`}
                     aria-label="List view"

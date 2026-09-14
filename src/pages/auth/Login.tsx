@@ -223,7 +223,7 @@ export default function Login() {
       <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6">
         <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-brand-600" />
 
             <p className="text-sm text-slate-600">
               Checking your session...
@@ -239,7 +239,7 @@ export default function Login() {
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center">
         <section className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-700">
               <LogIn className="h-7 w-7" />
             </div>
 
@@ -298,7 +298,7 @@ export default function Login() {
               <div className="mt-2 text-right">
                 <Link
                   to="/forgot-password"
-                  className="text-sm font-medium text-blue-700 hover:text-blue-800"
+                  className="text-sm font-medium text-brand-700 hover:text-brand-800"
                 >
                   Forgot password?
                 </Link>
@@ -315,7 +315,7 @@ export default function Login() {
                   )
                 }
                 disabled={loading}
-                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
               />
 
               Remember me
@@ -340,7 +340,7 @@ export default function Login() {
           </form>
 
           <div className="mt-6 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
 
             <p className="text-xs leading-5 text-slate-600">
               Your account access is protected by Supabase
@@ -353,7 +353,7 @@ export default function Login() {
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-semibold text-blue-700 hover:text-blue-800"
+              className="font-semibold text-brand-700 hover:text-brand-800"
             >
               Create one
             </Link>

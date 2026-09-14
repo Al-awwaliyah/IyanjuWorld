@@ -235,7 +235,7 @@ export default function CustomerDashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome */}
-      <section className="rounded-2xl bg-slate-900 p-6 text-white shadow-sm sm:p-8">
+      <section className="rounded-2xl bg-ink-900 p-6 text-white shadow-sm sm:p-8 dark-surface">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="mb-2 text-sm font-medium text-slate-300">
@@ -341,7 +341,7 @@ export default function CustomerDashboard() {
           className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md sm:col-span-2 xl:col-span-1"
         >
           <div className="flex items-start justify-between">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
               <Bell className="h-5 w-5" />
             </div>
 
@@ -458,7 +458,7 @@ export default function CustomerDashboard() {
 
             <Link
               to="/explore"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
             >
               Explore marketplace
               <ArrowRight className="h-4 w-4" />

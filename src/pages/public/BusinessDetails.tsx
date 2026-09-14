@@ -157,7 +157,7 @@ export default function BusinessDetails() {
   }
 
   if (!business) {
-    return <PageContainer><div className="py-16 text-center"><h1 className="text-2xl font-bold text-slate-900">Business not found</h1><p className="mt-2 text-slate-500">{error?.message ?? "This business is no longer available."}</p><Link to="/businesses" className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Browse businesses</Link></div></PageContainer>;
+    return <PageContainer><div className="py-16 text-center"><h1 className="text-2xl font-bold text-slate-900">Business not found</h1><p className="mt-2 text-slate-500">{error?.message ?? "This business is no longer available."}</p><Link to="/businesses" className="mt-6 inline-flex rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white dark-surface">Browse businesses</Link></div></PageContainer>;
   }
 
   return (
@@ -399,7 +399,7 @@ export default function BusinessDetails() {
                   onClick={() => setView("grid")}
                   className={`flex h-8 w-8 items-center justify-center rounded-md transition ${
                     view === "grid"
-                      ? "bg-slate-900 text-white"
+                      ? "bg-ink-900 text-white"
                       : "text-slate-400 hover:text-slate-700"
                   }`}
                   aria-label="Grid view"
@@ -412,7 +412,7 @@ export default function BusinessDetails() {
                   onClick={() => setView("list")}
                   className={`flex h-8 w-8 items-center justify-center rounded-md transition ${
                     view === "list"
-                      ? "bg-slate-900 text-white"
+                      ? "bg-ink-900 text-white"
                       : "text-slate-400 hover:text-slate-700"
                   }`}
                   aria-label="List view"

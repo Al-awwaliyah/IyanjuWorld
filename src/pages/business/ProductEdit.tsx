@@ -366,7 +366,7 @@ export default function ProductEdit() {
 
           <Link
             to="/business/products"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Products
@@ -600,7 +600,7 @@ export default function ProductEdit() {
                 className="peer sr-only"
               />
 
-              <span className="h-6 w-11 rounded-full bg-gray-300 transition peer-checked:bg-gray-900 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gray-900/20" />
+              <span className="h-6 w-11 rounded-full bg-gray-300 transition peer-checked:bg-ink-900 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gray-900/20 dark-surface" />
 
               <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition peer-checked:translate-x-5" />
             </label>
@@ -644,7 +644,7 @@ export default function ProductEdit() {
             <button
               type="submit"
               disabled={saving || deleting}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 disabled:cursor-not-allowed disabled:opacity-60 dark-surface"
             >
               {saving ? (
                 <>

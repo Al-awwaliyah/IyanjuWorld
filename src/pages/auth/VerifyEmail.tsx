@@ -208,13 +208,13 @@ export default function VerifyEmail() {
               Back
             </Link>
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50 text-brand-700">
               <ShieldCheck className="h-5 w-5" />
             </div>
           </div>
 
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-700">
               <Mail className="h-7 w-7" />
             </div>
 
@@ -262,7 +262,7 @@ export default function VerifyEmail() {
                 maxLength={OTP_LENGTH}
                 disabled={loading || resending}
                 required
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-center text-2xl font-semibold tracking-[0.45em] text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-center text-2xl font-semibold tracking-[0.45em] text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-brand-600 focus:ring-4 focus:ring-brand-100 disabled:cursor-not-allowed disabled:bg-slate-100"
               />
             </div>
 
@@ -303,7 +303,7 @@ export default function VerifyEmail() {
               type="button"
               onClick={handleResend}
               disabled={loading || resending || cooldown > 0}
-              className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 transition hover:text-blue-800 disabled:cursor-not-allowed disabled:text-slate-400"
+              className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition hover:text-brand-800 disabled:cursor-not-allowed disabled:text-slate-400"
             >
               <RefreshCw
                 className={`h-4 w-4 ${resending ? "animate-spin" : ""}`}

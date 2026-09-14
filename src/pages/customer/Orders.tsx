@@ -333,7 +333,7 @@ export default function CustomerOrders() {
                   onClick={() => setFilter(key as FilterKey)}
                   className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition ${
                     filter === key
-                      ? "bg-slate-900 text-white"
+                      ? "bg-ink-900 text-white"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >

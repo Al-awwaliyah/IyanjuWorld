@@ -137,7 +137,7 @@ export default function Register() {
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-700">
               <UserRound className="h-7 w-7" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">Create your IyanjuWorld account</h1>
@@ -156,9 +156,9 @@ export default function Register() {
                       type="button"
                       onClick={() => { setAccountType(type.value); setError(""); }}
                       disabled={loading}
-                      className={`relative rounded-xl border p-4 text-left transition ${selected ? "border-blue-600 bg-blue-50 ring-2 ring-blue-100" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"} disabled:cursor-not-allowed disabled:opacity-60`}
+                      className={`relative rounded-xl border p-4 text-left transition ${selected ? "border-brand-600 bg-brand-50 ring-2 ring-brand-100" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"} disabled:cursor-not-allowed disabled:opacity-60`}
                     >
-                      {selected && <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-white"><Check className="h-3 w-3" /></span>}
+                      {selected && <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-brand-600 text-white"><Check className="h-3 w-3" /></span>}
                       <div className="pr-6 text-sm font-semibold text-slate-900">{type.label}</div>
                       <div className="mt-1 text-xs leading-5 text-slate-600">{type.description}</div>
                     </button>
@@ -180,9 +180,9 @@ export default function Register() {
             </div>
 
             <label className="flex items-start gap-3 text-sm text-slate-600">
-              <input type="checkbox" checked={acceptedTerms} onChange={(event) => { setAcceptedTerms(event.target.checked); setError(""); }} disabled={loading} className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+              <input type="checkbox" checked={acceptedTerms} onChange={(event) => { setAcceptedTerms(event.target.checked); setError(""); }} disabled={loading} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
               <span>
-                I agree to the <Link to="/terms" className="font-medium text-blue-700 hover:text-blue-800">Terms of Service</Link> and <Link to="/privacy" className="font-medium text-blue-700 hover:text-blue-800">Privacy Policy</Link>.
+                I agree to the <Link to="/terms" className="font-medium text-brand-700 hover:text-brand-800">Terms of Service</Link> and <Link to="/privacy" className="font-medium text-brand-700 hover:text-brand-800">Privacy Policy</Link>.
               </span>
             </label>
 
@@ -191,7 +191,7 @@ export default function Register() {
           </form>
 
           <div className="mt-6 text-center text-sm text-slate-600">
-            Already have an account? <Link to="/login" className="font-semibold text-blue-700 hover:text-blue-800">Sign in</Link>
+            Already have an account? <Link to="/login" className="font-semibold text-brand-700 hover:text-brand-800">Sign in</Link>
           </div>
         </section>
       </div>

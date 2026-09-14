@@ -379,7 +379,7 @@ export default function RiderProfile() {
               <div className="border-b border-slate-100 p-5 sm:p-6">
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-50 text-blue-700">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-brand-700">
                       {rider.photo_url ? (
                         <img
                           src={rider.photo_url}
@@ -429,7 +429,7 @@ export default function RiderProfile() {
                     )}
 
                     {rider.active ? (
-                      <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700">
+                      <span className="rounded-full bg-brand-50 px-3 py-1.5 text-xs font-bold text-brand-700">
                         Active
                       </span>
                     ) : (
@@ -511,7 +511,7 @@ export default function RiderProfile() {
                         event.target.value
                       )
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -533,7 +533,7 @@ export default function RiderProfile() {
                       )
                     }
                     type="tel"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     placeholder="08012345678"
                   />
 
@@ -592,7 +592,7 @@ export default function RiderProfile() {
                         event.target.value
                       )
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     placeholder="e.g. Motorcycle"
                   />
                 </div>
@@ -613,7 +613,7 @@ export default function RiderProfile() {
                         event.target.value
                       )
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm uppercase text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm uppercase text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     placeholder="e.g. ABC-123-XY"
                   />
                 </div>
@@ -635,7 +635,7 @@ export default function RiderProfile() {
                       )
                     }
                     rows={3}
-                    className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     placeholder="Describe the areas where you normally accept deliveries"
                   />
 
@@ -654,7 +654,7 @@ export default function RiderProfile() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
                   {saving ? (
                     <>
@@ -673,7 +673,7 @@ export default function RiderProfile() {
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <div className="flex items-start gap-3">
-                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
 
                 <div>
                   <h2 className="text-sm font-bold text-slate-900">

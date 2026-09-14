@@ -470,7 +470,7 @@ export default function Profile() {
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-100 bg-slate-50 px-5 py-5 sm:px-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-lg font-semibold text-white">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-ink-900 text-lg font-semibold text-white dark-surface">
               {profile.full_name
                 ? profile.full_name
                     .split(/\s+/)

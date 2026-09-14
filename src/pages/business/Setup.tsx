@@ -292,7 +292,7 @@ export default function BusinessSetup() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-brand-600" />
           <p className="text-sm text-slate-600">
             Loading your business setup...
           </p>
@@ -344,7 +344,7 @@ export default function BusinessSetup() {
                 placeholder="Enter your business name"
                 disabled={saving}
                 required
-                className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-100"
               />
             </div>
 
@@ -365,7 +365,7 @@ export default function BusinessSetup() {
                 placeholder="Tell customers about your business"
                 rows={4}
                 disabled={saving}
-                className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-100"
               />
             </div>
 
@@ -388,7 +388,7 @@ export default function BusinessSetup() {
                   placeholder="08012345678"
                   disabled={saving}
                   required
-                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-100"
                 />
               </div>
 
@@ -409,7 +409,7 @@ export default function BusinessSetup() {
                   }
                   placeholder="08012345678"
                   disabled={saving}
-                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-100"
                 />
               </div>
             </div>
@@ -431,7 +431,7 @@ export default function BusinessSetup() {
                 }
                 placeholder="business@example.com"
                 disabled={saving}
-                className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-100"
               />
             </div>
 
@@ -453,7 +453,7 @@ export default function BusinessSetup() {
                 placeholder="Business address"
                 disabled={saving}
                 required
-                className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-100"
               />
             </div>
 
@@ -476,7 +476,7 @@ export default function BusinessSetup() {
                   placeholder="e.g. Ibadan"
                   disabled={saving}
                   required
-                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-100"
                 />
               </div>
 
@@ -498,19 +498,19 @@ export default function BusinessSetup() {
                   placeholder="e.g. Oyo"
                   disabled={saving}
                   required
-                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
+                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-100"
                 />
               </div>
             </div>
 
-            <div className="rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700">
+            <div className="rounded-lg bg-brand-50 px-4 py-3 text-sm text-brand-700">
               <strong>Country:</strong> Nigeria
             </div>
 
             <button
               type="submit"
               disabled={saving}
-              className="w-full rounded-lg bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-lg bg-brand-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Creating Business..." : "Create Business"}
             </button>

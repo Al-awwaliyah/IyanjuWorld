@@ -76,7 +76,7 @@ function getOrderStatusClass(status: string) {
     case "rider_assigned":
     case "picked_up":
     case "out_for_delivery":
-      return "bg-blue-50 text-blue-700";
+      return "bg-brand-50 text-brand-700";
 
     case "pending_payment":
     case "delivery_requested":
@@ -409,7 +409,7 @@ export default function Dashboard() {
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-900">
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-ink-900 dark-surface">
               <Store className="h-7 w-7 text-white" />
             </div>
 
@@ -468,8 +468,8 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
-              <Package className="h-5 w-5 text-blue-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50">
+              <Package className="h-5 w-5 text-brand-600" />
             </div>
           </div>
         </div>
@@ -490,8 +490,8 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-50">
-              <ShoppingBag className="h-5 w-5 text-violet-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50">
+              <ShoppingBag className="h-5 w-5 text-brand-600" />
             </div>
           </div>
         </div>
@@ -571,8 +571,8 @@ export default function Dashboard() {
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50">
-              <ArrowDownToLine className="h-5 w-5 text-blue-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-50">
+              <ArrowDownToLine className="h-5 w-5 text-brand-600" />
             </div>
 
             <div>

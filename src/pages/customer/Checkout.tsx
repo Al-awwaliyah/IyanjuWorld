@@ -451,7 +451,7 @@ export default function CustomerCheckout() {
 
                   <Link
                     to="/customer/profile"
-                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ink-900 dark-surface"
                   >
                     Add address
                     <ArrowRight className="h-4 w-4" />

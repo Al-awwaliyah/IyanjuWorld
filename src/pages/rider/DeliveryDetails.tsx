@@ -150,7 +150,7 @@ function getStatusClasses(status: string) {
     return "bg-red-50 text-red-700";
   }
 
-  return "bg-blue-50 text-blue-700";
+  return "bg-brand-50 text-brand-700";
 }
 
 export default function RiderDeliveryDetails() {
@@ -628,7 +628,7 @@ export default function RiderDeliveryDetails() {
             <button
               type="button"
               onClick={() => void loadDelivery(true)}
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white dark-surface"
             >
               <RefreshCw className="h-4 w-4" />
               Try again
@@ -725,7 +725,7 @@ export default function RiderDeliveryDetails() {
             <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="border-b border-slate-100 p-5">
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-blue-700" />
+                  <MapPin className="h-5 w-5 text-brand-700" />
                   <h2 className="text-lg font-bold text-slate-900">
                     Delivery route
                   </h2>
@@ -735,7 +735,7 @@ export default function RiderDeliveryDetails() {
               <div className="p-5">
                 <div className="flex gap-4">
                   <div className="flex flex-col items-center">
-                    <span className="mt-1 h-4 w-4 rounded-full border-[3px] border-blue-600 bg-white" />
+                    <span className="mt-1 h-4 w-4 rounded-full border-[3px] border-brand-600 bg-white" />
                     <span className="h-24 w-px bg-slate-200" />
                     <span className="h-4 w-4 rounded-full bg-emerald-500 ring-4 ring-emerald-50" />
                   </div>
@@ -906,7 +906,7 @@ export default function RiderDeliveryDetails() {
                           <span
                             className={`mt-1 h-3 w-3 rounded-full ${
                               index === 0
-                                ? "bg-blue-600"
+                                ? "bg-brand-600"
                                 : "bg-slate-300"
                             }`}
                           />
@@ -958,7 +958,7 @@ export default function RiderDeliveryDetails() {
                   {customer?.phone && (
                     <a
                       href={`tel:${customer.phone}`}
-                      className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-800"
+                      className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-800"
                     >
                       <Phone className="h-4 w-4" />
                       Call customer
@@ -982,7 +982,7 @@ export default function RiderDeliveryDetails() {
                     type="button"
                     onClick={() => void handlePickup()}
                     disabled={actionLoading}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-ink-900 px-4 py-3 text-sm font-semibold text-white hover:bg-ink-900 disabled:cursor-not-allowed disabled:opacity-60 dark-surface"
                   >
                     {actionLoading ? (
                       <RefreshCw className="h-4 w-4 animate-spin" />
@@ -998,7 +998,7 @@ export default function RiderDeliveryDetails() {
                     type="button"
                     onClick={() => void handleOutForDelivery()}
                     disabled={actionLoading}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {actionLoading ? (
                       <RefreshCw className="h-4 w-4 animate-spin" />
@@ -1116,16 +1116,16 @@ export default function RiderDeliveryDetails() {
               </p>
             </section>
 
-            <section className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+            <section className="rounded-2xl border border-brand-200 bg-brand-50 p-5">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
 
                 <div>
-                  <p className="text-sm font-bold text-blue-900">
+                  <p className="text-sm font-bold text-brand-900">
                     Delivery protection
                   </p>
 
-                  <p className="mt-1 text-xs leading-5 text-blue-800">
+                  <p className="mt-1 text-xs leading-5 text-brand-800">
                     Tapping “Submit Delivery” does not complete the order.
                     Completion requires explicit customer confirmation.
                   </p>

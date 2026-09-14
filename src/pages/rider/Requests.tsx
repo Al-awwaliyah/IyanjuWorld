@@ -417,7 +417,7 @@ export default function RiderRequests() {
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-blue-700">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-brand-700">
               <Truck className="h-4 w-4" />
               Rider delivery requests
             </div>
@@ -458,7 +458,7 @@ export default function RiderRequests() {
         {!loading && !error && (
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
                 <Package className="h-5 w-5" />
               </div>
 
@@ -533,7 +533,7 @@ export default function RiderRequests() {
             <button
               type="button"
               onClick={() => void loadRequests(true)}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
             >
               <RefreshCw className="h-4 w-4" />
               Check again
@@ -555,7 +555,7 @@ export default function RiderRequests() {
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
                             <Package className="h-5 w-5" />
                           </span>
 
@@ -572,7 +572,7 @@ export default function RiderRequests() {
                         </div>
                       </div>
 
-                      <span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold capitalize text-blue-700">
+                      <span className="rounded-full bg-brand-50 px-3 py-1.5 text-xs font-semibold capitalize text-brand-700">
                         {getRequestStatusLabel(request.status)}
                       </span>
                     </div>
@@ -582,7 +582,7 @@ export default function RiderRequests() {
                     <div>
                       <div className="flex gap-3">
                         <div className="flex flex-col items-center">
-                          <span className="mt-1 h-3 w-3 rounded-full border-2 border-blue-600 bg-white" />
+                          <span className="mt-1 h-3 w-3 rounded-full border-2 border-brand-600 bg-white" />
                           <span className="h-12 w-px bg-slate-200" />
                           <span className="h-3 w-3 rounded-full bg-emerald-500" />
                         </div>
@@ -674,16 +674,16 @@ export default function RiderRequests() {
                       </div>
                     )}
 
-                    <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                    <div className="rounded-xl border border-brand-100 bg-brand-50 p-4">
                       <div className="flex items-start gap-3">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
 
                         <div>
-                          <p className="text-sm font-semibold text-blue-900">
+                          <p className="text-sm font-semibold text-brand-900">
                             Delivery safety
                           </p>
 
-                          <p className="mt-1 text-xs leading-5 text-blue-800">
+                          <p className="mt-1 text-xs leading-5 text-brand-800">
                             After delivery, you will submit the delivery for
                             customer confirmation. The order will only become
                             completed after the customer accepts the delivery.
@@ -697,7 +697,7 @@ export default function RiderRequests() {
                         type="button"
                         onClick={() => void handleAccept(request)}
                         disabled={isAccepting}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 disabled:cursor-not-allowed disabled:opacity-60 dark-surface"
                       >
                         {isAccepting ? (
                           <>

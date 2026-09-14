@@ -526,7 +526,7 @@ export default function BusinessMessages() {
 
           <Link
             to="/business/settings"
-            className="mt-6 inline-flex rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-6 inline-flex rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             Open Business Settings
           </Link>
@@ -658,7 +658,7 @@ export default function BusinessMessages() {
                       </div>
 
                       {conversation.unreadCount > 0 && (
-                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-gray-900 px-1.5 text-[10px] font-bold text-white">
+                        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-ink-900 px-1.5 text-[10px] font-bold text-white dark-surface">
                           {conversation.unreadCount > 9
                             ? "9+"
                             : conversation.unreadCount}
@@ -753,7 +753,7 @@ export default function BusinessMessages() {
                         <div
                           className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[70%] ${
                             ownMessage
-                              ? "rounded-br-md bg-gray-900 text-white"
+                              ? "rounded-br-md bg-ink-900 text-white"
                               : "rounded-bl-md border border-gray-200 bg-white text-gray-900"
                           }`}
                         >
@@ -817,7 +817,7 @@ export default function BusinessMessages() {
                     disabled={
                       sending || !messageText.trim()
                     }
-                    className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-900 text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-ink-900 text-white transition hover:bg-ink-900 disabled:cursor-not-allowed disabled:opacity-50 dark-surface"
                     aria-label="Send message"
                   >
                     {sending ? (

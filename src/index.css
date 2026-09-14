@@ -75,3 +75,41 @@ svg {
 #root {
   min-height: 100vh;
 }
+
+/* IyanjuWorld shared visual language: the homepage palette is the application palette. */
+:root {
+  --iyw-brand: #f68b1e;
+  --iyw-brand-dark: #e2670c;
+  --iyw-ink: #0f172a;
+  --iyw-ink-deep: #050c1a;
+  --iyw-surface: #f8fafc;
+}
+
+/* Dark panels inherit the homepage's light foreground. Explicit accent
+   utilities remain available for hierarchy and status indicators. */
+.dark-surface {
+  color: #ffffff;
+}
+
+.dark-surface [class*="text-slate-"],
+.dark-surface [class*="text-gray-"],
+.dark-surface [class*="text-zinc-"],
+.dark-surface [class*="text-neutral-"] {
+  color: #ffffff !important;
+}
+
+.dark-surface .text-white\/70 {
+  color: rgb(255 255 255 / 0.7) !important;
+}
+
+.dark-surface .text-white\/80 {
+  color: rgb(255 255 255 / 0.8) !important;
+}
+
+/* Native form controls remain readable regardless of surrounding panel. */
+.dark-surface input,
+.dark-surface textarea,
+.dark-surface select {
+  color: #0f172a;
+  background: #ffffff;
+}

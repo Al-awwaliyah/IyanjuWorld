@@ -440,7 +440,7 @@ export default function RiderDashboard() {
 
           <Link
             to="/rider/profile"
-            className="mt-6 inline-flex rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-6 inline-flex rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             Open Rider Profile
           </Link>
@@ -484,7 +484,7 @@ export default function RiderDashboard() {
 
           <Link
             to="/rider/profile"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             <Settings className="h-4 w-4" />
             Profile
@@ -562,7 +562,7 @@ export default function RiderDashboard() {
               className={`inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
                 rider.available
                   ? "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                  : "bg-gray-900 text-white hover:bg-gray-800"
+                  : "bg-ink-900 text-white hover:bg-ink-900"
               }`}
             >
               {availabilityUpdating ? (

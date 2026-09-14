@@ -320,7 +320,7 @@ export default function BusinessEarnings() {
 
           <Link
             to="/business/settings"
-            className="mt-6 inline-flex rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-6 inline-flex rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             Open Business Settings
           </Link>
@@ -355,7 +355,7 @@ export default function BusinessEarnings() {
 
           <Link
             to="/business/payouts"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-ink-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             <ArrowDownToLine className="h-4 w-4" />
             Payouts
@@ -473,7 +473,7 @@ export default function BusinessEarnings() {
                 onClick={() => setStatusFilter(value)}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                   statusFilter === value
-                    ? "bg-gray-900 text-white"
+                    ? "bg-ink-900 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >

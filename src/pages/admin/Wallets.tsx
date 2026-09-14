@@ -648,16 +648,16 @@ export default function Wallets() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+        <div className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
           <div className="flex items-start gap-3">
-            <Wallet className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+            <Wallet className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
 
             <div>
-              <p className="font-medium text-blue-900">
+              <p className="font-medium text-brand-900">
                 Ledger-controlled wallet balances
               </p>
 
-              <p className="mt-1 text-sm text-blue-800">
+              <p className="mt-1 text-sm text-brand-800">
                 Administrators can monitor wallet activity here,
                 but financial balances are not changed directly
                 from the frontend. Deposits, payments, refunds,

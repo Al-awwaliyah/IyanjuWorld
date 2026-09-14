@@ -108,7 +108,7 @@ export default function ResetPassword() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
         <div className="text-center">
-          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-brand-600" />
           <p className="mt-4 text-sm text-slate-500">
             Verifying your reset session...
           </p>
@@ -120,7 +120,7 @@ export default function ResetPassword() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
-        <section className="hidden bg-slate-950 lg:flex lg:flex-col lg:justify-between">
+        <section className="hidden bg-ink-950 lg:flex lg:flex-col lg:justify-between dark-surface">
           <div className="p-10 xl:p-14">
             <Link to="/" className="inline-flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white">
@@ -133,7 +133,7 @@ export default function ResetPassword() {
             </Link>
 
             <div className="mt-24 max-w-xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-400">
                 Secure password reset
               </p>
 
@@ -173,7 +173,7 @@ export default function ResetPassword() {
               Need help signing in?{" "}
               <Link
                 to="/login"
-                className="font-semibold text-blue-400 hover:text-blue-300"
+                className="font-semibold text-brand-400 hover:text-brand-300"
               >
                 Return to sign in
               </Link>
@@ -185,7 +185,7 @@ export default function ResetPassword() {
           <div className="w-full max-w-md">
             <div className="mb-8 flex items-center justify-center lg:hidden">
               <Link to="/" className="inline-flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-950">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-ink-950 dark-surface">
                   <ShoppingBag className="h-6 w-6 text-white" />
                 </div>
 
@@ -293,11 +293,11 @@ export default function ResetPassword() {
                   </Link>
 
                   <div className="mt-8">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
                       <LockKeyhole className="h-6 w-6" />
                     </div>
 
-                    <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-blue-600">
+                    <p className="mt-6 text-sm font-semibold uppercase tracking-wider text-brand-600">
                       New password
                     </p>
 
@@ -439,7 +439,7 @@ function ResetBenefit({
 }) {
   return (
     <div className="flex gap-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-blue-400">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-brand-400">
         {icon}
       </div>
 

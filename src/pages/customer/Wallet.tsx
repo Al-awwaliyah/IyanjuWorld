@@ -333,7 +333,7 @@ export default function Wallet() {
         </div>
       )}
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 p-6 text-white shadow-sm sm:p-8">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-ink-900 p-6 text-white shadow-sm sm:p-8 dark-surface">
         <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-start">
           <div>
             <div className="flex items-center gap-2 text-sm text-slate-300">

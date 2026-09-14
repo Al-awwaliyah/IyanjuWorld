@@ -276,7 +276,7 @@ export default function BusinessCustomers() {
 
           <Link
             to="/business/settings"
-            className="mt-6 inline-flex rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-6 inline-flex rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             Open Business Settings
           </Link>

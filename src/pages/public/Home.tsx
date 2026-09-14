@@ -81,7 +81,7 @@ export default function Home() {
   return (
     <PageContainer>
       <div className="space-y-16 pb-16">
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink-950 via-ink-900 to-brand-700 px-6 py-14 text-white sm:px-10 sm:py-20 lg:px-16">
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-ink-950 via-ink-900 to-brand-700 dark-surface px-6 py-14 text-white sm:px-10 sm:py-20 lg:px-16">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-500/30 blur-3xl" />
           <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-brand-400/10 blur-3xl" />
 
@@ -189,7 +189,7 @@ export default function Home() {
                       ))}
                     </div>
 
-                    <div className="mt-4 rounded-xl bg-slate-950 p-4 text-white">
+                    <div className="mt-4 rounded-xl bg-ink-950 p-4 text-white dark-surface">
                       <div className="flex items-center gap-3">
                         <Truck className="h-5 w-5 text-brand-400" />
 

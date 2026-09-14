@@ -87,7 +87,7 @@ function getStatusClass(status: string) {
   switch (status) {
     case "paid":
     case "business_confirmed":
-      return "bg-blue-50 text-blue-700";
+      return "bg-brand-50 text-brand-700";
 
     case "delivery_requested":
     case "rider_assigned":
@@ -105,7 +105,7 @@ function getStatusClass(status: string) {
       return "bg-red-50 text-red-700";
 
     case "refund_pending":
-      return "bg-purple-50 text-purple-700";
+      return "bg-brand-50 text-brand-700";
 
     default:
       return "bg-gray-100 text-gray-700";
@@ -348,7 +348,7 @@ export default function BusinessOrders() {
 
           <Link
             to="/business/settings"
-            className="mt-6 inline-flex rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-6 inline-flex rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             Open Business Settings
           </Link>
@@ -395,7 +395,7 @@ export default function BusinessOrders() {
           onClick={() => setStatusFilter("all")}
           className={`rounded-2xl border p-5 text-left shadow-sm transition ${
             statusFilter === "all"
-              ? "border-gray-900 bg-gray-900 text-white"
+              ? "border-gray-900 bg-ink-900 text-white"
               : "border-gray-200 bg-white hover:border-gray-300"
           }`}
         >
@@ -427,11 +427,11 @@ export default function BusinessOrders() {
           onClick={() => setStatusFilter("paid")}
           className={`rounded-2xl border p-5 text-left shadow-sm transition ${
             statusFilter === "paid"
-              ? "border-blue-500 bg-blue-50"
+              ? "border-brand-500 bg-brand-50"
               : "border-gray-200 bg-white hover:border-gray-300"
           }`}
         >
-          <Package className="mb-3 h-5 w-5 text-blue-600" />
+          <Package className="mb-3 h-5 w-5 text-brand-600" />
 
           <p className="text-sm text-gray-500">Paid</p>
           <p className="mt-1 text-2xl font-bold text-gray-900">

@@ -100,7 +100,7 @@ export default function Contact() {
 
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                   <div className="flex gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
                       <MapPin className="h-5 w-5" />
                     </div>
 
@@ -133,7 +133,7 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-slate-950 p-6">
+              <div className="rounded-2xl bg-ink-950 p-6 dark-surface">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
                   <MessageCircle className="h-5 w-5 text-white" />
                 </div>

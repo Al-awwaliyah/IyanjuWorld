@@ -280,7 +280,7 @@ export default function Settings() {
                     }
                     className={`flex w-full items-start gap-3 rounded-lg px-3 py-3 text-left transition ${
                       active
-                        ? "bg-slate-900 text-white"
+                        ? "bg-ink-900 text-white"
                         : "text-slate-700 hover:bg-slate-50"
                     }`}
                   >
@@ -638,20 +638,20 @@ function FeeSettings({
         description="Configure the commission charged to business owners on applicable product/order subtotal."
       />
 
-      <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
+      <div className="rounded-xl border border-brand-200 bg-brand-50 p-5">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-sm font-medium text-blue-900">
+            <p className="text-sm font-medium text-brand-900">
               Current platform fee
             </p>
 
-            <p className="mt-2 text-4xl font-bold text-blue-950">
+            <p className="mt-2 text-4xl font-bold text-brand-950">
               {formatPercentage(
                 settings.platformFeeRate,
               )}
             </p>
 
-            <p className="mt-2 max-w-xl text-sm leading-6 text-blue-800">
+            <p className="mt-2 max-w-xl text-sm leading-6 text-brand-800">
               This fee is charged to the business owner. It is
               calculated from the applicable product/order
               subtotal and does not include the customer's delivery
@@ -977,16 +977,16 @@ function NotificationSettings({
         </SettingRow>
       </div>
 
-      <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+      <div className="mt-6 rounded-lg border border-brand-200 bg-brand-50 p-4">
         <div className="flex items-start gap-3">
-          <Bell className="mt-0.5 h-5 w-5 text-blue-700" />
+          <Bell className="mt-0.5 h-5 w-5 text-brand-700" />
 
           <div>
-            <p className="text-sm font-medium text-blue-900">
+            <p className="text-sm font-medium text-brand-900">
               Push is not the same as dashboard history
             </p>
 
-            <p className="mt-1 text-sm leading-6 text-blue-800">
+            <p className="mt-1 text-sm leading-6 text-brand-800">
               IyanjuWorld notifications are designed around device
               and browser push delivery. In-app notification history
               is retained as a secondary record so users can review

@@ -420,7 +420,7 @@ export default function ProductCreate() {
 
           <Link
             to="/business/settings"
-            className="mt-5 inline-flex rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-5 inline-flex rounded-xl bg-ink-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             Open Business Settings
           </Link>
@@ -639,7 +639,7 @@ export default function ProductCreate() {
                   className="peer sr-only"
                 />
 
-                <span className="h-6 w-11 rounded-full bg-gray-300 transition peer-checked:bg-gray-900 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gray-900/20" />
+                <span className="h-6 w-11 rounded-full bg-gray-300 transition peer-checked:bg-ink-900 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gray-900/20 dark-surface" />
 
                 <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition peer-checked:translate-x-5" />
               </label>
@@ -667,7 +667,7 @@ export default function ProductCreate() {
                 categoryLoading ||
                 categories.length === 0
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 disabled:cursor-not-allowed disabled:opacity-60 dark-surface"
             >
               {saving ? (
                 <>

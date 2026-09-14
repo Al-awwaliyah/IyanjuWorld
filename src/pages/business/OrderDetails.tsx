@@ -132,7 +132,7 @@ function getStatusClass(status: string) {
   switch (status) {
     case "paid":
     case "business_confirmed":
-      return "bg-blue-50 text-blue-700";
+      return "bg-brand-50 text-brand-700";
 
     case "delivery_requested":
     case "rider_assigned":
@@ -150,7 +150,7 @@ function getStatusClass(status: string) {
       return "bg-red-50 text-red-700";
 
     case "refund_pending":
-      return "bg-purple-50 text-purple-700";
+      return "bg-brand-50 text-brand-700";
 
     default:
       return "bg-gray-100 text-gray-700";
@@ -483,7 +483,7 @@ export default function BusinessOrderDetails() {
 
           <Link
             to="/business/orders"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 dark-surface"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Orders
@@ -568,14 +568,14 @@ export default function BusinessOrderDetails() {
       )}
 
       {!isCancelled && nextAction && (
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+        <div className="rounded-2xl border border-brand-200 bg-brand-50 p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="font-semibold text-blue-900">
+              <h2 className="font-semibold text-brand-900">
                 Action required
               </h2>
 
-              <p className="mt-1 text-sm text-blue-700">
+              <p className="mt-1 text-sm text-brand-700">
                 {canConfirm
                   ? "Payment has been received. Confirm that your business will process this order."
                   : canRequestDelivery
@@ -588,7 +588,7 @@ export default function BusinessOrderDetails() {
               type="button"
               onClick={() => void handlePrimaryAction()}
               disabled={actionLoading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-900 disabled:cursor-not-allowed disabled:opacity-60 dark-surface"
             >
               {actionLoading ? (
                 <>
@@ -691,7 +691,7 @@ export default function BusinessOrderDetails() {
                         <span className="absolute left-[11px] top-7 h-full w-px bg-gray-200" />
                       )}
 
-                      <div className="relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900">
+                      <div className="relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink-900 dark-surface">
                         <span className="h-2 w-2 rounded-full bg-white" />
                       </div>
 

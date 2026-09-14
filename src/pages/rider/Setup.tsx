@@ -63,9 +63,9 @@ export default function RiderSetup() {
   };
 
   if (loading) return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-slate-500" /></div>;
-  const input = "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-100 disabled:bg-slate-100";
+  const input = "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-100 disabled:bg-slate-100";
   return <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6"><div className="mx-auto max-w-2xl"><section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-    <div className="mb-8 text-center"><div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-700"><Bike className="h-7 w-7" /></div><h1 className="text-2xl font-bold text-slate-900">Set up your rider profile</h1><p className="mt-2 text-sm text-slate-600">Complete your rider and vehicle information before accessing your Rider Dashboard.</p></div>
+    <div className="mb-8 text-center"><div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-700"><Bike className="h-7 w-7" /></div><h1 className="text-2xl font-bold text-slate-900">Set up your rider profile</h1><p className="mt-2 text-sm text-slate-600">Complete your rider and vehicle information before accessing your Rider Dashboard.</p></div>
     <form onSubmit={submit} className="space-y-5">
       <div className="grid gap-5 sm:grid-cols-2"><input className={input} placeholder="Full name" value={fullName} onChange={e=>setFullName(e.target.value)} disabled={saving} required /><input className={input} placeholder="Phone number" value={phone} onChange={e=>setPhone(e.target.value)} disabled={saving} required /></div>
       <div className="grid gap-5 sm:grid-cols-2"><select className={input} value={vehicleType} onChange={e=>setVehicleType(e.target.value)} disabled={saving} required><option value="">Select vehicle type</option>{vehicleTypes.map(v=><option key={v} value={v}>{v.charAt(0).toUpperCase()+v.slice(1)}</option>)}</select><input className={input} placeholder="Vehicle registration number (optional)" value={registration} onChange={e=>setRegistration(e.target.value)} disabled={saving} /></div>
@@ -73,7 +73,7 @@ export default function RiderSetup() {
       <div className="grid gap-5 sm:grid-cols-2"><input className={input} placeholder="Operating city" value={city} onChange={e=>setCity(e.target.value)} disabled={saving} required /><input className={input} placeholder="Operating state" value={state} onChange={e=>setState(e.target.value)} disabled={saving} required /></div>
       <input className={input} placeholder="Operating area" value={area} onChange={e=>setArea(e.target.value)} disabled={saving} required />
       {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
-      <button type="submit" disabled={saving} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {saving ? "Creating profile..." : "Complete rider setup"}</button>
+      <button type="submit" disabled={saving} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {saving ? "Creating profile..." : "Complete rider setup"}</button>
     </form>
   </section></div></main>;
 }

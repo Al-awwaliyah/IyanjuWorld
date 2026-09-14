@@ -718,16 +718,16 @@ export default function Disputes() {
           </Button>
         </AdminFilters>
 
-        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+        <div className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
           <div className="flex items-start gap-3">
-            <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+            <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
 
             <div>
-              <p className="font-medium text-blue-900">
+              <p className="font-medium text-brand-900">
                 Financial protection
               </p>
 
-              <p className="mt-1 text-sm leading-6 text-blue-800">
+              <p className="mt-1 text-sm leading-6 text-brand-800">
                 Dispute decisions do not directly modify customer
                 balances or business earnings from the frontend.
                 Any approved refund must go through the protected
@@ -896,7 +896,7 @@ export default function Disputes() {
                   Admin note
                 </p>
 
-                <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+                <div className="mt-2 rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm leading-6 text-brand-900">
                   {selectedDispute.adminNote}
                 </div>
               </div>

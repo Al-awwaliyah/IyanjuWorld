@@ -439,7 +439,7 @@ export default function Products() {
           onClick={() => setFilter("all")}
           className={`rounded-2xl border p-4 text-left shadow-sm transition-colors ${
             filter === "all"
-              ? "border-slate-900 bg-slate-900 text-white"
+              ? "border-slate-900 bg-ink-900 text-white"
               : "border-slate-200 bg-white hover:bg-slate-50"
           }`}
         >

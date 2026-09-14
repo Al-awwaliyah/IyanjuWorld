@@ -761,7 +761,7 @@ export default function Messages() {
 
           <div className="rounded-xl border border-slate-200 bg-white p-4">
             <div className="flex items-center gap-3">
-              <Clock3 className="h-5 w-5 text-blue-600" />
+              <Clock3 className="h-5 w-5 text-brand-600" />
 
               <div>
                 <p className="text-sm text-slate-500">
@@ -870,16 +870,16 @@ export default function Messages() {
           </Button>
         </AdminFilters>
 
-        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+        <div className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
           <div className="flex items-start gap-3">
-            <MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+            <MessageSquare className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
 
             <div>
-              <p className="font-medium text-blue-900">
+              <p className="font-medium text-brand-900">
                 Messaging architecture
               </p>
 
-              <p className="mt-1 text-sm leading-6 text-blue-800">
+              <p className="mt-1 text-sm leading-6 text-brand-800">
                 Customer, business, rider, and admin conversations
                 use the shared conversations, conversation_members,
                 messages, and attachments architecture. The
@@ -1150,7 +1150,7 @@ export default function Messages() {
                             <div
                               className={`rounded-2xl px-4 py-3 text-sm leading-6 ${
                                 isAdmin
-                                  ? "rounded-br-md bg-slate-900 text-white"
+                                  ? "rounded-br-md bg-ink-900 text-white"
                                   : "rounded-bl-md border border-slate-200 bg-white text-slate-700"
                               }`}
                             >

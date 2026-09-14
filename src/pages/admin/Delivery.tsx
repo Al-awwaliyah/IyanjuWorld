@@ -584,16 +584,16 @@ export default function Delivery() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+        <div className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
           <div className="flex items-start gap-3">
-            <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-blue-700" />
+            <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" />
 
             <div>
-              <p className="font-medium text-blue-900">
+              <p className="font-medium text-brand-900">
                 Customer delivery pricing
               </p>
 
-              <p className="mt-1 text-sm text-blue-800">
+              <p className="mt-1 text-sm text-brand-800">
                 The customer pays the calculated delivery fee in
                 addition to the product subtotal. The platform
                 commission remains separate and is charged to the

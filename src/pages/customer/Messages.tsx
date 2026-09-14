@@ -731,7 +731,7 @@ export default function Messages() {
                         </p>
 
                         {conversation.unreadCount > 0 && (
-                          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 text-[10px] font-semibold text-white">
+                          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-ink-900 px-1.5 text-[10px] font-semibold text-white dark-surface">
                             {conversation.unreadCount > 9
                               ? "9+"
                               : conversation.unreadCount}
@@ -859,7 +859,7 @@ export default function Messages() {
                           <div
                             className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm sm:max-w-[70%] ${
                               ownMessage
-                                ? "rounded-br-md bg-slate-900 text-white"
+                                ? "rounded-br-md bg-ink-900 text-white"
                                 : "rounded-bl-md bg-white text-slate-800"
                             }`}
                           >

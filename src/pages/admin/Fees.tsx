@@ -484,8 +484,8 @@ export default function Fees() {
             placeholder="5"
           />
 
-          <div className="rounded-lg bg-blue-50 px-4 py-3">
-            <p className="text-sm text-blue-900">
+          <div className="rounded-lg bg-brand-50 px-4 py-3">
+            <p className="text-sm text-brand-900">
               Current rate:{" "}
               <strong>
                 {formatRate(
@@ -494,7 +494,7 @@ export default function Fees() {
               </strong>
             </p>
 
-            <p className="mt-1 text-xs leading-5 text-blue-800">
+            <p className="mt-1 text-xs leading-5 text-brand-800">
               Changing this value changes the configured
               marketplace commission. The authoritative financial
               calculation must still be performed server-side

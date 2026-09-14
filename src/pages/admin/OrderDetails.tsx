@@ -318,7 +318,7 @@ export default function OrderDetails() {
   }
 
   if (!order) {
-    return <PageContainer><div className="py-16 text-center"><h1 className="text-2xl font-bold text-slate-900">Order not found</h1><p className="mt-2 text-slate-500">{loadError || "The order could not be loaded."}</p><Link to="/admin/orders" className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Back to orders</Link></div></PageContainer>;
+    return <PageContainer><div className="py-16 text-center"><h1 className="text-2xl font-bold text-slate-900">Order not found</h1><p className="mt-2 text-slate-500">{loadError || "The order could not be loaded."}</p><Link to="/admin/orders" className="mt-6 inline-flex rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white dark-surface">Back to orders</Link></div></PageContainer>;
   }
 
   return (

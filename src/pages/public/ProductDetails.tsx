@@ -74,7 +74,7 @@ export default function ProductDetails() {
   }
 
   if (!product) {
-    return <PageContainer><div className="py-16 text-center"><h1 className="text-2xl font-bold text-slate-900">Product not found</h1><p className="mt-2 text-slate-500">{error?.message ?? "This product is no longer available."}</p><Link to="/products" className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white">Browse products</Link></div></PageContainer>;
+    return <PageContainer><div className="py-16 text-center"><h1 className="text-2xl font-bold text-slate-900">Product not found</h1><p className="mt-2 text-slate-500">{error?.message ?? "This product is no longer available."}</p><Link to="/products" className="mt-6 inline-flex rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white dark-surface">Browse products</Link></div></PageContainer>;
   }
 
 
@@ -540,7 +540,7 @@ function BuyingStep({
 }) {
   return (
     <div className="flex gap-3">
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink-900 text-xs font-bold text-white dark-surface">
         {number}
       </div>
 
