@@ -10,6 +10,7 @@ import {
   Save,
 } from "lucide-react";
 import { supabase } from "../../libs/supabase";
+import { getPublicFileUrl, uploadFile } from "../../libs/storage";
 import {
   getCurrentProfile,
   type Profile,
@@ -57,6 +58,7 @@ export default function ProductCreate() {
   const [business, setBusiness] = useState<Business | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [form, setForm] = useState<ProductForm>(initialForm);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -141,6 +143,35 @@ export default function ProductCreate() {
     return normalized || `product-${Date.now()}`;
   }
 
+  function suggestBestCategory(name: string, description: string) {
+    const text = `${name} ${description}`.toLowerCase();
+    const keywordGroups: Array<[string[], string[]]> = [
+      [["phone", "smartphone", "iphone", "android", "charger", "earphone", "power bank", "case"], ["phones-accessories", "phones & accessories"]],
+      [["laptop", "computer", "keyboard", "mouse", "monitor", "printer"], ["computers", "computer"]],
+      [["shoe", "sneaker", "shirt", "trouser", "dress", "bag", "handbag", "ankara", "fabric", "clothing"], ["fashion"]],
+      [["soap", "cream", "skincare", "cosmetic", "makeup", "hair", "shampoo", "oil"], ["beauty-personal-care", "beauty"]],
+      [["food", "rice", "beans", "grocery", "snack", "drink", "cooking oil"], ["food-groceries", "food"]],
+      [["chair", "table", "furniture", "lamp", "kitchen", "home", "bulb"], ["home-living", "home"]],
+      [["service", "repair", "cleaning", "delivery", "consulting"], ["services"]],
+    ];
+
+    let best: Category | undefined;
+    let bestScore = 0;
+
+    for (const [keywords, categoryKeys] of keywordGroups) {
+      const score = keywords.reduce((total, keyword) => total + (text.includes(keyword) ? 1 : 0), 0);
+      if (score <= bestScore) continue;
+
+      best = categories.find((category) => {
+        const haystack = `${category.name} ${category.id}`.toLowerCase();
+        return categoryKeys.some((key) => haystack.includes(key));
+      });
+      if (best) bestScore = score;
+    }
+
+    return best?.id ?? "";
+  }
+
   function validateForm() {
     const name = form.name.trim();
     const price = Number(form.price);
@@ -207,7 +238,7 @@ export default function ProductCreate() {
       const description = form.description.trim();
       const price = Number(form.price);
       const stockQuantity = Number(form.stock_quantity);
-      const imageUrl = form.image_url.trim() || null;
+      let imageUrl = form.image_url.trim() || null;
 
       let slug = generateSlug(name);
 
@@ -260,6 +291,37 @@ export default function ProductCreate() {
 
       if (!createdProduct?.id) {
         throw new Error("The product could not be created.");
+      }
+
+      if (imageFile) {
+        if (imageFile.size > 5 * 1024 * 1024) {
+          throw new Error("Product image must be 5 MB or smaller.");
+        }
+
+        const extension = imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
+        const storagePath = `${business.id}/${createdProduct.id}/${crypto.randomUUID()}.${extension}`;
+
+        await uploadFile("product-images", storagePath, imageFile);
+        imageUrl = getPublicFileUrl("product-images", storagePath);
+
+        const { error: imageRecordError } = await supabase
+          .from("product_images")
+          .insert({
+            product_id: createdProduct.id,
+            storage_path: storagePath,
+            is_primary: true,
+            sort_order: 0,
+            alt_text: name,
+          });
+
+        if (imageRecordError) throw imageRecordError;
+
+        const { error: imageUpdateError } = await supabase
+          .from("products")
+          .update({ image_url: imageUrl })
+          .eq("id", createdProduct.id);
+
+        if (imageUpdateError) throw imageUpdateError;
       }
 
       navigate(`/business/products/${createdProduct.id}/edit`, {
@@ -370,9 +432,14 @@ export default function ProductCreate() {
                   id="product-name"
                   type="text"
                   value={form.name}
-                  onChange={(event) =>
-                    updateField("name", event.target.value)
-                  }
+                  onChange={(event) => {
+                    const name = event.target.value;
+                    updateField("name", name);
+                    if (!form.category_id) {
+                      const suggested = suggestBestCategory(name, form.description);
+                      if (suggested) updateField("category_id", suggested);
+                    }
+                  }}
                   placeholder="e.g. Premium Leather Shoes"
                   maxLength={150}
                   required
@@ -481,27 +548,27 @@ export default function ProductCreate() {
                     htmlFor="product-image"
                     className="mb-2 block text-sm font-medium text-gray-700"
                   >
-                    Product image URL
+                    Product image
                   </label>
 
-                  <div className="relative">
-                    <ImageIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <input
+                    id="product-image"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={(event) =>
+                      setImageFile(event.target.files?.[0] ?? null)
+                    }
+                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm"
+                  />
 
-                    <input
-                      id="product-image"
-                      type="url"
-                      value={form.image_url}
-                      onChange={(event) =>
-                        updateField("image_url", event.target.value)
-                      }
-                      placeholder="https://..."
-                      className="w-full rounded-xl border border-gray-300 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10"
-                    />
-                  </div>
+                  {imageFile && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Selected: {imageFile.name}
+                    </p>
+                  )}
 
                   <p className="mt-2 text-xs text-gray-500">
-                    You can replace this with marketplace image upload
-                    storage later without changing the product workflow.
+                    Upload a real product image. Maximum 5 MB.
                   </p>
                 </div>
               </div>

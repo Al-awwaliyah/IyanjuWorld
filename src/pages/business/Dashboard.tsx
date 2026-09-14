@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   AlertCircle,
   ArrowDownToLine,
@@ -326,6 +326,10 @@ export default function Dashboard() {
   }
 
   if (error && !business) {
+    if (error === "Your business profile has not been set up yet.") {
+      return <Navigate to="/business/setup" replace />;
+    }
+
     return (
       <div className="mx-auto max-w-2xl py-12">
         <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center">
