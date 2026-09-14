@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/libs/supabase";
 
+/* =========================================================
+   TYPES
+========================================================= */
+
 export type MarketplaceProduct = {
   id: string;
   name: string;
@@ -8,20 +12,26 @@ export type MarketplaceProduct = {
   description: string;
   price: number;
   compareAtPrice: number | null;
+
   imageUrl: string;
   images: string[];
+
   businessId: string;
   businessName: string;
   businessSlug: string;
+
   categoryId: string;
   category: string;
   categorySlug: string;
+
   city: string;
   state: string;
+
   stock: number;
   available: boolean;
   featured: boolean;
   verifiedBusiness: boolean;
+
   categoryName?: string;
   createdAt: string;
 };
@@ -30,22 +40,30 @@ export type MarketplaceBusiness = {
   id: string;
   name: string;
   slug: string;
+
   logo: string;
   logoUrl: string;
+
   coverImage: string;
   coverUrl: string;
+
   description: string;
+
   city: string;
   state: string;
   country: string;
+
   phone: string;
   whatsapp: string;
   email: string;
   address: string;
+
   verified: boolean;
   open: boolean;
+
   category: string;
   categorySlug: string;
+
   productCount: number;
   products: MarketplaceProduct[];
 };
@@ -58,6 +76,7 @@ export type MarketplaceCategory = {
   imageUrl: string;
   parentId: string | null;
   productCount: number;
+
   value: string;
   label: string;
 };
@@ -66,83 +85,27 @@ type RawProduct = Record<string, any>;
 type RawBusiness = Record<string, any>;
 type RawCategory = Record<string, any>;
 
-const PUBLIC_PRODUCT_SELECT = `
-  id,
-  name,
-  slug,
-  description,
-  price,
-  compare_at_price,
-  stock_quantity,
-  status,
-  is_available,
-  is_featured,
-  created_at,
-  image_url,
-  business_id,
-  category_id,
+/* =========================================================
+   IMAGE HELPERS
+========================================================= */
 
-  businesses:businesses!products_business_id_fkey(
-    id,
-    name,
-    slug,
-    logo,
-    logo_url,
-    cover,
-    cover_image_url,
-    description,
-    city,
-    state,
-    country,
-    phone,
-    whatsapp,
-    whatsapp_number,
-    email,
-    address,
-    address_line,
-    verified,
-    is_verified,
-    open,
-    is_open,
-    status
-  ),
-
-  categories:categories!products_category_id_fkey(
-    id,
-    name,
-    slug,
-    description,
-    image_url,
-    parent_id,
-    is_active
-  ),
-
-  product_images:product_images!product_images_product_id_fkey(
-    id,
-    storage_path,
-    sort_order,
-    is_primary,
-    alt_text
-  )
-`;
-
-/**
- * Convert a Supabase Storage path into a public URL.
- *
- * Example:
- * business-id/product-id/image.jpg
- *
- * becomes:
- * https://xxxxx.supabase.co/storage/v1/object/public/product-images/...
- */
-function publicImage(storagePath?: string | null): string {
-  if (!storagePath) return "";
+function publicProductImage(
+  storagePath?: string | null,
+): string {
+  if (!storagePath) {
+    return "";
+  }
 
   const path = String(storagePath).trim();
 
-  if (!path) return "";
+  if (!path) {
+    return "";
+  }
 
-  // Already a complete URL.
+  /*
+   * If the database already contains a complete URL,
+   * don't modify it.
+   */
   if (
     path.startsWith("http://") ||
     path.startsWith("https://") ||
@@ -151,47 +114,180 @@ function publicImage(storagePath?: string | null): string {
     return path;
   }
 
-  return supabase.storage
+  const { data } = supabase.storage
     .from("product-images")
-    .getPublicUrl(path)
-    .data.publicUrl;
+    .getPublicUrl(path);
+
+  return data?.publicUrl ?? "";
 }
 
-function mapProduct(row: RawProduct): MarketplaceProduct {
-  const business = row.businesses ?? {};
-  const category = row.categories ?? {};
+function publicBusinessImage(
+  storagePath?: string | null,
+): string {
+  if (!storagePath) {
+    return "";
+  }
 
-  const imageRows = Array.isArray(row.product_images)
-    ? [...row.product_images]
-    : [];
+  const path = String(storagePath).trim();
 
-  imageRows.sort(
-    (a: any, b: any) =>
-      Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0),
-  );
+  if (!path) {
+    return "";
+  }
 
-  const imageUrls = imageRows
-    .map((image: any) => publicImage(image.storage_path))
-    .filter(Boolean);
+  if (
+    path.startsWith("http://") ||
+    path.startsWith("https://") ||
+    path.startsWith("data:")
+  ) {
+    return path;
+  }
 
-  const primaryImage = imageRows.find(
-    (image: any) => image.is_primary === true,
-  );
-
-  /**
-   * IMPORTANT:
-   * products.image_url contains a Storage path, not necessarily a URL.
-   * Always convert it using publicImage().
+  /*
+   * Business images may already contain a public URL.
+   *
+   * If they are stored in your business-images bucket,
+   * this bucket can be used.
    */
-  const productImageUrl = publicImage(row.image_url);
+  const { data } = supabase.storage
+    .from("business-images")
+    .getPublicUrl(path);
+
+  return data?.publicUrl ?? path;
+}
+
+/* =========================================================
+   NORMALIZATION HELPERS
+========================================================= */
+
+function parseJsonObject(
+  value: unknown,
+): Record<string, any> {
+  if (!value) {
+    return {};
+  }
+
+  if (typeof value === "object") {
+    return value as Record<string, any>;
+  }
+
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+
+      if (
+        parsed &&
+        typeof parsed === "object"
+      ) {
+        return parsed;
+      }
+    } catch {
+      return {};
+    }
+  }
+
+  return {};
+}
+
+function parseJsonArray(
+  value: unknown,
+): any[] {
+  if (!value) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+
+      return Array.isArray(parsed)
+        ? parsed
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
+}
+
+/* =========================================================
+   PRODUCT MAPPER
+========================================================= */
+
+function mapProduct(
+  row: RawProduct,
+): MarketplaceProduct {
+  const business =
+    parseJsonObject(
+      row.businesses ?? row.business,
+    );
+
+  const category =
+    parseJsonObject(
+      row.categories ?? row.category,
+    );
+
+  const imageRows =
+    parseJsonArray(
+      row.product_images,
+    );
+
+  const sortedImages =
+    [...imageRows].sort(
+      (a: any, b: any) =>
+        Number(a?.sort_order ?? 0) -
+        Number(b?.sort_order ?? 0),
+    );
+
+  /*
+   * Convert every Storage path into
+   * a public URL.
+   */
+  const imageUrls =
+    sortedImages
+      .map((image: any) =>
+        publicProductImage(
+          image?.storage_path,
+        ),
+      )
+      .filter(Boolean);
+
+  /*
+   * Primary image from product_images.
+   */
+  const primaryImage =
+    sortedImages.find(
+      (image: any) =>
+        image?.is_primary === true,
+    );
 
   const primaryImageUrl =
-    publicImage(primaryImage?.storage_path) ||
+    publicProductImage(
+      primaryImage?.storage_path,
+    );
+
+  /*
+   * Fallback to products.image_url.
+   */
+  const productImageUrl =
+    publicProductImage(
+      row.image_url,
+    );
+
+  const finalImageUrl =
+    primaryImageUrl ||
     productImageUrl ||
     imageUrls[0] ||
     "";
 
-  const stock = Number(row.stock_quantity ?? 0);
+  const stock =
+    Number(
+      row.stock_quantity ?? 0,
+    );
 
   const available =
     row.status === "active" &&
@@ -200,27 +296,43 @@ function mapProduct(row: RawProduct): MarketplaceProduct {
 
   return {
     id: row.id,
-    name: row.name ?? "",
-    slug: row.slug ?? "",
-    description: row.description ?? "",
 
-    price: Number(row.price ?? 0),
+    name:
+      row.name ??
+      "",
+
+    slug:
+      row.slug ??
+      "",
+
+    description:
+      row.description ??
+      "",
+
+    price:
+      Number(
+        row.price ?? 0,
+      ),
 
     compareAtPrice:
       row.compare_at_price == null
         ? null
-        : Number(row.compare_at_price),
+        : Number(
+            row.compare_at_price,
+          ),
 
-    imageUrl: primaryImageUrl,
+    imageUrl:
+      finalImageUrl,
 
     images:
       imageUrls.length > 0
         ? imageUrls
-        : primaryImageUrl
-          ? [primaryImageUrl]
+        : finalImageUrl
+          ? [finalImageUrl]
           : [],
 
-    businessId: row.business_id,
+    businessId:
+      row.business_id,
 
     businessName:
       business.name ??
@@ -270,6 +382,10 @@ function mapProduct(row: RawProduct): MarketplaceProduct {
   };
 }
 
+/* =========================================================
+   BUSINESS MAPPER
+========================================================= */
+
 function mapBusiness(
   row: RawBusiness,
   products: MarketplaceProduct[] = [],
@@ -285,30 +401,65 @@ function mapBusiness(
     "";
 
   return {
-    id: row.id,
-    name: row.name ?? "",
-    slug: row.slug ?? "",
+    id:
+      row.id,
 
-    logo: publicImage(logoPath),
-    logoUrl: publicImage(logoPath),
+    name:
+      row.name ??
+      "",
 
-    coverImage: publicImage(coverPath),
-    coverUrl: publicImage(coverPath),
+    slug:
+      row.slug ??
+      "",
 
-    description: row.description ?? "",
+    logo:
+      publicBusinessImage(
+        logoPath,
+      ),
 
-    city: row.city ?? "",
-    state: row.state ?? "",
-    country: row.country ?? "Nigeria",
+    logoUrl:
+      publicBusinessImage(
+        logoPath,
+      ),
 
-    phone: row.phone ?? "",
+    coverImage:
+      publicBusinessImage(
+        coverPath,
+      ),
+
+    coverUrl:
+      publicBusinessImage(
+        coverPath,
+      ),
+
+    description:
+      row.description ??
+      "",
+
+    city:
+      row.city ??
+      "",
+
+    state:
+      row.state ??
+      "",
+
+    country:
+      row.country ??
+      "Nigeria",
+
+    phone:
+      row.phone ??
+      "",
 
     whatsapp:
       row.whatsapp_number ??
       row.whatsapp ??
       "",
 
-    email: row.email ?? "",
+    email:
+      row.email ??
+      "",
 
     address:
       row.address_line ??
@@ -338,12 +489,10 @@ function mapBusiness(
   };
 }
 
-/**
- * Get all publicly visible marketplace products.
- *
- * RLS remains responsible for deciding which products are actually
- * visible to anonymous/authenticated users.
- */
+/* =========================================================
+   LIST MARKETPLACE PRODUCTS
+========================================================= */
+
 export async function listMarketplaceProducts(
   options: {
     featured?: boolean;
@@ -352,83 +501,95 @@ export async function listMarketplaceProducts(
     search?: string;
     limit?: number;
   } = {},
-) {
-  let query = supabase
-    .from("products")
-    .select(PUBLIC_PRODUCT_SELECT)
-    .eq("status", "active")
-    .eq("is_available", true)
-    .gt("stock_quantity", 0)
-    .order("created_at", {
-      ascending: false,
-    });
+): Promise<MarketplaceProduct[]> {
+  const {
+    featured = false,
+    categoryId = null,
+    businessId = null,
+    search = null,
+    limit = 1000,
+  } = options;
 
-  if (options.featured === true) {
-    query = query.eq("is_featured", true);
-  }
-
-  if (options.categoryId) {
-    query = query.eq(
-      "category_id",
-      options.categoryId,
+  /*
+   * Products are loaded through the secure public
+   * marketplace RPC.
+   *
+   * This avoids depending on nested PostgREST RLS
+   * relationships for the marketplace.
+   */
+  const { data, error } =
+    await supabase.rpc(
+      "get_marketplace_products",
+      {
+        p_featured: featured,
+        p_category_id: categoryId,
+        p_business_id: businessId,
+        p_search:
+          search?.trim() || null,
+        p_limit:
+          Math.min(
+            Math.max(
+              Number(limit) || 1000,
+              1,
+            ),
+            1000,
+          ),
+      },
     );
-  }
-
-  if (options.businessId) {
-    query = query.eq(
-      "business_id",
-      options.businessId,
-    );
-  }
-
-  if (options.limit) {
-    query = query.limit(options.limit);
-  }
-
-  const { data, error } = await query;
 
   if (error) {
     console.error(
-      "Marketplace products query failed:",
+      "get_marketplace_products error:",
       error,
     );
 
     throw error;
   }
 
-  let products = (data ?? []).map(mapProduct);
-
-  /**
-   * Search is intentionally performed client-side because
-   * search covers related business/category fields.
-   */
-  if (options.search?.trim()) {
-    const searchTerm =
-      options.search
-        .trim()
-        .toLowerCase();
-
-    products = products.filter((product) =>
-      [
-        product.name,
-        product.description,
-        product.businessName,
-        product.category,
-        product.city,
-        product.state,
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(searchTerm),
-    );
+  if (!data) {
+    return [];
   }
 
-  return products;
+  return (data as RawProduct[]).map(
+    (row) => {
+      const business =
+        parseJsonObject(
+          row.business,
+        );
+
+      const category =
+        parseJsonObject(
+          row.category,
+        );
+
+      const productImages =
+        parseJsonArray(
+          row.product_images,
+        );
+
+      return mapProduct({
+        ...row,
+
+        businesses:
+          business,
+
+        categories:
+          category,
+
+        product_images:
+          productImages,
+      });
+    },
+  );
 }
+
+/* =========================================================
+   GET SINGLE MARKETPLACE PRODUCT
+========================================================= */
 
 export async function getMarketplaceProduct(
   productIdOrSlug: string,
-) {
+): Promise<MarketplaceProduct | null> {
   if (!productIdOrSlug?.trim()) {
     return null;
   }
@@ -436,60 +597,84 @@ export async function getMarketplaceProduct(
   const value =
     productIdOrSlug.trim();
 
-  /**
-   * First try slug.
+  /*
+   * Use the RPC for the single product as well.
+   * This guarantees that product detail pages use
+   * the same public visibility rules as Explore.
    */
-  const bySlug = await supabase
-    .from("products")
-    .select(PUBLIC_PRODUCT_SELECT)
-    .eq("slug", value)
-    .maybeSingle();
 
-  if (bySlug.error) {
-    throw bySlug.error;
-  }
-
-  if (bySlug.data) {
-    return mapProduct(bySlug.data);
-  }
-
-  /**
-   * Then try UUID.
-   */
-  const byId = await supabase
-    .from("products")
-    .select(PUBLIC_PRODUCT_SELECT)
-    .eq("id", value)
-    .maybeSingle();
-
-  if (byId.error) {
-    throw byId.error;
-  }
-
-  return byId.data
-    ? mapProduct(byId.data)
-    : null;
-}
-
-export async function listMarketplaceCategories() {
-  const { data, error } = await supabase
-    .from("categories")
-    .select(
-      "id,name,slug,description,image_url,parent_id,is_active",
-    )
-    .eq("is_active", true)
-    .order("name", {
-      ascending: true,
-    });
+  const { data, error } =
+    await supabase.rpc(
+      "get_marketplace_products",
+      {
+        p_featured: false,
+        p_category_id: null,
+        p_business_id: null,
+        p_search: null,
+        p_limit: 1000,
+      },
+    );
 
   if (error) {
     throw error;
   }
 
-  /**
-   * Load products separately so category counts reflect
-   * the exact same public marketplace visibility rules.
-   */
+  const rows =
+    (data ?? []) as RawProduct[];
+
+  const found =
+    rows.find(
+      (row) =>
+        row.id === value ||
+        row.slug === value,
+    );
+
+  if (!found) {
+    return null;
+  }
+
+  return mapProduct({
+    ...found,
+
+    businesses:
+      parseJsonObject(
+        found.business,
+      ),
+
+    categories:
+      parseJsonObject(
+        found.category,
+      ),
+
+    product_images:
+      parseJsonArray(
+        found.product_images,
+      ),
+  });
+}
+
+/* =========================================================
+   MARKETPLACE CATEGORIES
+========================================================= */
+
+export async function listMarketplaceCategories(): Promise<
+  MarketplaceCategory[]
+> {
+  const { data, error } =
+    await supabase
+      .from("categories")
+      .select(
+        "id,name,slug,description,image_url,parent_id,is_active",
+      )
+      .eq("is_active", true)
+      .order("name", {
+        ascending: true,
+      });
+
+  if (error) {
+    throw error;
+  }
+
   const products =
     await listMarketplaceProducts({
       limit: 1000,
@@ -498,71 +683,98 @@ export async function listMarketplaceCategories() {
   const counts =
     new Map<string, number>();
 
-  products.forEach((product) => {
+  for (const product of products) {
     counts.set(
       product.categoryId,
-      (counts.get(product.categoryId) ?? 0) + 1,
+      (counts.get(
+        product.categoryId,
+      ) ?? 0) + 1,
     );
-  });
+  }
 
   return (
     (data ?? []) as RawCategory[]
   ).map((category) => ({
-    id: category.id,
-    name: category.name,
-    slug: category.slug,
+    id:
+      category.id,
+
+    name:
+      category.name,
+
+    slug:
+      category.slug,
+
     description:
-      category.description ?? "",
+      category.description ??
+      "",
 
     imageUrl:
-      publicImage(category.image_url),
+      publicProductImage(
+        category.image_url,
+      ),
 
     parentId:
-      category.parent_id ?? null,
+      category.parent_id ??
+      null,
 
     productCount:
-      counts.get(category.id) ?? 0,
+      counts.get(
+        category.id,
+      ) ?? 0,
 
     value:
       category.slug,
 
     label:
       category.name,
-  })) as MarketplaceCategory[];
+  }));
 }
 
-export async function listMarketplaceBusinesses() {
-  const { data, error } = await supabase
-    .from("businesses")
-    .select(`
-      id,
-      name,
-      slug,
-      description,
-      logo_url,
-      logo,
-      cover_image_url,
-      cover,
-      phone,
-      whatsapp_number,
-      whatsapp,
-      email,
-      address_line,
-      address,
-      city,
-      state,
-      country,
-      status,
-      is_verified,
-      verified,
-      is_open,
-      open,
-      created_at
-    `)
-    .eq("status", "active")
-    .order("created_at", {
-      ascending: false,
-    });
+/* =========================================================
+   MARKETPLACE BUSINESSES
+========================================================= */
+
+export async function listMarketplaceBusinesses(): Promise<
+  MarketplaceBusiness[]
+> {
+  const { data, error } =
+    await supabase
+      .from("businesses")
+      .select(`
+        id,
+        name,
+        slug,
+        description,
+        logo_url,
+        logo,
+        cover_image_url,
+        cover,
+        phone,
+        whatsapp_number,
+        whatsapp,
+        email,
+        address_line,
+        address,
+        city,
+        state,
+        country,
+        status,
+        is_verified,
+        verified,
+        is_open,
+        open,
+        created_at
+      `)
+      .eq(
+        "status",
+        "active",
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        },
+      );
 
   if (error) {
     throw error;
@@ -587,43 +799,54 @@ export async function listMarketplaceBusinesses() {
   );
 }
 
+/* =========================================================
+   SINGLE MARKETPLACE BUSINESS
+========================================================= */
+
 export async function getMarketplaceBusiness(
   slug: string,
-) {
+): Promise<MarketplaceBusiness | null> {
   if (!slug?.trim()) {
     return null;
   }
 
-  const { data, error } = await supabase
-    .from("businesses")
-    .select(`
-      id,
-      name,
-      slug,
-      description,
-      logo_url,
-      logo,
-      cover_image_url,
-      cover,
-      phone,
-      whatsapp_number,
-      whatsapp,
-      email,
-      address_line,
-      address,
-      city,
-      state,
-      country,
-      status,
-      is_verified,
-      verified,
-      is_open,
-      open,
-      created_at
-    `)
-    .eq("slug", slug.trim())
-    .eq("status", "active")
-    .maybeSingle();
+  const { data, error } =
+    await supabase
+      .from("businesses")
+      .select(`
+        id,
+        name,
+        slug,
+        description,
+        logo_url,
+        logo,
+        cover_image_url,
+        cover,
+        phone,
+        whatsapp_number,
+        whatsapp,
+        email,
+        address_line,
+        address,
+        city,
+        state,
+        country,
+        status,
+        is_verified,
+        verified,
+        is_open,
+        open,
+        created_at
+      `)
+      .eq(
+        "slug",
+        slug.trim(),
+      )
+      .eq(
+        "status",
+        "active",
+      )
+      .maybeSingle();
 
   if (error) {
     throw error;
@@ -645,6 +868,10 @@ export async function getMarketplaceBusiness(
   );
 }
 
+/* =========================================================
+   PRODUCTS HOOK
+========================================================= */
+
 export function useMarketplaceProducts(
   options: {
     featured?: boolean;
@@ -655,13 +882,17 @@ export function useMarketplaceProducts(
   } = {},
 ) {
   const [products, setProducts] =
-    useState<MarketplaceProduct[]>([]);
+    useState<MarketplaceProduct[]>(
+      [],
+    );
 
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
-    useState<Error | null>(null);
+    useState<Error | null>(
+      null,
+    );
 
   const key =
     JSON.stringify(options);
@@ -672,27 +903,36 @@ export function useMarketplaceProducts(
     setLoading(true);
     setError(null);
 
-    void listMarketplaceProducts(options)
+    void listMarketplaceProducts(
+      options,
+    )
       .then((items) => {
-        if (mounted) {
-          setProducts(items);
-        }
+        if (!mounted) return;
+
+        setProducts(items);
       })
       .catch((err) => {
-        if (mounted) {
-          setError(
-            err instanceof Error
-              ? err
-              : new Error(
-                  "Unable to load products.",
-                ),
-          );
-        }
+        if (!mounted) return;
+
+        console.error(
+          "useMarketplaceProducts:",
+          err,
+        );
+
+        setError(
+          err instanceof Error
+            ? err
+            : new Error(
+                "Unable to load products.",
+              ),
+        );
+
+        setProducts([]);
       })
       .finally(() => {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (!mounted) return;
+
+        setLoading(false);
       });
 
     return () => {
@@ -707,15 +947,23 @@ export function useMarketplaceProducts(
   };
 }
 
+/* =========================================================
+   CATEGORIES HOOK
+========================================================= */
+
 export function useMarketplaceCategories() {
   const [categories, setCategories] =
-    useState<MarketplaceCategory[]>([]);
+    useState<MarketplaceCategory[]>(
+      [],
+    );
 
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
-    useState<Error | null>(null);
+    useState<Error | null>(
+      null,
+    );
 
   useEffect(() => {
     let mounted = true;
@@ -725,25 +973,32 @@ export function useMarketplaceCategories() {
 
     void listMarketplaceCategories()
       .then((items) => {
-        if (mounted) {
-          setCategories(items);
-        }
+        if (!mounted) return;
+
+        setCategories(items);
       })
       .catch((err) => {
-        if (mounted) {
-          setError(
-            err instanceof Error
-              ? err
-              : new Error(
-                  "Unable to load categories.",
-                ),
-          );
-        }
+        if (!mounted) return;
+
+        console.error(
+          "useMarketplaceCategories:",
+          err,
+        );
+
+        setError(
+          err instanceof Error
+            ? err
+            : new Error(
+                "Unable to load categories.",
+              ),
+        );
+
+        setCategories([]);
       })
       .finally(() => {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (!mounted) return;
+
+        setLoading(false);
       });
 
     return () => {
@@ -758,15 +1013,23 @@ export function useMarketplaceCategories() {
   };
 }
 
+/* =========================================================
+   BUSINESSES HOOK
+========================================================= */
+
 export function useMarketplaceBusinesses() {
   const [businesses, setBusinesses] =
-    useState<MarketplaceBusiness[]>([]);
+    useState<MarketplaceBusiness[]>(
+      [],
+    );
 
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
-    useState<Error | null>(null);
+    useState<Error | null>(
+      null,
+    );
 
   useEffect(() => {
     let mounted = true;
@@ -776,25 +1039,32 @@ export function useMarketplaceBusinesses() {
 
     void listMarketplaceBusinesses()
       .then((items) => {
-        if (mounted) {
-          setBusinesses(items);
-        }
+        if (!mounted) return;
+
+        setBusinesses(items);
       })
       .catch((err) => {
-        if (mounted) {
-          setError(
-            err instanceof Error
-              ? err
-              : new Error(
-                  "Unable to load businesses.",
-                ),
-          );
-        }
+        if (!mounted) return;
+
+        console.error(
+          "useMarketplaceBusinesses:",
+          err,
+        );
+
+        setError(
+          err instanceof Error
+            ? err
+            : new Error(
+                "Unable to load businesses.",
+              ),
+        );
+
+        setBusinesses([]);
       })
       .finally(() => {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (!mounted) return;
+
+        setLoading(false);
       });
 
     return () => {
@@ -809,6 +1079,10 @@ export function useMarketplaceBusinesses() {
   };
 }
 
+/* =========================================================
+   SINGLE PRODUCT HOOK
+========================================================= */
+
 export function useMarketplaceProduct(
   productId?: string,
 ) {
@@ -818,16 +1092,21 @@ export function useMarketplaceProduct(
     );
 
   const [loading, setLoading] =
-    useState(Boolean(productId));
+    useState(
+      Boolean(productId),
+    );
 
   const [error, setError] =
-    useState<Error | null>(null);
+    useState<Error | null>(
+      null,
+    );
 
   useEffect(() => {
     if (!productId) {
       setProduct(null);
       setLoading(false);
       setError(null);
+
       return;
     }
 
@@ -836,27 +1115,36 @@ export function useMarketplaceProduct(
     setLoading(true);
     setError(null);
 
-    void getMarketplaceProduct(productId)
+    void getMarketplaceProduct(
+      productId,
+    )
       .then((item) => {
-        if (mounted) {
-          setProduct(item);
-        }
+        if (!mounted) return;
+
+        setProduct(item);
       })
       .catch((err) => {
-        if (mounted) {
-          setError(
-            err instanceof Error
-              ? err
-              : new Error(
-                  "Unable to load product.",
-                ),
-          );
-        }
+        if (!mounted) return;
+
+        console.error(
+          "useMarketplaceProduct:",
+          err,
+        );
+
+        setError(
+          err instanceof Error
+            ? err
+            : new Error(
+                "Unable to load product.",
+              ),
+        );
+
+        setProduct(null);
       })
       .finally(() => {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (!mounted) return;
+
+        setLoading(false);
       });
 
     return () => {
@@ -871,6 +1159,10 @@ export function useMarketplaceProduct(
   };
 }
 
+/* =========================================================
+   SINGLE BUSINESS HOOK
+========================================================= */
+
 export function useMarketplaceBusiness(
   slug?: string,
 ) {
@@ -880,16 +1172,21 @@ export function useMarketplaceBusiness(
     );
 
   const [loading, setLoading] =
-    useState(Boolean(slug));
+    useState(
+      Boolean(slug),
+    );
 
   const [error, setError] =
-    useState<Error | null>(null);
+    useState<Error | null>(
+      null,
+    );
 
   useEffect(() => {
     if (!slug) {
       setBusiness(null);
       setLoading(false);
       setError(null);
+
       return;
     }
 
@@ -898,27 +1195,36 @@ export function useMarketplaceBusiness(
     setLoading(true);
     setError(null);
 
-    void getMarketplaceBusiness(slug)
+    void getMarketplaceBusiness(
+      slug,
+    )
       .then((item) => {
-        if (mounted) {
-          setBusiness(item);
-        }
+        if (!mounted) return;
+
+        setBusiness(item);
       })
       .catch((err) => {
-        if (mounted) {
-          setError(
-            err instanceof Error
-              ? err
-              : new Error(
-                  "Unable to load business.",
-                ),
-          );
-        }
+        if (!mounted) return;
+
+        console.error(
+          "useMarketplaceBusiness:",
+          err,
+        );
+
+        setError(
+          err instanceof Error
+            ? err
+            : new Error(
+                "Unable to load business.",
+              ),
+        );
+
+        setBusiness(null);
       })
       .finally(() => {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (!mounted) return;
+
+        setLoading(false);
       });
 
     return () => {
