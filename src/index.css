@@ -113,3 +113,95 @@ svg {
   color: #0f172a;
   background: #ffffff;
 }
+
+/* =========================================================
+   IyanjuWorld role-area theme
+   The homepage brand system is shared by customer, business,
+   rider, admin and authentication surfaces.
+========================================================= */
+.iyw-role-shell {
+  --iyw-page-bg: #f8fafc;
+  --iyw-panel: #ffffff;
+  --iyw-border: #e2e8f0;
+  --iyw-text: #0f172a;
+  --iyw-muted: #64748b;
+  background: var(--iyw-page-bg);
+  color: var(--iyw-text);
+}
+
+/* Old gray utility shades are kept visually inside the same
+   navy / orange / neutral homepage palette. */
+.iyw-role-shell .bg-gray-50,
+.iyw-role-shell .bg-gray-100,
+.iyw-role-shell .bg-gray-200,
+.iyw-role-shell .bg-gray-300 {
+  background-color: #f8fafc !important;
+}
+
+.iyw-role-shell .text-gray-400,
+.iyw-role-shell .text-gray-500,
+.iyw-role-shell .text-gray-600,
+.iyw-role-shell .text-gray-700,
+.iyw-role-shell .text-gray-800,
+.iyw-role-shell .text-gray-900 {
+  color: #475569 !important;
+}
+
+.iyw-role-shell .border-gray-100,
+.iyw-role-shell .border-gray-200,
+.iyw-role-shell .border-gray-300 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Dark surfaces always get a light foreground. */
+.iyw-role-shell .bg-ink-950,
+.iyw-role-shell .bg-ink-900,
+.iyw-role-shell .bg-slate-700,
+.iyw-role-shell .bg-slate-800,
+.iyw-role-shell .bg-black\/50,
+.iyw-role-shell .bg-black\/60,
+.iyw-role-shell .bg-black\/75,
+.iyw-role-shell .bg-brand-700,
+.iyw-role-shell .bg-brand-800,
+.iyw-role-shell .bg-red-600,
+.iyw-role-shell .bg-red-700,
+.iyw-role-shell .bg-emerald-600,
+.iyw-role-shell .bg-emerald-700 {
+  color: #ffffff !important;
+}
+
+.iyw-role-shell .bg-ink-950 [class*="text-slate-"],
+.iyw-role-shell .bg-ink-900 [class*="text-slate-"],
+.iyw-role-shell .bg-slate-700 [class*="text-slate-"],
+.iyw-role-shell .bg-slate-800 [class*="text-slate-"],
+.iyw-role-shell .bg-brand-700 [class*="text-slate-"],
+.iyw-role-shell .bg-brand-800 [class*="text-slate-"],
+.iyw-role-shell .bg-red-600 [class*="text-slate-"],
+.iyw-role-shell .bg-red-700 [class*="text-slate-"],
+.iyw-role-shell .bg-emerald-600 [class*="text-slate-"],
+.iyw-role-shell .bg-emerald-700 [class*="text-slate-"] {
+  color: #ffffff !important;
+}
+
+.iyw-role-shell .bg-ink-950 [class*="text-gray-"],
+.iyw-role-shell .bg-ink-900 [class*="text-gray-"],
+.iyw-role-shell .bg-slate-700 [class*="text-gray-"],
+.iyw-role-shell .bg-slate-800 [class*="text-gray-"],
+.iyw-role-shell .bg-brand-700 [class*="text-gray-"],
+.iyw-role-shell .bg-brand-800 [class*="text-gray-"] {
+  color: #ffffff !important;
+}
+
+.iyw-role-shell .bg-ink-950 [class*="text-ink-"],
+.iyw-role-shell .bg-ink-900 [class*="text-ink-"],
+.iyw-role-shell .bg-slate-700 [class*="text-ink-"],
+.iyw-role-shell .bg-slate-800 [class*="text-ink-"],
+.iyw-role-shell .bg-brand-700 [class*="text-ink-"],
+.iyw-role-shell .bg-brand-800 [class*="text-ink-"] {
+  color: #ffffff !important;
+}
+
+/* Dark utility surfaces inside a role shell inherit the same rule. */
+.iyw-role-shell .dark-surface {
+  color: #ffffff !important;
+}
