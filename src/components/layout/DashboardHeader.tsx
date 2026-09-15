@@ -11,6 +11,8 @@ export interface DashboardHeaderProps {
   onMenuClick?: () => void;
   action?: ReactNode;
   onProfileClick?: () => void;
+  notificationPath?: string;
+  profilePath?: string;
 }
 
 export default function DashboardHeader({
@@ -22,6 +24,8 @@ export default function DashboardHeader({
   onMenuClick,
   action,
   onProfileClick,
+  notificationPath = "/customer/messages",
+  profilePath = "/customer/profile",
 }: DashboardHeaderProps) {
   const navigate = useNavigate();
 
@@ -31,7 +35,7 @@ export default function DashboardHeader({
       return;
     }
 
-    navigate("/customer/profile");
+    navigate(profilePath);
   };
 
   return (
@@ -68,7 +72,7 @@ export default function DashboardHeader({
           <button
             type="button"
             aria-label={`Notifications${notificationCount > 0 ? `, ${notificationCount} unread` : ""}`}
-            onClick={() => navigate("/customer/messages")}
+            onClick={() => navigate(notificationPath)}
             className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-brand-50 hover:text-brand-700"
           >
             <Bell className="h-5 w-5" />
