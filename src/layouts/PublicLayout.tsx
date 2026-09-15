@@ -12,7 +12,7 @@ export default function PublicLayout() {
   const showBack = location.pathname !== "/";
 
   return (
-    <div className="flex min-h-screen flex-col bg-white text-ink-900">
+    <div className="flex min-h-screen flex-col bg-slate-50 text-ink-900">
       <PublicHeader
         isAuthenticated={isAuthenticated}
         userName={profile?.full_name}

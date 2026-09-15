@@ -13,6 +13,7 @@ import DashboardSidebar from "../components/layout/DashboardSidebar";
 import DashboardHeader from "../components/layout/DashboardHeader";
 import MobileNavigation from "../components/layout/MobileNavigation";
 import BackButton from "../components/layout/BackButton";
+import PublicFooter from "../components/layout/PublicFooter";
 import { useAuth } from "../hooks/useAuth";
 
 const ACCOUNT_NAV_ITEMS = [
@@ -54,7 +55,7 @@ export default function CustomerLayout() {
 
   if (isFocusedFlow) {
     return (
-      <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="iyw-role-shell min-h-screen bg-slate-50 text-ink-900">
         <div className="border-b border-slate-200 bg-white">
           <div className="mx-auto flex h-14 max-w-6xl items-center px-4 sm:px-6 lg:px-8">
             <a
@@ -74,6 +75,7 @@ export default function CustomerLayout() {
           <Outlet />
         </main>
 
+        <PublicFooter />
         <MobileNavigation isAuthenticated />
       </div>
     );
@@ -82,7 +84,7 @@ export default function CustomerLayout() {
   const pageMeta = PAGE_TITLES[location.pathname] ?? { title: "My Account" };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 lg:flex">
+    <div className="iyw-role-shell min-h-screen bg-slate-50 text-ink-900">
       <DashboardSidebar
         brand="IyanjuWorld"
         items={ACCOUNT_NAV_ITEMS}
@@ -91,7 +93,7 @@ export default function CustomerLayout() {
         onMobileClose={() => setMobileOpen(false)}
       />
 
-      <div className="flex min-h-screen flex-1 flex-col lg:pl-0">
+      <div className="flex min-h-screen flex-col lg:pl-72">
         <DashboardHeader
           title={pageMeta.title}
           description={pageMeta.description}
@@ -103,6 +105,8 @@ export default function CustomerLayout() {
           <BackButton className="px-0 pt-0" />
           <Outlet />
         </main>
+
+        <PublicFooter />
       </div>
 
       <MobileNavigation isAuthenticated />
