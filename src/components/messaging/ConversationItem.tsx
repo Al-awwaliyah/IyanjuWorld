@@ -186,7 +186,7 @@ export default function ConversationItem({
             )}
 
             {unreadCount > 0 && (
-              <span className="flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-[10px] font-bold leading-4 text-white">
+              <span className="flex min-w-5 items-center justify-center rounded-full bg-ink-900 px-1.5 py-0.5 text-[10px] font-bold leading-4 text-white dark-surface">
                 {unreadCount > 99
                   ? "99+"
                   : unreadCount}

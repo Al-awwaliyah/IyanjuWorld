@@ -109,7 +109,7 @@ export default function ProductCard(props: ProductCardProps) {
 
           {isOutOfStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-white/70">
-              <span className="rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold text-white">
+              <span className="rounded-full bg-ink-900/80 px-3 py-1 text-xs font-semibold text-white dark-surface">
                 Out of stock
               </span>
             </div>

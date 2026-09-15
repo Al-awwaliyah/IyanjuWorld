@@ -154,7 +154,7 @@ export default function OrderTimeline({
                 className={[
                   "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border",
                   isCurrent
-                    ? "border-slate-900 bg-slate-900 text-white"
+                    ? "border-slate-900 bg-ink-900 text-white"
                     : isComplete
                       ? "border-slate-300 bg-slate-100 text-slate-700"
                       : "border-slate-200 bg-white text-slate-400",

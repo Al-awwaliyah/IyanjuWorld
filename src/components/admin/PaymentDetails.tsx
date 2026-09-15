@@ -222,7 +222,7 @@ function TimelineItem({
           completed
             ? "border-emerald-200 bg-emerald-50 text-emerald-600"
             : active
-              ? "border-blue-200 bg-blue-50 text-blue-600"
+              ? "border-brand-200 bg-brand-50 text-brand-600"
               : "border-slate-200 bg-white text-slate-400",
         ].join(" ")}
       >
@@ -616,7 +616,7 @@ export function PaymentDetails({
             </summary>
 
             <div className="border-t border-slate-100 p-5">
-              <pre className="max-h-96 overflow-auto rounded-lg bg-slate-950 p-4 text-xs leading-5 text-slate-200">
+              <pre className="max-h-96 overflow-auto rounded-lg bg-ink-950 p-4 text-xs leading-5 text-slate-200 dark-surface">
                 {JSON.stringify(
                   payment.metadata,
                   null,

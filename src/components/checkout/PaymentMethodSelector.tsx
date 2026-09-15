@@ -189,7 +189,7 @@ export default function PaymentMethodSelector({
                 className={[
                   "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
                   selected
-                    ? "bg-slate-900 text-white"
+                    ? "bg-ink-900 text-white"
                     : "bg-slate-100 text-slate-600",
                 ].join(" ")}
               >
@@ -229,7 +229,7 @@ export default function PaymentMethodSelector({
                 ].join(" ")}
               >
                 {selected && (
-                  <span className="h-2.5 w-2.5 rounded-full bg-slate-900" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-ink-900 dark-surface" />
                 )}
               </span>
             </button>

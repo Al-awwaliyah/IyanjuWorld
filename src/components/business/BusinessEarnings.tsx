@@ -395,7 +395,7 @@ export default function BusinessEarnings({
               : "s"
           }`}
           icon={TrendingUp}
-          iconClassName="bg-blue-50 text-blue-600"
+          iconClassName="bg-brand-50 text-brand-600"
         />
 
         <SummaryCard
@@ -430,7 +430,7 @@ export default function BusinessEarnings({
           )}
           description="Successfully settled"
           icon={ArrowUpRight}
-          iconClassName="bg-violet-50 text-violet-600"
+          iconClassName="bg-brand-50 text-brand-600"
         />
       </div>
 

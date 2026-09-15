@@ -59,7 +59,7 @@ export default function DashboardSidebar({
           type="button"
           aria-label="Close navigation"
           onClick={onMobileClose}
-          className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden"
+          className="fixed inset-0 z-40 bg-ink-950/40 lg:hidden dark-surface"
         />
       )}
 

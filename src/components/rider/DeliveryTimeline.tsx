@@ -328,7 +328,7 @@ export default function DeliveryTimeline({
                     className={[
                       "relative z-10 flex h-8 w-8 items-center justify-center rounded-full border",
                       isCurrent
-                        ? "border-blue-200 bg-blue-50 text-blue-600 ring-4 ring-blue-50"
+                        ? "border-brand-200 bg-brand-50 text-brand-600 ring-4 ring-brand-50"
                         : isCompleted
                           ? "border-emerald-200 bg-emerald-50 text-emerald-600"
                           : "border-slate-200 bg-white text-slate-400",

@@ -151,7 +151,7 @@ export default function MessageBubble({
           className={[
             "overflow-hidden rounded-2xl",
             isMine
-              ? "rounded-br-md bg-slate-900 text-white"
+              ? "rounded-br-md bg-ink-900 text-white"
               : "rounded-bl-md border border-slate-200 bg-white text-slate-800",
           ].join(" ")}
         >

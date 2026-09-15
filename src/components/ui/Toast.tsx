@@ -44,8 +44,8 @@ const variantStyles: Record<
     icon: "text-amber-600",
   },
   info: {
-    container: "border-blue-200 bg-blue-50",
-    icon: "text-blue-600",
+    container: "border-brand-200 bg-brand-50",
+    icon: "text-brand-600",
   },
 };
 

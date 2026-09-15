@@ -71,7 +71,7 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
               {...props}
             />
 
-            <span className="h-6 w-11 rounded-full bg-slate-300 transition-colors peer-checked:bg-slate-900 peer-focus-visible:ring-2 peer-focus-visible:ring-slate-400 peer-focus-visible:ring-offset-2 peer-disabled:cursor-not-allowed peer-disabled:opacity-50" />
+            <span className="h-6 w-11 rounded-full bg-slate-300 transition-colors peer-checked:bg-ink-900 peer-focus-visible:ring-2 peer-focus-visible:ring-slate-400 peer-focus-visible:ring-offset-2 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 dark-surface" />
 
             <span className="pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5" />
           </label>

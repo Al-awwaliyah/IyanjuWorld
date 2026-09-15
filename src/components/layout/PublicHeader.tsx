@@ -63,7 +63,7 @@ export default function PublicHeader({
   return (
     <header className="sticky top-0 z-50">
       {/* Utility bar */}
-      <div className="hidden bg-ink-950 text-white/70 sm:block">
+      <div className="hidden bg-ink-950 text-white/70 sm:block dark-surface">
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-xs sm:px-6 lg:px-8">
           <p>Deliver to you, wherever you are in Nigeria 🇳🇬</p>
 
@@ -86,7 +86,7 @@ export default function PublicHeader({
       </div>
 
       {/* Main bar */}
-      <div className="bg-ink-900">
+      <div className="bg-ink-900 dark-surface">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex min-h-16 items-center gap-3 sm:gap-4">
             <button

@@ -21,21 +21,21 @@ export interface BadgeProps {
 
 const variantStyles: Record<BadgeVariant, string> = {
   default: "bg-slate-100 text-slate-700",
-  primary: "bg-slate-900 text-white",
+  primary: "bg-ink-900 text-white",
   success: "bg-emerald-50 text-emerald-700",
   warning: "bg-amber-50 text-amber-700",
   danger: "bg-red-50 text-red-700",
-  info: "bg-blue-50 text-blue-700",
+  info: "bg-brand-50 text-brand-700",
   neutral: "bg-slate-50 text-slate-600",
 };
 
 const dotStyles: Record<BadgeVariant, string> = {
   default: "bg-slate-500",
-  primary: "bg-slate-900",
+  primary: "bg-ink-900",
   success: "bg-emerald-500",
   warning: "bg-amber-500",
   danger: "bg-red-500",
-  info: "bg-blue-500",
+  info: "bg-brand-500",
   neutral: "bg-slate-400",
 };
 

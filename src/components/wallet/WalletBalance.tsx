@@ -55,7 +55,7 @@ export default function WalletBalance({
   return (
     <section
       className={[
-        "overflow-hidden rounded-2xl bg-slate-900 p-5 text-white shadow-sm sm:p-6",
+        "overflow-hidden rounded-2xl bg-ink-900 p-5 text-white shadow-sm sm:p-6",
         className,
       ]
         .filter(Boolean)

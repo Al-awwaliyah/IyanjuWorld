@@ -266,7 +266,7 @@ export function AuditLogTable({
                     ? "text-amber-500"
                     : severity === "success"
                       ? "text-emerald-500"
-                      : "text-blue-500",
+                      : "text-brand-500",
               ].join(" ")}
             />
 

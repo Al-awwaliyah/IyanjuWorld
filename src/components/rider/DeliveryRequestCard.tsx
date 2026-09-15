@@ -195,7 +195,7 @@ export default function DeliveryRequestCard({
         <div className="space-y-4">
           <div className="rounded-xl border border-slate-200 p-4">
             <div className="flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                 <Package
                   className="h-4 w-4"
                   aria-hidden="true"

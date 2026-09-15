@@ -453,7 +453,7 @@ export default function BusinessPayouts({
           )}
           description="Successfully settled"
           icon={CheckCircle2}
-          iconClassName="bg-blue-50 text-blue-600"
+          iconClassName="bg-brand-50 text-brand-600"
         />
       </div>
 
