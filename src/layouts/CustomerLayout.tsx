@@ -12,6 +12,7 @@ import {
 import DashboardSidebar from "../components/layout/DashboardSidebar";
 import DashboardHeader from "../components/layout/DashboardHeader";
 import MobileNavigation from "../components/layout/MobileNavigation";
+import BackButton from "../components/layout/BackButton";
 import { useAuth } from "../hooks/useAuth";
 
 const ACCOUNT_NAV_ITEMS = [
@@ -69,6 +70,7 @@ export default function CustomerLayout() {
         </div>
 
         <main className="min-h-screen pb-16 lg:pb-0">
+          <BackButton />
           <Outlet />
         </main>
 
@@ -98,6 +100,7 @@ export default function CustomerLayout() {
         />
 
         <main className="flex-1 px-4 py-6 pb-20 sm:px-6 lg:px-8 lg:pb-6">
+          <BackButton className="px-0 pt-0" />
           <Outlet />
         </main>
       </div>
