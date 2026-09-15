@@ -68,6 +68,7 @@ import RiderProfile from "./pages/rider/Profile";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard";
+import Admins from "./pages/admin/Admins";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminBusinesses from "./pages/admin/Businesses";
 import AdminRiders from "./pages/admin/Riders";
@@ -424,6 +425,18 @@ function App() {
               requireAdmin
             >
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/admins"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              requireAdmin
+            >
+              <Admins />
             </ProtectedRoute>
           }
         />

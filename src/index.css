@@ -110,8 +110,13 @@ svg {
 .dark-surface input,
 .dark-surface textarea,
 .dark-surface select {
-  color: #0f172a;
-  background: #ffffff;
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+
+.dark-surface input::placeholder,
+.dark-surface textarea::placeholder {
+  color: #64748b !important;
 }
 
 /* =========================================================
@@ -204,4 +209,51 @@ svg {
 /* Dark utility surfaces inside a role shell inherit the same rule. */
 .iyw-role-shell .dark-surface {
   color: #ffffff !important;
+}
+
+
+/* Dark brand/status surfaces use light foregrounds throughout role areas. */
+.iyw-role-shell .bg-brand-500,
+.iyw-role-shell .bg-brand-600,
+.iyw-role-shell .bg-brand-700,
+.iyw-role-shell .bg-brand-800,
+.iyw-role-shell .bg-brand-900,
+.iyw-role-shell .bg-blue-600,
+.iyw-role-shell .bg-indigo-600,
+.iyw-role-shell .bg-purple-600,
+.iyw-role-shell .bg-red-500,
+.iyw-role-shell .bg-red-600,
+.iyw-role-shell .bg-red-700,
+.iyw-role-shell .bg-emerald-600,
+.iyw-role-shell .bg-emerald-700,
+.iyw-role-shell .bg-amber-600,
+.iyw-role-shell .bg-orange-600 {
+  color: #ffffff !important;
+}
+
+.iyw-role-shell .bg-brand-500 [class*="text-slate-"],
+.iyw-role-shell .bg-brand-600 [class*="text-slate-"],
+.iyw-role-shell .bg-brand-500 [class*="text-gray-"],
+.iyw-role-shell .bg-brand-600 [class*="text-gray-"],
+.iyw-role-shell .bg-brand-500 [class*="text-ink-"],
+.iyw-role-shell .bg-brand-600 [class*="text-ink-"],
+.iyw-role-shell .bg-red-600 [class*="text-slate-"],
+.iyw-role-shell .bg-emerald-600 [class*="text-slate-"],
+.iyw-role-shell .bg-amber-600 [class*="text-slate-"] {
+  color: #ffffff !important;
+}
+
+/* Form controls are always readable on light cards, even when an ancestor is a dark promotional surface. */
+.iyw-role-shell input:not([type="checkbox"]):not([type="radio"]),
+.iyw-role-shell textarea,
+.iyw-role-shell select {
+  color: #0f172a;
+  background-color: #ffffff;
+}
+
+/* Never allow white text to become invisible on the common white search/input surface. */
+input.bg-white.text-white,
+textarea.bg-white.text-white,
+select.bg-white.text-white {
+  color: #0f172a !important;
 }

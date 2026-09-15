@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -20,6 +20,8 @@ import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import EmptyState from "../../components/ui/EmptyState";
+import { supabase } from "../../libs/supabase";
+import { getSafeErrorMessage } from "../../libs/errors";
 
 type AuditSeverity =
   | "info"
@@ -60,230 +62,6 @@ type AuditLog = {
   metadata: Record<string, unknown>;
   createdAt: string;
 };
-
-const initialLogs: AuditLog[] = [
-  {
-    id: "audit-001",
-    reference: "AUD-10001",
-    actorId: "admin-001",
-    actorName: "Super Admin",
-    actorRole: "super_admin",
-    action: "platform_fee_updated",
-    entityType: "platform_settings",
-    entityId: "platform-settings",
-    description:
-      "Platform commission rate was updated from 5% to 5.5%.",
-    severity: "warning",
-    status: "success",
-    ipAddress: "102.88.14.20",
-    userAgent:
-      "Chrome / Windows",
-    metadata: {
-      previous_rate: 5,
-      new_rate: 5.5,
-      currency: "NGN",
-    },
-    createdAt: "2026-09-12T12:45:00.000Z",
-  },
-  {
-    id: "audit-002",
-    reference: "AUD-10002",
-    actorId: "admin-002",
-    actorName: "Finance Admin",
-    actorRole: "finance",
-    action: "wallet_refund_processed",
-    entityType: "refund",
-    entityId: "refund-001",
-    description:
-      "Wallet refund was processed for a completed order.",
-    severity: "success",
-    status: "success",
-    ipAddress: "102.89.22.41",
-    userAgent:
-      "Chrome / Windows",
-    metadata: {
-      destination: "wallet",
-      amount: 25000,
-      currency: "NGN",
-      reference: "WALLET-REFUND-A8127F3C",
-    },
-    createdAt: "2026-09-12T11:30:00.000Z",
-  },
-  {
-    id: "audit-003",
-    reference: "AUD-10003",
-    actorId: "admin-003",
-    actorName: "Operations Admin",
-    actorRole: "operations",
-    action: "rider_verified",
-    entityType: "rider",
-    entityId: "rider-004",
-    description:
-      "Rider verification status was changed to verified.",
-    severity: "info",
-    status: "success",
-    ipAddress: "197.210.54.12",
-    userAgent:
-      "Chrome / Windows",
-    metadata: {
-      previous_status: "under_review",
-      new_status: "verified",
-    },
-    createdAt: "2026-09-12T10:20:00.000Z",
-  },
-  {
-    id: "audit-004",
-    reference: "AUD-10004",
-    actorId: "admin-004",
-    actorName: "Support Admin",
-    actorRole: "support",
-    action: "business_suspended",
-    entityType: "business",
-    entityId: "business-008",
-    description:
-      "Business account was suspended following an operational review.",
-    severity: "critical",
-    status: "success",
-    ipAddress: "102.90.12.77",
-    userAgent:
-      "Chrome / Windows",
-    metadata: {
-      reason: "Repeated customer complaints",
-    },
-    createdAt: "2026-09-12T09:45:00.000Z",
-  },
-  {
-    id: "audit-005",
-    reference: "AUD-10005",
-    actorId: null,
-    actorName: "System",
-    actorRole: "system",
-    action: "payment_webhook_processed",
-    entityType: "payment_transaction",
-    entityId: "payment-1204",
-    description:
-      "Flutterwave payment webhook was successfully processed.",
-    severity: "info",
-    status: "success",
-    ipAddress: null,
-    userAgent: null,
-    metadata: {
-      provider: "flutterwave",
-      payment_status: "successful",
-    },
-    createdAt: "2026-09-12T09:10:00.000Z",
-  },
-  {
-    id: "audit-006",
-    reference: "AUD-10006",
-    actorId: "admin-005",
-    actorName: "Compliance Admin",
-    actorRole: "compliance",
-    action: "business_verification_rejected",
-    entityType: "business",
-    entityId: "business-012",
-    description:
-      "Business verification was rejected because the submitted information could not be validated.",
-    severity: "warning",
-    status: "success",
-    ipAddress: "105.112.18.42",
-    userAgent:
-      "Chrome / Windows",
-    metadata: {
-      reason: "Verification information incomplete",
-    },
-    createdAt: "2026-09-11T17:35:00.000Z",
-  },
-  {
-    id: "audit-007",
-    reference: "AUD-10007",
-    actorId: "admin-002",
-    actorName: "Finance Admin",
-    actorRole: "finance",
-    action: "payout_approved",
-    entityType: "payout",
-    entityId: "payout-441",
-    description:
-      "Business payout was approved for processing.",
-    severity: "success",
-    status: "success",
-    ipAddress: "102.89.22.41",
-    userAgent:
-      "Chrome / Windows",
-    metadata: {
-      amount: 185000,
-      currency: "NGN",
-    },
-    createdAt: "2026-09-11T16:20:00.000Z",
-  },
-  {
-    id: "audit-008",
-    reference: "AUD-10008",
-    actorId: "admin-006",
-    actorName: "Operations Admin",
-    actorRole: "operations",
-    action: "delivery_zone_updated",
-    entityType: "delivery_zone",
-    entityId: "zone-003",
-    description:
-      "Delivery zone pricing configuration was updated.",
-    severity: "info",
-    status: "success",
-    ipAddress: "197.210.11.90",
-    userAgent:
-      "Chrome / Windows",
-    metadata: {
-      city: "Ibadan",
-      base_fee: 1200,
-      per_km_fee: 150,
-    },
-    createdAt: "2026-09-11T14:05:00.000Z",
-  },
-  {
-    id: "audit-009",
-    reference: "AUD-10009",
-    actorId: "admin-004",
-    actorName: "Support Admin",
-    actorRole: "support",
-    action: "refund_approval_failed",
-    entityType: "refund",
-    entityId: "refund-004",
-    description:
-      "A refund approval attempt was rejected because the administrator did not have the required permission.",
-    severity: "critical",
-    status: "failed",
-    ipAddress: "102.90.12.77",
-    userAgent:
-      "Chrome / Windows",
-    metadata: {
-      required_permission: "finance.refund_approve",
-    },
-    createdAt: "2026-09-11T12:45:00.000Z",
-  },
-  {
-    id: "audit-010",
-    reference: "AUD-10010",
-    actorId: "customer-100",
-    actorName: "Amina Yusuf",
-    actorRole: "customer",
-    action: "wallet_deposit_completed",
-    entityType: "wallet_transaction",
-    entityId: "wallet-tx-881",
-    description:
-      "Customer wallet deposit was completed after payment verification.",
-    severity: "success",
-    status: "success",
-    ipAddress: "105.112.30.18",
-    userAgent:
-      "Chrome / Android",
-    metadata: {
-      amount: 50000,
-      currency: "NGN",
-      provider: "flutterwave",
-    },
-    createdAt: "2026-09-11T11:20:00.000Z",
-  },
-];
 
 const actionOptions = [
   { value: "", label: "All actions" },
@@ -425,7 +203,45 @@ function statusVariant(status: AuditStatus) {
 }
 
 export default function Audit() {
-  const [logs] = useState<AuditLog[]>(initialLogs);
+  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const loadLogs = useCallback(async () => {
+    try {
+      setLoading(true); setError("");
+      const { data, error: queryError } = await supabase
+        .from("audit_logs")
+        .select("id, actor_id, action, entity_type, entity_id, metadata, created_at")
+        .order("created_at", { ascending: false })
+        .limit(250);
+      if (queryError) throw queryError;
+      const rows = data ?? [];
+      const actorIds = [...new Set(rows.map((row) => row.actor_id).filter(Boolean))];
+      let actorMap = new Map<string, { full_name: string | null; role: string | null; phone: string | null }>();
+      if (actorIds.length) {
+        const { data: profiles, error: profileError } = await supabase.from("profiles").select("id, full_name, role, phone").in("id", actorIds);
+        if (profileError) throw profileError;
+        actorMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
+      }
+      setLogs(rows.map((row) => {
+        const actor = row.actor_id ? actorMap.get(row.actor_id) : null;
+        const metadata = (row.metadata ?? {}) as Record<string, unknown>;
+        const severity = String(metadata.severity ?? (String(row.action).includes("reject") || String(row.action).includes("fail") ? "critical" : "info")) as AuditSeverity;
+        const status = String(metadata.status ?? "success") as AuditStatus;
+        return {
+          id: row.id, reference: `AUD-${row.id.slice(0, 8).toUpperCase()}`, actorId: row.actor_id,
+          actorName: actor?.full_name ?? (row.actor_id ? "Administrator" : "System"), actorRole: (actor?.role ?? "system") as AuditActorRole,
+          action: row.action, entityType: row.entity_type ?? "platform", entityId: row.entity_id,
+          description: String(metadata.description ?? `${String(row.action).replace(/_/g, " ")} recorded for ${String(row.entity_type ?? "platform").replace(/_/g, " ")}.`),
+          severity, status, ipAddress: typeof metadata.ip_address === "string" ? metadata.ip_address : null,
+          userAgent: typeof metadata.user_agent === "string" ? metadata.user_agent : null, metadata, createdAt: row.created_at,
+        };
+      }));
+    } catch (err) { setError(getSafeErrorMessage(err)); } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { void loadLogs(); }, [loadLogs]);
 
   const [search, setSearch] = useState("");
   const [action, setAction] = useState("");
@@ -435,6 +251,10 @@ export default function Audit() {
 
   const [selectedLog, setSelectedLog] =
     useState<AuditLog | null>(null);
+
+  if (error && logs.length === 0) {
+    return <PageContainer size="full"><EmptyState title="Audit log unavailable" description={error} actionLabel="Try again" onAction={() => void loadLogs()} /></PageContainer>;
+  }
 
   const filteredLogs = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -826,6 +646,7 @@ export default function Audit() {
         <AdminTable
           columns={columns}
           data={filteredLogs}
+          loading={loading}
           rowKey={(log) => log.id}
           getRowActions={getRowActions}
           emptyTitle="No audit events found"

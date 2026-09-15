@@ -1,12 +1,17 @@
+import { useCallback, useEffect, useState } from "react";
 import {
   Activity,
   AlertTriangle,
   ArrowRight,
+  Building2,
+  CheckCircle2,
   CreditCard,
   DollarSign,
   Package,
+  ShieldCheck,
   Store,
   Truck,
+  UserCog,
   Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -15,523 +20,117 @@ import { AdminStats } from "@/components/admin/AdminStats";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { EmptyState } from "@/components/ui/EmptyState";
+import ErrorState from "@/components/ui/ErrorState";
 import { formatDateTime, formatNaira } from "@/libs/format";
+import { getSafeErrorMessage } from "@/libs/errors";
+import { getAdminDashboard, type AdminDashboardData } from "@/services/admin";
 
-interface DashboardActivity {
-  id: string;
-  type:
-    | "order"
-    | "payment"
-    | "business"
-    | "rider"
-    | "dispute"
-    | "payout";
-  title: string;
-  description: string;
-  createdAt: string | Date;
-  status?: string;
-  amount?: number;
-}
-
-interface AdminDashboardData {
-  totalCustomers: number;
-  activeCustomers: number;
-
-  totalBusinesses: number;
-  activeBusinesses: number;
-
-  totalRiders: number;
-  onlineRiders: number;
-  availableRiders: number;
-  ridersOnDelivery: number;
-
-  totalOrders: number;
-  pendingOrders: number;
-  completedOrders: number;
-
-  totalRevenue: number;
-  platformFees: number;
-
-  pendingPayments: number;
-  pendingPayouts: number;
-
-  walletBalance: number;
-  openDisputes: number;
-
-  recentActivity: DashboardActivity[];
-}
-
-const defaultData: AdminDashboardData = {
-  totalCustomers: 0,
-  activeCustomers: 0,
-
-  totalBusinesses: 0,
-  activeBusinesses: 0,
-
-  totalRiders: 0,
-  onlineRiders: 0,
-  availableRiders: 0,
-  ridersOnDelivery: 0,
-
-  totalOrders: 0,
-  pendingOrders: 0,
-  completedOrders: 0,
-
-  totalRevenue: 0,
-  platformFees: 0,
-
-  pendingPayments: 0,
-  pendingPayouts: 0,
-
-  walletBalance: 0,
-  openDisputes: 0,
-
+const emptyData: AdminDashboardData = {
+  totalCustomers: 0, activeCustomers: 0, totalBusinesses: 0, activeBusinesses: 0,
+  pendingBusinesses: 0, verifiedBusinesses: 0, totalRiders: 0, onlineRiders: 0,
+  availableRiders: 0, pendingRiders: 0, verifiedRiders: 0, ridersOnDelivery: 0,
+  totalOrders: 0, pendingOrders: 0, completedOrders: 0, totalRevenue: 0,
+  platformFees: 0, pendingPayments: 0, pendingPayouts: 0, openRefunds: 0,
   recentActivity: [],
 };
 
-interface AdminDashboardProps {
-  data?: Partial<AdminDashboardData>;
-  loading?: boolean;
-  onRefresh?: () => void;
-}
+export default function AdminDashboard() {
+  const [dashboard, setDashboard] = useState<AdminDashboardData>(emptyData);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
 
-const activityIcons = {
-  order: Package,
-  payment: CreditCard,
-  business: Store,
-  rider: Truck,
-  dispute: AlertTriangle,
-  payout: DollarSign,
-};
+  const load = useCallback(async (refresh = false) => {
+    try {
+      refresh ? setRefreshing(true) : setLoading(true);
+      setError("");
+      setDashboard(await getAdminDashboard());
+    } catch (err) {
+      setError(getSafeErrorMessage(err));
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
-const activityBadgeVariants = {
-  order: "info",
-  payment: "success",
-  business: "warning",
-  rider: "info",
-  dispute: "danger",
-  payout: "success",
-} as const;
-
-function getDashboardData(
-  data?: Partial<AdminDashboardData>,
-): AdminDashboardData {
-  return {
-    ...defaultData,
-    ...data,
-    recentActivity: data?.recentActivity ?? [],
-  };
-}
-
-export default function AdminDashboard({
-  data,
-  loading = false,
-  onRefresh,
-}: AdminDashboardProps) {
-  const dashboard = getDashboardData(data);
+  useEffect(() => { void load(); }, [load]);
 
   const stats = [
-    {
-      id: "customers",
-      label: "Total customers",
-      value: dashboard.totalCustomers,
-      format: "number" as const,
-      icon: Users,
-      description: `${dashboard.activeCustomers.toLocaleString()} active`,
-    },
-    {
-      id: "businesses",
-      label: "Businesses",
-      value: dashboard.totalBusinesses,
-      format: "number" as const,
-      icon: Store,
-      description: `${dashboard.activeBusinesses.toLocaleString()} active`,
-    },
-    {
-      id: "riders",
-      label: "Riders",
-      value: dashboard.totalRiders,
-      format: "number" as const,
-      icon: Truck,
-      description: `${dashboard.onlineRiders.toLocaleString()} online`,
-    },
-    {
-      id: "orders",
-      label: "Total orders",
-      value: dashboard.totalOrders,
-      format: "number" as const,
-      icon: Package,
-      description: `${dashboard.pendingOrders.toLocaleString()} pending`,
-    },
-    {
-      id: "revenue",
-      label: "Marketplace revenue",
-      value: dashboard.totalRevenue,
-      format: "currency" as const,
-      icon: DollarSign,
-      description: `${formatNaira(dashboard.platformFees)} platform fees`,
-    },
-    {
-      id: "payments",
-      label: "Pending payments",
-      value: dashboard.pendingPayments,
-      format: "number" as const,
-      icon: CreditCard,
-    },
-    {
-      id: "payouts",
-      label: "Pending payouts",
-      value: dashboard.pendingPayouts,
-      format: "number" as const,
-      icon: Activity,
-    },
-    {
-      id: "disputes",
-      label: "Open disputes",
-      value: dashboard.openDisputes,
-      format: "number" as const,
-      icon: AlertTriangle,
-    },
+    { id: "customers", label: "Customers", value: dashboard.totalCustomers, format: "number" as const, icon: Users, description: `${dashboard.activeCustomers} active` },
+    { id: "businesses", label: "Businesses", value: dashboard.totalBusinesses, format: "number" as const, icon: Store, description: `${dashboard.pendingBusinesses} awaiting review` },
+    { id: "riders", label: "Riders", value: dashboard.totalRiders, format: "number" as const, icon: Truck, description: `${dashboard.pendingRiders} awaiting verification` },
+    { id: "orders", label: "Orders", value: dashboard.totalOrders, format: "number" as const, icon: Package, description: `${dashboard.pendingOrders} active` },
+    { id: "revenue", label: "Marketplace revenue", value: dashboard.totalRevenue, format: "currency" as const, icon: DollarSign, description: `${formatNaira(dashboard.platformFees)} platform fees` },
+    { id: "payments", label: "Pending payments", value: dashboard.pendingPayments, format: "number" as const, icon: CreditCard },
+    { id: "payouts", label: "Pending payouts", value: dashboard.pendingPayouts, format: "number" as const, icon: Activity },
+    { id: "refunds", label: "Open refunds", value: dashboard.openRefunds, format: "number" as const, icon: AlertTriangle },
   ];
 
-  const deliverySummary = [
-    {
-      label: "Online",
-      value: dashboard.onlineRiders,
-      variant: "info" as const,
-    },
-    {
-      label: "Available",
-      value: dashboard.availableRiders,
-      variant: "success" as const,
-    },
-    {
-      label: "On delivery",
-      value: dashboard.ridersOnDelivery,
-      variant: "warning" as const,
-    },
-  ];
+  if (error && !loading) {
+    return <PageContainer size="full"><ErrorState message={error} onAction={() => void load()} /></PageContainer>;
+  }
 
   return (
     <PageContainer size="full">
       <div className="space-y-6">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              Admin Dashboard
-            </h1>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Monitor marketplace operations, payments,
-              deliveries, and financial activity.
-            </p>
+            <p className="text-sm font-medium text-brand-600">IyanjuWorld administration</p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink-950">Admin Dashboard</h1>
+            <p className="mt-1 text-sm text-slate-600">Live marketplace operations, verification, users, orders and financial activity.</p>
           </div>
-
-          {onRefresh && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              loading={loading}
-            >
-              Refresh
-            </Button>
-          )}
+          <Button variant="outline" onClick={() => void load(true)} loading={refreshing}>Refresh</Button>
         </div>
 
-        <AdminStats
-          stats={stats}
-          loading={loading}
-          columns={4}
-        />
+        <AdminStats stats={stats} loading={loading} columns={4} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-base font-semibold text-slate-900">
-                  Recent activity
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Latest important events across the
-                  marketplace.
-                </p>
-              </div>
-
-              <Link
-                to="/admin/audit"
-                className="inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-slate-900"
-              >
-                View audit
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div><h2 className="text-base font-semibold text-ink-950">Verification queue</h2><p className="mt-1 text-sm text-slate-600">Items that may require an administrator's attention.</p></div>
+              <ShieldCheck className="h-5 w-5 text-brand-600" />
             </div>
-
-            {dashboard.recentActivity.length === 0 ? (
-              <div className="flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-5 text-center">
-                <Activity className="mb-3 h-8 w-8 text-slate-400" />
-
-                <p className="text-sm font-medium text-slate-700">
-                  No recent activity
-                </p>
-
-                <p className="mt-1 max-w-sm text-xs text-slate-500">
-                  Important marketplace events will
-                  appear here as they occur.
-                </p>
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {dashboard.recentActivity
-                  .slice(0, 8)
-                  .map((activity) => {
-                    const Icon =
-                      activityIcons[activity.type];
-
-                    const badgeVariant =
-                      activityBadgeVariants[
-                        activity.type
-                      ];
-
-                    return (
-                      <div
-                        key={activity.id}
-                        className="flex gap-3 py-4 first:pt-0 last:pb-0"
-                      >
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
-                          <Icon className="h-4 w-4 text-slate-600" />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-medium text-slate-800">
-                              {activity.title}
-                            </p>
-
-                            {activity.status && (
-                              <Badge
-                                variant={badgeVariant}
-                                size="sm"
-                              >
-                                {activity.status}
-                              </Badge>
-                            )}
-                          </div>
-
-                          <p className="mt-1 text-sm text-slate-500">
-                            {activity.description}
-                          </p>
-
-                          <p className="mt-1 text-xs text-slate-400">
-                            {formatDateTime(
-                              activity.createdAt,
-                            )}
-                          </p>
-                        </div>
-
-                        {activity.amount !==
-                          undefined && (
-                          <div className="shrink-0 text-right">
-                            <p className="text-sm font-semibold text-slate-900">
-                              {formatNaira(
-                                activity.amount,
-                              )}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-              </div>
-            )}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <QueueCard to="/admin/businesses" icon={Building2} label="Business verification" value={dashboard.pendingBusinesses} description="Businesses awaiting review" />
+              <QueueCard to="/admin/riders" icon={Truck} label="Rider verification" value={dashboard.pendingRiders} description="Riders awaiting review" />
+              <QueueCard to="/admin/admins" icon={UserCog} label="Administrator access" description="Manage admin roles securely" />
+              <QueueCard to="/admin/orders" icon={Package} label="Order operations" value={dashboard.pendingOrders} description="Orders currently active" />
+            </div>
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="mb-5">
-              <h2 className="text-base font-semibold text-slate-900">
-                Delivery network
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Current rider availability.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {deliverySummary.map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3"
-                >
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={item.variant}
-                      size="sm"
-                      dot
-                    >
-                      {item.label}
-                    </Badge>
-                  </div>
-
-                  <span className="text-lg font-semibold text-slate-900">
-                    {item.value.toLocaleString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-5 border-t border-slate-100 pt-5">
-              <Link
-                to="/admin/riders"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-              >
-                Manage riders
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+            <h2 className="text-base font-semibold text-ink-950">Delivery network</h2>
+            <p className="mt-1 text-sm text-slate-600">Live rider availability from the database.</p>
+            <div className="mt-5 space-y-3">
+              <MetricRow label="Online" value={dashboard.onlineRiders} variant="info" />
+              <MetricRow label="Available" value={dashboard.availableRiders} variant="success" />
+              <MetricRow label="On delivery" value={dashboard.ridersOnDelivery} variant="warning" />
+              <MetricRow label="Verified" value={dashboard.verifiedRiders} variant="default" />
             </div>
           </section>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          <Link
-            to="/admin/orders"
-            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100">
-                <Package className="h-5 w-5 text-slate-600" />
-              </div>
-
-              <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-1" />
-            </div>
-
-            <h3 className="mt-4 text-sm font-semibold text-slate-900">
-              Order operations
-            </h3>
-
-            <p className="mt-1 text-sm text-slate-500">
-              {dashboard.pendingOrders.toLocaleString()}{" "}
-              orders currently need attention.
-            </p>
-          </Link>
-
-          <Link
-            to="/admin/payments"
-            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100">
-                <CreditCard className="h-5 w-5 text-slate-600" />
-              </div>
-
-              <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-1" />
-            </div>
-
-            <h3 className="mt-4 text-sm font-semibold text-slate-900">
-              Payment monitoring
-            </h3>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Review pending payments and transaction
-              activity.
-            </p>
-          </Link>
-
-          <Link
-            to="/admin/disputes"
-            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100">
-                <AlertTriangle className="h-5 w-5 text-slate-600" />
-              </div>
-
-              <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-1" />
-            </div>
-
-            <h3 className="mt-4 text-sm font-semibold text-slate-900">
-              Dispute management
-            </h3>
-
-            <p className="mt-1 text-sm text-slate-500">
-              {dashboard.openDisputes.toLocaleString()}{" "}
-              open disputes require review.
-            </p>
-          </Link>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
+            <div className="mb-4 flex items-center justify-between"><div><h2 className="text-base font-semibold text-ink-950">Recent administrative activity</h2><p className="mt-1 text-sm text-slate-600">Only real audit records are shown.</p></div><Link to="/admin/audit" className="text-sm font-semibold text-brand-600 hover:text-brand-700">View audit <ArrowRight className="inline h-4 w-4" /></Link></div>
+            {dashboard.recentActivity.length === 0 ? <EmptyState title="No audit activity yet" description="Administrative events will appear here after real platform actions occur." icon={<Activity className="h-6 w-6" />} /> : <div className="divide-y divide-slate-100">{dashboard.recentActivity.slice(0, 8).map((item) => <div key={item.id} className="flex gap-3 py-4 first:pt-0"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600"><Activity className="h-4 w-4" /></div><div className="min-w-0 flex-1"><p className="text-sm font-semibold text-ink-950">{item.title}</p><p className="mt-1 text-sm text-slate-600">{item.description}</p><p className="mt-1 text-xs text-slate-400">{formatDateTime(item.createdAt)}</p></div>{item.amount !== undefined && <p className="text-sm font-semibold text-ink-950">{formatNaira(item.amount)}</p>}</div>)}</div>}
+          </section>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-ink-950">Business health</h2>
+            <div className="mt-5 space-y-4"><HealthRow label="Active businesses" value={dashboard.activeBusinesses} total={dashboard.totalBusinesses} /><HealthRow label="Verified businesses" value={dashboard.verifiedBusinesses} total={dashboard.totalBusinesses} /><HealthRow label="Completed orders" value={dashboard.completedOrders} total={dashboard.totalOrders} /></div>
+          </section>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <h2 className="text-base font-semibold text-slate-900">
-                Financial overview
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                Current marketplace financial indicators.
-              </p>
-            </div>
-
-            <Link
-              to="/admin/fees"
-              className="inline-flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-slate-900"
-            >
-              View fee settings
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                Marketplace revenue
-              </p>
-
-              <p className="mt-2 text-lg font-bold text-slate-900">
-                {formatNaira(
-                  dashboard.totalRevenue,
-                )}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                Platform fees
-              </p>
-
-              <p className="mt-2 text-lg font-bold text-slate-900">
-                {formatNaira(
-                  dashboard.platformFees,
-                )}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                Wallet balance
-              </p>
-
-              <p className="mt-2 text-lg font-bold text-slate-900">
-                {formatNaira(
-                  dashboard.walletBalance,
-                )}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                Completed orders
-              </p>
-
-              <p className="mt-2 text-lg font-bold text-slate-900">
-                {dashboard.completedOrders.toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><div><h2 className="text-base font-semibold text-ink-950">Financial overview</h2><p className="mt-1 text-sm text-slate-600">Values are calculated from actual marketplace transactions.</p></div><Link to="/admin/fees" className="text-sm font-semibold text-brand-600">Fee settings <ArrowRight className="inline h-4 w-4" /></Link></div><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Financial label="Revenue" value={dashboard.totalRevenue} /><Financial label="Platform fees" value={dashboard.platformFees} /><Financial label="Pending payouts" value={dashboard.pendingPayouts} count /><Financial label="Open refunds" value={dashboard.openRefunds} count /></div></section>
       </div>
     </PageContainer>
   );
 }
+
+function QueueCard({ to, icon: Icon, label, value, description }: { to: string; icon: typeof ShieldCheck; label: string; value?: number; description: string }) {
+  return <Link to={to} className="group rounded-xl border border-slate-200 p-4 transition hover:border-brand-300 hover:bg-brand-50/50"><div className="flex items-start justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Icon className="h-5 w-5" /></span><ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-1" /></div><p className="mt-4 text-sm font-semibold text-ink-950">{label}</p><p className="mt-1 text-xs text-slate-600">{description}</p>{value !== undefined && <p className="mt-3 text-2xl font-bold text-ink-950">{value.toLocaleString()}</p>}</Link>;
+}
+function MetricRow({ label, value, variant }: { label: string; value: number; variant: "info" | "success" | "warning" | "default" }) { return <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3"><Badge variant={variant}>{label}</Badge><span className="font-bold text-ink-950">{value.toLocaleString()}</span></div>; }
+function HealthRow({ label, value, total }: { label: string; value: number; total: number }) { const pct = total > 0 ? Math.round((value / total) * 100) : 0; return <div><div className="flex justify-between text-sm"><span className="text-slate-600">{label}</span><span className="font-semibold text-ink-950">{value.toLocaleString()}</span></div><div className="mt-2 h-2 rounded-full bg-slate-100"><div className="h-2 rounded-full bg-brand-500" style={{ width: `${Math.min(100, pct)}%` }} /></div></div>; }
+function Financial({ label, value, count }: { label: string; value: number; count?: boolean }) { return <div className="rounded-xl bg-slate-50 p-4"><p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p><p className="mt-2 text-lg font-bold text-ink-950">{count ? value.toLocaleString() : formatNaira(value)}</p></div>; }

@@ -19,6 +19,8 @@ import AdminTable, {
 import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
 import { formatDate } from "../../libs/format";
+import { getSafeErrorMessage } from "../../libs/errors";
+import { setBusinessStatus, setBusinessVerification } from "../../services/admin";
 
 type BusinessStatus =
   | "pending"
@@ -89,6 +91,8 @@ function getStatusLabel(status: BusinessStatus) {
 export default function Businesses() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionError, setActionError] = useState("");
+  const [savingId, setSavingId] = useState<string | null>(null);
   useEffect(() => {
     let mounted = true;
 
@@ -153,35 +157,20 @@ export default function Businesses() {
     });
   }, [businesses, search, status]);
 
-  const updateBusinessStatus = (
-    businessId: string,
-    nextStatus: BusinessStatus,
-  ) => {
-    setBusinesses((current) =>
-      current.map((business) =>
-        business.id === businessId
-          ? {
-              ...business,
-              status: nextStatus,
-              open:
-                nextStatus === "active" ? business.open : false,
-            }
-          : business,
-      ),
-    );
+  const updateBusinessStatus = async (businessId: string, nextStatus: BusinessStatus) => {
+    try {
+      setSavingId(businessId); setActionError("");
+      await setBusinessStatus(businessId, nextStatus);
+      setBusinesses((current) => current.map((business) => business.id === businessId ? { ...business, status: nextStatus, open: nextStatus === "active" ? business.open : false } : business));
+    } catch (error) { setActionError(getSafeErrorMessage(error)); } finally { setSavingId(null); }
   };
 
-  const toggleVerification = (businessId: string) => {
-    setBusinesses((current) =>
-      current.map((business) =>
-        business.id === businessId
-          ? {
-              ...business,
-              verified: !business.verified,
-            }
-          : business,
-      ),
-    );
+  const toggleVerification = async (businessId: string, currentVerified: boolean) => {
+    try {
+      setSavingId(businessId); setActionError("");
+      await setBusinessVerification(businessId, !currentVerified);
+      setBusinesses((current) => current.map((business) => business.id === businessId ? { ...business, verified: !currentVerified, status: !currentVerified && business.status === "pending" ? "active" : business.status } : business));
+    } catch (error) { setActionError(getSafeErrorMessage(error)); } finally { setSavingId(null); }
   };
 
   const columns: AdminTableColumn<Business>[] = [
@@ -306,7 +295,7 @@ export default function Businesses() {
         ? "Remove verification"
         : "Verify business",
       icon: business.verified ? UserX : UserCheck,
-      onClick: () => toggleVerification(business.id),
+      onClick: () => void toggleVerification(business.id, business.verified),
     },
     {
       id: "activate",
@@ -316,7 +305,7 @@ export default function Businesses() {
           : "Activate business",
       icon: business.status === "active" ? UserX : UserCheck,
       onClick: () =>
-        updateBusinessStatus(
+        void updateBusinessStatus(
           business.id,
           business.status === "active" ? "suspended" : "active",
         ),
@@ -350,6 +339,8 @@ export default function Businesses() {
             Clear filters
           </Button>
         </div>
+
+        {actionError && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{actionError}</div>}
 
         <AdminFilters>
           <div className="relative min-w-0 flex-1">
