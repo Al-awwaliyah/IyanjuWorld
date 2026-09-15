@@ -22,37 +22,36 @@ export default function CategoryCard({
     <Link
       to={`/category/${slug}`}
       className={[
-        "group flex flex-col items-center gap-2 rounded-lg border border-slate-100 bg-white p-3 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md",
+        "group flex min-h-24 items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-brand-50 sm:h-20 sm:w-20">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-50 text-brand-600 sm:h-16 sm:w-16">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <span className="text-2xl font-semibold text-brand-600">
+          <span className="text-lg font-bold">
             {icon ?? name.charAt(0).toUpperCase()}
           </span>
         )}
       </div>
-
-      <h3 className="line-clamp-2 text-xs font-medium text-slate-700 group-hover:text-brand-600 sm:text-sm">
-        {name}
-      </h3>
-
-      {productCount !== undefined && (
-        <p className="text-[11px] text-slate-400">
-          {productCount.toLocaleString()}{" "}
-          {productCount === 1 ? "product" : "products"}
-        </p>
-      )}
+      <div className="min-w-0 flex-1">
+        <h3 className="line-clamp-2 text-sm font-semibold text-ink-950 group-hover:text-brand-600 sm:text-base">
+          {name}
+        </h3>
+        {productCount !== undefined && (
+          <p className="mt-1 text-xs text-slate-500">
+            {productCount.toLocaleString()} {productCount === 1 ? "product" : "products"}
+          </p>
+        )}
+      </div>
     </Link>
   );
 }

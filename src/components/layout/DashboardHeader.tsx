@@ -43,7 +43,7 @@ export default function DashboardHeader({
               type="button"
               aria-label="Open navigation menu"
               onClick={onMenuClick}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 lg:hidden"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-slate-600 transition hover:bg-brand-50 hover:text-brand-700 lg:hidden"
             >
               <Menu className="h-5 w-5" />
             </button>
@@ -69,7 +69,7 @@ export default function DashboardHeader({
             type="button"
             aria-label={`Notifications${notificationCount > 0 ? `, ${notificationCount} unread` : ""}`}
             onClick={() => navigate("/customer/messages")}
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-brand-50 hover:text-brand-700"
           >
             <Bell className="h-5 w-5" />
 
@@ -83,7 +83,7 @@ export default function DashboardHeader({
           <button
             type="button"
             onClick={handleProfileClick}
-            className="flex items-center gap-2 rounded-xl p-1.5 transition hover:bg-slate-100"
+            className="flex items-center gap-2 rounded-xl p-1.5 transition hover:bg-brand-50"
             aria-label="Open profile"
           >
             {userAvatar ? (
