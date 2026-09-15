@@ -64,6 +64,11 @@ const TECHNICAL_PATTERNS: Array<{
       "row-level security",
       "rls",
       "insufficient privileges",
+      "admin_super_admin_required",
+      "admin_self_assignment_not_allowed",
+      "admin_self_revocation_not_allowed",
+      "last_super_admin_cannot_be_removed",
+      "only_customer_can_be_assigned_as_admin",
     ],
   },
   {
