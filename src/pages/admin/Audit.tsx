@@ -78,6 +78,18 @@ const actionOptions = [
     label: "Rider verified",
   },
   {
+    value: "rider_verification_changed",
+    label: "Rider verification changed",
+  },
+  {
+    value: "business_verified",
+    label: "Business verified",
+  },
+  {
+    value: "business_unverified",
+    label: "Business unverified",
+  },
+  {
     value: "business_suspended",
     label: "Business suspended",
   },
@@ -228,7 +240,13 @@ export default function Audit() {
         const actor = row.actor_id ? actorMap.get(row.actor_id) : null;
         const metadata = (row.metadata ?? {}) as Record<string, unknown>;
         const severity = String(metadata.severity ?? (String(row.action).includes("reject") || String(row.action).includes("fail") ? "critical" : "info")) as AuditSeverity;
-        const status = String(metadata.status ?? "success") as AuditStatus;
+        // Domain status values such as "verified" or "pending" are not
+        // audit outcomes. Only explicit outcome values may mark an event failed.
+        const auditOutcome = metadata.outcome ?? metadata.audit_status;
+        const status: AuditStatus =
+          auditOutcome === "failed" || auditOutcome === "failure"
+            ? "failed"
+            : "success";
         return {
           id: row.id, reference: `AUD-${row.id.slice(0, 8).toUpperCase()}`, actorId: row.actor_id,
           actorName: actor?.full_name ?? (row.actor_id ? "Administrator" : "System"), actorRole: (actor?.role ?? "system") as AuditActorRole,

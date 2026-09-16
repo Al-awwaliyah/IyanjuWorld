@@ -48,7 +48,7 @@ export default function Businesses() {
   const [category, setCategory] = useState("");
   const [state, setState] = useState("");
   const [openOnly, setOpenOnly] = useState(false);
-  const [verifiedOnly, setVerifiedOnly] = useState(true);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
 
   const filteredBusinesses = useMemo(() => {
@@ -153,6 +153,7 @@ export default function Businesses() {
                 className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
                 aria-label="Filter businesses by category"
               >
+                <option value="">All categories</option>
                 {categories.map((item) => (
                   <option
                     key={item.value}

@@ -169,7 +169,7 @@ export default function Home() {
                     size="lg"
                     variant="outline"
                     fullWidth
-                    className="border-white/30 bg-transparent text-white hover:bg-white hover:text-ink-950"
+                    className="border-white/30 bg-white text-ink-950 hover:bg-slate-100 hover:text-ink-950"
                   >
                     Start selling
                   </Button>

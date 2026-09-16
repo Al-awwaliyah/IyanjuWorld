@@ -87,9 +87,11 @@ const sortOptions = [
 export default function Explore() {
   const { products, loading } = useMarketplaceProducts({ limit: 1000 });
   const { categories } = useMarketplaceCategories();
+  const { businesses } = useMarketplaceBusinesses();
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
+  const [business, setBusiness] = useState("");
   const [state, setState] = useState("");
   const [sort, setSort] = useState("featured");
   const [availableOnly, setAvailableOnly] = useState(true);
@@ -117,6 +119,10 @@ export default function Explore() {
         !category ||
         product.categorySlug === category;
 
+      const matchesBusiness =
+        !business ||
+        product.businessSlug === business;
+
       const matchesState =
         !state ||
         product.state === state;
@@ -130,6 +136,7 @@ export default function Explore() {
       return (
         matchesSearch &&
         matchesCategory &&
+        matchesBusiness &&
         matchesState &&
         matchesAvailability &&
         matchesFeatured
@@ -158,6 +165,7 @@ export default function Explore() {
   }, [
     search,
     category,
+    business,
     state,
     sort,
     availableOnly,
@@ -167,6 +175,7 @@ export default function Explore() {
   const resetFilters = () => {
     setSearch("");
     setCategory("");
+    setBusiness("");
     setState("");
     setSort("featured");
     setAvailableOnly(true);
@@ -244,10 +253,13 @@ export default function Explore() {
               categories={categories}
               states={states}
               category={category}
+              business={business}
               state={state}
               availableOnly={availableOnly}
               featuredOnly={featuredOnly}
               onCategoryChange={setCategory}
+              onBusinessChange={setBusiness}
+              businessOptions={businesses.map((item) => ({ value: item.slug, label: item.name }))}
               onStateChange={setState}
               onAvailableChange={setAvailableOnly}
               onFeaturedChange={setFeaturedOnly}

@@ -73,6 +73,9 @@ export default function Search() {
   const [category, setCategory] = useState(
     searchParams.get("category") ?? "",
   );
+  const [business, setBusiness] = useState(
+    searchParams.get("business") ?? "",
+  );
   const [state, setState] = useState(
     searchParams.get("state") ?? "",
   );
@@ -105,6 +108,10 @@ export default function Search() {
         !category ||
         product.categorySlug === category;
 
+      const matchesBusiness =
+        !business ||
+        product.businessSlug === business;
+
       const matchesState =
         !state ||
         product.state === state;
@@ -118,6 +125,7 @@ export default function Search() {
       return (
         matchesQuery &&
         matchesCategory &&
+        matchesBusiness &&
         matchesState &&
         matchesAvailability &&
         matchesFeatured
@@ -171,6 +179,7 @@ export default function Search() {
   }, [
     normalizedQuery,
     category,
+    business,
     state,
     sort,
     availableOnly,
@@ -221,6 +230,7 @@ export default function Search() {
     nextCategory = category,
     nextState = state,
     nextSort = sort,
+    nextBusiness = business,
   ) => {
     const params = new URLSearchParams();
 
@@ -234,6 +244,10 @@ export default function Search() {
 
     if (nextState) {
       params.set("state", nextState);
+    }
+
+    if (nextBusiness) {
+      params.set("business", nextBusiness);
     }
 
     if (nextSort && nextSort !== "relevance") {
@@ -250,6 +264,7 @@ export default function Search() {
   const clearSearch = () => {
     setQuery("");
     setCategory("");
+    setBusiness("");
     setState("");
     setSort("relevance");
     setAvailableOnly(true);
@@ -259,12 +274,13 @@ export default function Search() {
 
   const removeQuery = () => {
     setQuery("");
-    updateSearchUrl("", category, state, sort);
+    updateSearchUrl("", category, state, sort, "");
   };
 
   const hasActiveFilters =
     Boolean(normalizedQuery) ||
     Boolean(category) ||
+    Boolean(business) ||
     Boolean(state) ||
     sort !== "relevance" ||
     !availableOnly ||
@@ -347,6 +363,19 @@ export default function Search() {
                   value,
                   state,
                   sort,
+                  business,
+                );
+              }}
+              business={business}
+              businessOptions={businesses.map((item) => ({ value: item.slug, label: item.name }))}
+              onBusinessChange={(value) => {
+                setBusiness(value);
+                updateSearchUrl(
+                  query,
+                  category,
+                  state,
+                  sort,
+                  value,
                 );
               }}
               onStateChange={(value) => {
@@ -356,6 +385,7 @@ export default function Search() {
                   category,
                   value,
                   sort,
+                  business,
                 );
               }}
               onAvailableChange={setAvailableOnly}
@@ -393,6 +423,7 @@ export default function Search() {
                       category,
                       state,
                       value,
+                      business,
                     );
                   }}
                   className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
@@ -462,6 +493,7 @@ export default function Search() {
                         "",
                         state,
                         sort,
+                        business,
                       );
                     }}
                   />
@@ -477,6 +509,7 @@ export default function Search() {
                         category,
                         "",
                         sort,
+                        business,
                       );
                     }}
                   />
