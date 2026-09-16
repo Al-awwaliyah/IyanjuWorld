@@ -14,7 +14,7 @@ import {
   Truck,
   UserRound,
 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { useMarketplaceProducts, useMarketplaceCategories, useMarketplaceBusinesses, useMarketplaceProduct, useMarketplaceBusiness } from "../../services/marketplace";
 import PageContainer from "../../components/layout/PageContainer";
@@ -22,6 +22,8 @@ import ProductGrid from "../../components/marketplace/ProductGrid";
 import ProductPrice from "../../components/marketplace/ProductPrice";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
+import { getAuthState } from "../../libs/auth";
+import { addToCart, getOrCreateActiveCart } from "../../libs/db";
 
 type Product = {
   id: string;
@@ -47,6 +49,7 @@ type Product = {
 
 
 export default function ProductDetails() {
+  const navigate = useNavigate();
   const { productId } = useParams();
   const { product, loading, error } = useMarketplaceProduct(productId);
   const { products: relatedProducts } = useMarketplaceProducts({
@@ -90,16 +93,54 @@ export default function ProductDetails() {
     );
   };
 
-  const handleAddToCart = () => {
-    setMessage(
-      "This product will be added to your cart after customer authentication is connected.",
-    );
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
+
+  const ensureCart = async () => {
+    const auth = await getAuthState();
+    if (!auth.user || !auth.profile || auth.profile.role !== "customer") {
+      navigate("/login", { state: { from: `/products/${product.slug}` } });
+      return null;
+    }
+
+    const cart = await getOrCreateActiveCart(auth.user.id);
+    const cartId = typeof cart === "string" ? cart : (cart as { id?: string } | null)?.id;
+    if (!cartId) throw new Error("Unable to create your shopping cart.");
+    return cartId;
   };
 
-  const handleBuyNow = () => {
-    setMessage(
-      "Buy Now will continue to customer authentication and checkout once the transactional flow is connected.",
-    );
+  const handleAddToCart = async () => {
+    if (!product || addingToCart || buyingNow) return;
+    setAddingToCart(true);
+    setMessage("");
+    try {
+      const cartId = await ensureCart();
+      if (!cartId) return;
+      await addToCart(cartId, product.id, quantity);
+      setMessage(`${quantity} ${product.name} ${quantity === 1 ? "has" : "have"} been added to your cart.`);
+    } catch (error) {
+      console.error("ProductDetails: add to cart failed", error);
+      setMessage("We couldn't add this product to your cart. Please try again.");
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!product || addingToCart || buyingNow) return;
+    setBuyingNow(true);
+    setMessage("");
+    try {
+      const cartId = await ensureCart();
+      if (!cartId) return;
+      await addToCart(cartId, product.id, quantity);
+      navigate("/customer/checkout");
+    } catch (error) {
+      console.error("ProductDetails: buy now failed", error);
+      setMessage("We couldn't start checkout for this product. Please try again.");
+    } finally {
+      setBuyingNow(false);
+    }
   };
 
   const handleContact = (
@@ -317,8 +358,8 @@ export default function ProductDetails() {
               <Button
                 size="lg"
                 variant="brand"
-                onClick={handleAddToCart}
-                disabled={!product.available || product.stock < 1}
+                onClick={() => void handleAddToCart()}
+                disabled={!product.available || product.stock < 1 || addingToCart || buyingNow}
                 fullWidth
               >
                 <ShoppingCart className="h-5 w-5" />
@@ -328,8 +369,8 @@ export default function ProductDetails() {
               <Button
                 size="lg"
                 variant="brand-outline"
-                onClick={handleBuyNow}
-                disabled={!product.available || product.stock < 1}
+                onClick={() => void handleBuyNow()}
+                disabled={!product.available || product.stock < 1 || addingToCart || buyingNow}
                 fullWidth
               >
                 Buy Now
