@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../libs/supabase";
 import {
+  CheckCircle2,
   Eye,
   MoreHorizontal,
+  RefreshCw,
   Search,
   Store,
   UserCheck,
@@ -126,7 +128,7 @@ export default function Businesses() {
           createdAt: row.created_at,
         })));
       } catch (error: unknown) {
-        console.error("Failed to load admin businesses", error);
+        if (mounted) setActionError(getSafeErrorMessage(error));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -266,6 +268,25 @@ export default function Businesses() {
       ),
     },
     {
+      id: "actions",
+      header: "Actions",
+      align: "right",
+      render: (_, business) => (
+        <div className="flex justify-end gap-2">
+          <Button
+            size="sm"
+            variant={business.verified ? "outline" : "default"}
+            loading={savingId === business.id}
+            onClick={() => void toggleVerification(business.id, business.verified)}
+          >
+            {business.verified ? <CheckCircle2 className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+            {business.verified ? "Verified" : "Verify"}
+          </Button>
+          {!business.verified && <span className="sr-only">Business requires verification</span>}
+        </div>
+      ),
+    },
+    {
       id: "created",
       header: "Joined",
       accessor: "createdAt",
@@ -329,15 +350,14 @@ export default function Businesses() {
             </p>
           </div>
 
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSearch("");
-              setStatus("");
-            }}
-          >
-            Clear filters
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              <RefreshCw className="h-4 w-4" />Refresh
+            </Button>
+            <Button variant="outline" onClick={() => { setSearch(""); setStatus(""); }}>
+              Clear filters
+            </Button>
+          </div>
         </div>
 
         {actionError && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{actionError}</div>}

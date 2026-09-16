@@ -24,7 +24,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import ErrorState from "@/components/ui/ErrorState";
 import { formatDateTime, formatNaira } from "@/libs/format";
 import { getSafeErrorMessage } from "@/libs/errors";
-import { getAdminDashboard, type AdminDashboardData } from "@/services/admin";
+import { getAdminDashboard, getAdminVerificationQueue, setBusinessVerification, setRiderVerification, type AdminDashboardData } from "@/services/admin";
 
 const emptyData: AdminDashboardData = {
   totalCustomers: 0, activeCustomers: 0, totalBusinesses: 0, activeBusinesses: 0,
@@ -40,6 +40,9 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const [queue, setQueue] = useState<{ businesses: Array<{ id: string; name: string; status: string }>; riders: Array<{ id: string; full_name: string; phone: string | null; verification_status: string }> }>({ businesses: [], riders: [] });
+  const [queueLoading, setQueueLoading] = useState(true);
+  const [queueSaving, setQueueSaving] = useState<string | null>(null);
 
   const load = useCallback(async (refresh = false) => {
     try {
@@ -54,7 +57,19 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+    void (async () => {
+      try {
+        setQueueLoading(true);
+        setQueue(await getAdminVerificationQueue());
+      } catch (err) {
+        setError(getSafeErrorMessage(err));
+      } finally {
+        setQueueLoading(false);
+      }
+    })();
+  }, [load]);
 
   const stats = [
     { id: "customers", label: "Customers", value: dashboard.totalCustomers, format: "number" as const, icon: Users, description: `${dashboard.activeCustomers} active` },
@@ -97,6 +112,10 @@ export default function AdminDashboard() {
               <QueueCard to="/admin/admins" icon={UserCog} label="Administrator access" description="Manage admin roles securely" />
               <QueueCard to="/admin/orders" icon={Package} label="Order operations" value={dashboard.pendingOrders} description="Orders currently active" />
             </div>
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
+              <VerificationList title="Business verification" loading={queueLoading} items={queue.businesses.map((b) => ({ id: b.id, name: b.name, detail: b.status }))} saving={queueSaving} onVerify={async (id) => { try { setQueueSaving(id); await setBusinessVerification(id, true); setQueue((q) => ({ ...q, businesses: q.businesses.filter((b) => b.id !== id) })); } catch (err) { setError(getSafeErrorMessage(err)); } finally { setQueueSaving(null); } }} />
+              <VerificationList title="Rider verification" loading={queueLoading} items={queue.riders.map((r) => ({ id: r.id, name: r.full_name, detail: r.phone || r.verification_status }))} saving={queueSaving} onVerify={async (id) => { try { setQueueSaving(id); await setRiderVerification(id, "verified"); setQueue((q) => ({ ...q, riders: q.riders.filter((r) => r.id !== id) })); } catch (err) { setError(getSafeErrorMessage(err)); } finally { setQueueSaving(null); } }} />
+            </div>
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -128,6 +147,9 @@ export default function AdminDashboard() {
   );
 }
 
+function VerificationList({ title, items, loading, saving, onVerify }: { title: string; items: Array<{ id: string; name: string; detail: string }>; loading: boolean; saving: string | null; onVerify: (id: string) => Promise<void> }) {
+  return <section className="rounded-xl border border-slate-200 bg-slate-50 p-4"><div className="flex items-center justify-between gap-3"><h3 className="font-semibold text-ink-950">{title}</h3><span className="text-xs text-slate-500">{items.length} pending</span></div>{loading ? <p className="py-5 text-sm text-slate-500">Loading verification queue...</p> : items.length === 0 ? <p className="py-5 text-sm text-slate-500">No pending records.</p> : <div className="mt-3 divide-y divide-slate-200">{items.slice(0, 5).map((item) => <div key={item.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-ink-950">{item.name}</p><p className="truncate text-xs text-slate-500">{item.detail}</p></div><Button size="sm" loading={saving === item.id} onClick={() => void onVerify(item.id)}><CheckCircle2 className="h-4 w-4" />Verify</Button></div>)}</div>}</section>;
+}
 function QueueCard({ to, icon: Icon, label, value, description }: { to: string; icon: typeof ShieldCheck; label: string; value?: number; description: string }) {
   return <Link to={to} className="group rounded-xl border border-slate-200 p-4 transition hover:border-brand-300 hover:bg-brand-50/50"><div className="flex items-start justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Icon className="h-5 w-5" /></span><ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-1" /></div><p className="mt-4 text-sm font-semibold text-ink-950">{label}</p><p className="mt-1 text-xs text-slate-600">{description}</p>{value !== undefined && <p className="mt-3 text-2xl font-bold text-ink-950">{value.toLocaleString()}</p>}</Link>;
 }

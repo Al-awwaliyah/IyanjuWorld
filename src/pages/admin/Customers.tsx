@@ -1,557 +1,128 @@
-import {
-  Ban,
-  CheckCircle2,
-  Eye,
-  ShieldAlert,
-  UserCheck,
-  UserX,
-} from "lucide-react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Eye, RefreshCw, Search, UserCheck, UserX } from "lucide-react";
+import PageContainer from "@/components/layout/PageContainer";
+import AdminFilters from "@/components/admin/AdminFilters";
+import AdminTable, { type AdminTableColumn, type AdminTableRowAction } from "@/components/admin/AdminTable";
+import Badge from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
+import EmptyState from "@/components/ui/EmptyState";
+import ErrorState from "@/components/ui/ErrorState";
+import { supabase } from "@/libs/supabase";
+import { getSafeErrorMessage } from "@/libs/errors";
+import { formatDate, formatNaira, formatNumber } from "@/libs/format";
+import { setCustomerActive } from "@/services/admin";
 
-import { AdminFilters } from "@/components/admin/AdminFilters";
-import {
-  AdminTable,
-  type AdminTableAction,
-  type AdminTableColumn,
-} from "@/components/admin/AdminTable";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { PageContainer } from "@/components/layout/PageContainer";
-import {
-  formatDate,
-  formatDateTime,
-  formatNaira,
-  formatNumber,
-} from "@/libs/format";
-
-export type CustomerManagementStatus =
-  | "active"
-  | "inactive"
-  | "suspended"
-  | "blocked";
-
-export interface ManagedCustomer {
+type Customer = {
   id: string;
-  fullName?: string;
-  email?: string;
-  phone?: string;
-  avatar?: string;
-
-  status: CustomerManagementStatus;
-
-  walletBalance?: number;
-  pendingWalletBalance?: number;
-
-  orderCount?: number;
-  completedOrderCount?: number;
-  cancelledOrderCount?: number;
-
-  totalSpent?: number;
-
-  city?: string;
-  state?: string;
-
-  createdAt?: string | Date;
-  lastSeenAt?: string | Date;
-}
-
-interface CustomersPageProps {
-  customers?: ManagedCustomer[];
-  loading?: boolean;
-
-  onRefresh?: () => void;
-
-  onView?: (customer: ManagedCustomer) => void;
-  onActivate?: (customer: ManagedCustomer) => void;
-  onSuspend?: (customer: ManagedCustomer) => void;
-  onBlock?: (customer: ManagedCustomer) => void;
-  onUnblock?: (customer: ManagedCustomer) => void;
-
-  onSearch?: (value: string) => void;
-  onStatusChange?: (value: string) => void;
-
-  page?: number;
-  pageSize?: number;
-  totalItems?: number;
-  onPageChange?: (page: number) => void;
-}
-
-const defaultCustomers: ManagedCustomer[] = [];
-
-const statusConfig: Record<
-  CustomerManagementStatus,
-  {
-    label: string;
-    variant:
-      | "default"
-      | "success"
-      | "warning"
-      | "danger"
-      | "info"
-      | "neutral";
-  }
-> = {
-  active: {
-    label: "Active",
-    variant: "success",
-  },
-  inactive: {
-    label: "Inactive",
-    variant: "neutral",
-  },
-  suspended: {
-    label: "Suspended",
-    variant: "warning",
-  },
-  blocked: {
-    label: "Blocked",
-    variant: "danger",
-  },
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  wallet_balance: number;
+  pending_wallet_balance: number;
+  order_count: number;
+  total_spent: number;
 };
 
-function displayDate(value?: string | Date) {
-  if (!value) {
-    return "—";
-  }
+export default function Customers() {
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [savingId, setSavingId] = useState<string | null>(null);
 
-  return formatDate(value);
-}
+  const load = useCallback(async (refresh = false) => {
+    try {
+      refresh ? setRefreshing(true) : setLoading(true);
+      setError("");
 
-function displayDateTime(value?: string | Date) {
-  if (!value) {
-    return "Never";
-  }
+      const [{ data: profileRows, error: profileError }, { data: orderRows, error: orderError }, { data: walletRows, error: walletError }] = await Promise.all([
+        supabase.from("profiles").select("id,full_name,email,phone,is_active,created_at,updated_at").eq("role", "customer").order("created_at", { ascending: false }),
+        supabase.from("orders").select("customer_id,customer_total,status").limit(5000),
+        supabase.from("customer_wallets").select("customer_id,available_balance,pending_balance").limit(5000),
+      ]);
 
-  return formatDateTime(value);
-}
+      if (profileError) throw profileError;
+      if (orderError) throw orderError;
+      if (walletError) throw walletError;
 
-function getInitials(name?: string) {
-  if (!name?.trim()) {
-    return "C";
-  }
-
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part.charAt(0))
-    .join("")
-    .toUpperCase();
-}
-
-function getCustomerActions(
-  customer: ManagedCustomer,
-  props: CustomersPageProps,
-): AdminTableAction<ManagedCustomer>[] {
-  const actions: AdminTableAction<ManagedCustomer>[] = [];
-
-  if (props.onView) {
-    actions.push({
-      id: "view",
-      label: "View customer",
-      icon: Eye,
-      onClick: () => props.onView?.(customer),
-    });
-  }
-
-  if (
-    props.onActivate &&
-    (customer.status === "inactive" ||
-      customer.status === "suspended")
-  ) {
-    actions.push({
-      id: "activate",
-      label: "Activate customer",
-      icon: UserCheck,
-      onClick: () => props.onActivate?.(customer),
-    });
-  }
-
-  if (
-    props.onSuspend &&
-    customer.status === "active"
-  ) {
-    actions.push({
-      id: "suspend",
-      label: "Suspend customer",
-      icon: UserX,
-      danger: true,
-      onClick: () => props.onSuspend?.(customer),
-    });
-  }
-
-  if (
-    props.onBlock &&
-    customer.status !== "blocked"
-  ) {
-    actions.push({
-      id: "block",
-      label: "Block customer",
-      icon: Ban,
-      danger: true,
-      onClick: () => props.onBlock?.(customer),
-    });
-  }
-
-  if (
-    props.onUnblock &&
-    customer.status === "blocked"
-  ) {
-    actions.push({
-      id: "unblock",
-      label: "Unblock customer",
-      icon: CheckCircle2,
-      onClick: () => props.onUnblock?.(customer),
-    });
-  }
-
-  return actions;
-}
-
-export default function Customers({
-  customers = defaultCustomers,
-  loading = false,
-  onRefresh,
-  onView,
-  onActivate,
-  onSuspend,
-  onBlock,
-  onUnblock,
-  onSearch,
-  onStatusChange,
-  page,
-  pageSize,
-  totalItems,
-  onPageChange,
-}: CustomersPageProps) {
-  const columns: AdminTableColumn<ManagedCustomer>[] = [
-    {
-      id: "customer",
-      header: "Customer",
-      width: "235px",
-      sortable: true,
-      accessor: (customer) =>
-        customer.fullName ?? "",
-      render: (_, customer) => (
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100">
-            {customer.avatar ? (
-              <img
-                src={customer.avatar}
-                alt={customer.fullName ?? "Customer"}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span className="text-xs font-semibold text-slate-500">
-                {getInitials(customer.fullName)}
-              </span>
-            )}
-          </div>
-
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-slate-800">
-              {customer.fullName ?? "Unnamed customer"}
-            </p>
-
-            {customer.email && (
-              <p className="truncate text-xs text-slate-500">
-                {customer.email}
-              </p>
-            )}
-          </div>
-        </div>
-      ),
-    },
-
-    {
-      id: "phone",
-      header: "Phone",
-      width: "145px",
-      sortable: true,
-      accessor: (customer) =>
-        customer.phone ?? "",
-      render: (_, customer) => (
-        <span className="text-sm text-slate-700">
-          {customer.phone ?? "—"}
-        </span>
-      ),
-    },
-
-    {
-      id: "location",
-      header: "Location",
-      width: "160px",
-      render: (_, customer) => (
-        <div className="min-w-0">
-          <p className="truncate text-sm text-slate-700">
-            {customer.city ?? "—"}
-          </p>
-
-          {customer.state && (
-            <p className="truncate text-xs text-slate-500">
-              {customer.state}
-            </p>
-          )}
-        </div>
-      ),
-    },
-
-    {
-      id: "status",
-      header: "Status",
-      width: "120px",
-      render: (_, customer) => {
-        const status =
-          statusConfig[customer.status];
-
-        return (
-          <Badge
-            variant={status.variant}
-            size="sm"
-            dot
-          >
-            {status.label}
-          </Badge>
-        );
-      },
-    },
-
-    {
-      id: "orders",
-      header: "Orders",
-      width: "100px",
-      align: "right",
-      sortable: true,
-      accessor: (customer) =>
-        customer.orderCount ?? 0,
-      render: (_, customer) => (
-        <span className="text-sm font-medium text-slate-700">
-          {formatNumber(customer.orderCount ?? 0)}
-        </span>
-      ),
-    },
-
-    {
-      id: "spent",
-      header: "Total spent",
-      width: "140px",
-      align: "right",
-      sortable: true,
-      accessor: (customer) =>
-        customer.totalSpent ?? 0,
-      render: (_, customer) => (
-        <span className="text-sm font-semibold text-slate-900">
-          {formatNaira(customer.totalSpent ?? 0)}
-        </span>
-      ),
-    },
-
-    {
-      id: "wallet",
-      header: "Wallet",
-      width: "135px",
-      align: "right",
-      sortable: true,
-      accessor: (customer) =>
-        customer.walletBalance ?? 0,
-      render: (_, customer) => (
-        <div className="text-right">
-          <p className="text-sm font-semibold text-slate-800">
-            {formatNaira(
-              customer.walletBalance ?? 0,
-            )}
-          </p>
-
-          {(customer.pendingWalletBalance ?? 0) >
-            0 && (
-            <p className="text-xs text-slate-500">
-              {formatNaira(
-                customer.pendingWalletBalance ?? 0,
-              )}{" "}
-              pending
-            </p>
-          )}
-        </div>
-      ),
-    },
-
-    {
-      id: "last_seen",
-      header: "Last seen",
-      width: "145px",
-      sortable: true,
-      accessor: (customer) =>
-        customer.lastSeenAt
-          ? new Date(
-              customer.lastSeenAt,
-            ).getTime()
-          : 0,
-      render: (_, customer) => (
-        <span className="text-xs text-slate-500">
-          {displayDateTime(customer.lastSeenAt)}
-        </span>
-      ),
-    },
-
-    {
-      id: "joined",
-      header: "Joined",
-      width: "120px",
-      sortable: true,
-      accessor: (customer) =>
-        customer.createdAt
-          ? new Date(customer.createdAt).getTime()
-          : 0,
-      render: (_, customer) => (
-        <span className="text-xs text-slate-500">
-          {displayDate(customer.createdAt)}
-        </span>
-      ),
-    },
-  ];
-
-  const actions = customers.reduce<
-    AdminTableAction<ManagedCustomer>[]
-  >((result, customer) => {
-    const customerActions = getCustomerActions(
-      customer,
-      {
-        onView,
-        onActivate,
-        onSuspend,
-        onBlock,
-        onUnblock,
-      },
-    );
-
-    customerActions.forEach((action) => {
-      if (
-        !result.some(
-          (item) => item.id === action.id,
-        )
-      ) {
-        result.push(action);
+      const ordersByCustomer = new Map<string, { count: number; spent: number }>();
+      for (const row of orderRows ?? []) {
+        const current = ordersByCustomer.get(row.customer_id) ?? { count: 0, spent: 0 };
+        current.count += 1;
+        if (!["cancelled", "refunded"].includes(String(row.status))) current.spent += Number(row.customer_total ?? 0);
+        ordersByCustomer.set(row.customer_id, current);
       }
-    });
 
-    return result;
+      const walletsByCustomer = new Map<string, { available: number; pending: number }>();
+      for (const row of walletRows ?? []) {
+        walletsByCustomer.set(row.customer_id, {
+          available: Number(row.available_balance ?? 0),
+          pending: Number(row.pending_balance ?? 0),
+        });
+      }
+
+      setCustomers((profileRows ?? []).map((row) => {
+        const orders = ordersByCustomer.get(row.id) ?? { count: 0, spent: 0 };
+        const wallet = walletsByCustomer.get(row.id) ?? { available: 0, pending: 0 };
+        return { ...row, email: row.email ?? null, wallet_balance: wallet.available, pending_wallet_balance: wallet.pending, order_count: orders.count, total_spent: orders.spent } as Customer;
+      }));
+    } catch (err) {
+      setError(getSafeErrorMessage(err));
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
 
-  return (
-    <PageContainer size="full">
-      <div className="space-y-6">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              Customers
-            </h1>
+  useEffect(() => { void load(); }, [load]);
 
-            <p className="mt-1 text-sm text-slate-500">
-              Manage customer accounts, activity,
-              wallet balances, and account status.
-            </p>
-          </div>
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return customers.filter((customer) => {
+      const matchesSearch = !q || [customer.full_name, customer.email, customer.phone].filter(Boolean).join(" ").toLowerCase().includes(q);
+      const matchesStatus = !status || (status === "active" ? customer.is_active : !customer.is_active);
+      return matchesSearch && matchesStatus;
+    });
+  }, [customers, search, status]);
 
-          <div className="flex items-center gap-2">
-            <Link
-              to="/admin/wallets"
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-            >
-              <ShieldAlert className="h-4 w-4" />
-              Wallets
-            </Link>
+  async function changeActive(customer: Customer, active: boolean) {
+    try {
+      setSavingId(customer.id); setError("");
+      await setCustomerActive(customer.id, active);
+      setCustomers((rows) => rows.map((row) => row.id === customer.id ? { ...row, is_active: active } : row));
+    } catch (err) {
+      setError(getSafeErrorMessage(err));
+    } finally { setSavingId(null); }
+  }
 
-            {onRefresh && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={onRefresh}
-                loading={loading}
-              >
-                Refresh
-              </Button>
-            )}
-          </div>
-        </div>
+  const columns: AdminTableColumn<Customer>[] = [
+    { id: "customer", header: "Customer", accessor: "full_name", sortable: true, render: (_, row) => <div><p className="font-semibold text-ink-950">{row.full_name || "Unnamed customer"}</p><p className="text-xs text-slate-500">{row.email || row.phone || "No contact information"}</p></div> },
+    { id: "phone", header: "Phone", accessor: "phone", sortable: true, render: (v) => <span className="text-sm text-slate-700">{v || "—"}</span> },
+    { id: "status", header: "Status", accessor: "is_active", render: (v) => <Badge variant={v ? "success" : "danger"}>{v ? "Active" : "Inactive"}</Badge> },
+    { id: "orders", header: "Orders", accessor: "order_count", sortable: true, align: "right", render: (v) => <span className="font-medium text-slate-700">{formatNumber(Number(v || 0))}</span> },
+    { id: "spent", header: "Total spent", accessor: "total_spent", sortable: true, align: "right", render: (v) => <span className="font-semibold text-ink-950">{formatNaira(Number(v || 0))}</span> },
+    { id: "wallet", header: "Wallet", accessor: "wallet_balance", sortable: true, align: "right", render: (_, row) => <div className="text-right"><p className="font-semibold text-ink-950">{formatNaira(row.wallet_balance)}</p>{row.pending_wallet_balance > 0 && <p className="text-xs text-slate-500">{formatNaira(row.pending_wallet_balance)} pending</p>}</div> },
+    { id: "joined", header: "Joined", accessor: "created_at", sortable: true, render: (v) => <span className="text-sm text-slate-600">{formatDate(v)}</span> },
+  ];
 
-        <AdminFilters
-          searchValue=""
-          onSearchChange={onSearch ?? (() => {})}
-          searchPlaceholder="Search customers by name, email or phone..."
-          filters={[
-            {
-              id: "status",
-              label: "Status",
-              value: "",
-              options: [
-                {
-                  value: "",
-                  label: "All statuses",
-                },
-                {
-                  value: "active",
-                  label: "Active",
-                },
-                {
-                  value: "inactive",
-                  label: "Inactive",
-                },
-                {
-                  value: "suspended",
-                  label: "Suspended",
-                },
-                {
-                  value: "blocked",
-                  label: "Blocked",
-                },
-              ],
-              onChange:
-                onStatusChange ??
-                (() => {}),
-            },
-          ]}
-          loading={loading}
-        />
+  const actions = (row: Customer): AdminTableRowAction[] => [
+    { id: "view", label: "View customer", icon: Eye, onClick: () => window.location.assign(`/admin/customers?customerId=${row.id}`) },
+    { id: "status", label: row.is_active ? "Deactivate customer" : "Activate customer", icon: row.is_active ? UserX : UserCheck, danger: row.is_active, disabled: savingId === row.id, onClick: () => void changeActive(row, !row.is_active) },
+  ];
 
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex flex-col gap-2 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-slate-900">
-                Customer accounts
-              </h2>
+  if (error && !customers.length) return <PageContainer size="full"><ErrorState message={error} onAction={() => void load()} /></PageContainer>;
 
-              <p className="mt-1 text-sm text-slate-500">
-                Review customer activity and account
-                status.
-              </p>
-            </div>
-
-            <div className="text-sm text-slate-500">
-              {totalItems !== undefined
-                ? `${formatNumber(totalItems)} customers`
-                : `${formatNumber(customers.length)} shown`}
-            </div>
-          </div>
-
-          <AdminTable
-            data={customers}
-            columns={columns}
-            rowKey={(customer) => customer.id}
-            actions={actions}
-            loading={loading}
-            emptyMessage="No customers found."
-            page={page}
-            pageSize={pageSize}
-            totalItems={totalItems}
-            onPageChange={onPageChange}
-            stickyHeader
-            striped
-            onRowClick={onView}
-            ariaLabel="Customers"
-          />
-        </div>
-      </div>
-    </PageContainer>
-  );
+  return <PageContainer size="full"><div className="space-y-6">
+    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-sm font-medium text-brand-600">Customer operations</p><h1 className="mt-1 text-2xl font-bold text-ink-950">Customers</h1><p className="mt-1 text-sm text-slate-600">Live customer accounts, orders and wallet balances from Supabase.</p></div><Button variant="outline" onClick={() => void load(true)} loading={refreshing}><RefreshCw className="h-4 w-4" />Refresh</Button></div>
+    {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+    <AdminFilters><div className="relative min-w-0 flex-1"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"/><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search customers by name, email or phone..." className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"/></div><select value={status} onChange={(e) => setStatus(e.target.value)} className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"><option value="">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></AdminFilters>
+    <div className="grid gap-4 sm:grid-cols-3"><Stat label="Customers" value={customers.length}/><Stat label="Active" value={customers.filter((c) => c.is_active).length}/><Stat label="Inactive" value={customers.filter((c) => !c.is_active).length}/></div>
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><AdminTable columns={columns} data={filtered} rowKey={(row) => row.id} getRowActions={actions} loading={loading} emptyTitle="No customers found" emptyDescription="Customer accounts will appear here after real users register." pagination pageSize={20} stickyHeader striped/></div>
+  </div></PageContainer>;
 }
+function Stat({ label, value }: { label: string; value: number }) { return <div className="rounded-xl border border-slate-200 bg-white p-4"><p className="text-sm text-slate-500">{label}</p><p className="mt-1 text-2xl font-bold text-ink-950">{value.toLocaleString()}</p></div>; }

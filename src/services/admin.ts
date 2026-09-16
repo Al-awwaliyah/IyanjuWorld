@@ -181,3 +181,21 @@ export async function listAdminAuditLogs(limit = 100) {
   if (error) throw error;
   return data ?? [];
 }
+
+export async function setCustomerActive(userId: string, active: boolean) {
+  const { error } = await supabase.rpc("admin_set_customer_active", {
+    p_user_id: userId,
+    p_active: active,
+  });
+  if (error) throw error;
+}
+
+export async function getAdminVerificationQueue() {
+  const [{ data: businesses, error: businessError }, { data: riders, error: riderError }] = await Promise.all([
+    supabase.from("businesses").select("id,name,slug,status,is_verified,created_at").eq("is_verified", false).in("status", ["pending", "active"]).order("created_at", { ascending: true }).limit(10),
+    supabase.from("riders").select("id,user_id,full_name,phone,verification_status,created_at").in("verification_status", ["pending", "under_review"]).order("created_at", { ascending: true }).limit(10),
+  ]);
+  if (businessError) throw businessError;
+  if (riderError) throw riderError;
+  return { businesses: businesses ?? [], riders: riders ?? [] };
+}

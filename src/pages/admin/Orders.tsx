@@ -17,6 +17,7 @@ import AdminTable, {
 import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
 import { formatDateTime, formatOrderReference } from "../../libs/format";
+import { getSafeErrorMessage } from "../../libs/errors";
 
 type OrderStatus =
   | "pending_payment"
@@ -185,6 +186,8 @@ function formatAmount(amount: number) {
 export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [savingId, setSavingId] = useState<string | null>(null);
   useEffect(() => {
     let mounted = true;
 
@@ -219,7 +222,7 @@ export default function Orders() {
           createdAt: row.created_at,
         })));
       } catch (error: unknown) {
-        console.error("Failed to load admin orders", error);
+        if (mounted) setError(getSafeErrorMessage(error));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -260,20 +263,23 @@ export default function Orders() {
     });
   }, [orders, search, status, paymentStatus]);
 
-  const updateOrderStatus = (
-    orderId: string,
-    nextStatus: OrderStatus,
-  ) => {
-    setOrders((current) =>
-      current.map((order) =>
-        order.id === orderId
-          ? {
-              ...order,
-              status: nextStatus,
-            }
-          : order,
-      ),
-    );
+  const updateOrderStatus = async (orderId: string, nextStatus: OrderStatus) => {
+    try {
+      setSavingId(orderId);
+      setError("");
+      const { data, error: updateError } = await supabase
+        .from("orders")
+        .update({ status: nextStatus })
+        .eq("id", orderId)
+        .select("id,status")
+        .single();
+      if (updateError) throw updateError;
+      setOrders((current) => current.map((order) => order.id === orderId ? { ...order, status: data.status as OrderStatus } : order));
+    } catch (err) {
+      setError(getSafeErrorMessage(err));
+    } finally {
+      setSavingId(null);
+    }
   };
 
   const columns: AdminTableColumn<Order>[] = [
@@ -491,6 +497,8 @@ export default function Orders() {
             Clear filters
           </Button>
         </div>
+
+        {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
         <AdminFilters>
           <div className="relative min-w-0 flex-1">

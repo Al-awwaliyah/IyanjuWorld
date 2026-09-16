@@ -257,3 +257,30 @@ textarea.bg-white.text-white,
 select.bg-white.text-white {
   color: #0f172a !important;
 }
+
+/* Final role-area contrast guard: light cards/panels always establish a
+   dark readable inherited foreground. Explicit dark/accent controls keep
+   their own foreground through their background utility classes. */
+.iyw-role-shell .bg-white,
+.iyw-role-shell .bg-slate-50,
+.iyw-role-shell .bg-slate-100 {
+  color: #0f172a;
+}
+
+.iyw-role-shell .bg-white.text-white,
+.iyw-role-shell .bg-slate-50.text-white,
+.iyw-role-shell .bg-slate-100.text-white {
+  color: #0f172a !important;
+}
+
+.iyw-role-shell .bg-white .text-white:not([class*="bg-"]),
+.iyw-role-shell .bg-slate-50 .text-white:not([class*="bg-"]),
+.iyw-role-shell .bg-slate-100 .text-white:not([class*="bg-"]) {
+  color: #0f172a !important;
+}
+
+.iyw-role-shell input,
+.iyw-role-shell textarea,
+.iyw-role-shell select {
+  color-scheme: light;
+}
