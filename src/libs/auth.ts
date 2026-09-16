@@ -47,7 +47,10 @@ export type SignUpMetadata = {
 };
 
 const PROFILE_FIELDS =
-  "id,email,full_name,phone,role,admin_role,avatar,avatar_url,active,is_active,created_at,updated_at";
+  // Keep authentication dependent only on the canonical profile schema.
+  // The email address comes from auth.users, while compatibility columns
+  // (email, active, avatar) are optional and must not break sign-in.
+  "id,full_name,phone,role,admin_role,avatar_url,is_active,created_at,updated_at";
 
 function normalizeRole(value: unknown): UserRole {
   if (
@@ -208,9 +211,16 @@ export async function getCurrentProfile(): Promise<Profile | null> {
       return null;
     }
 
-    return mapProfile(
+    const profile = mapProfile(
       data as Record<string, unknown>,
     );
+
+    // Supabase Auth is the authoritative source for the user email.
+    if (!profile.email && user.email) {
+      profile.email = user.email;
+    }
+
+    return profile;
   } catch (error) {
     logAppError(
       toAppError(
@@ -261,9 +271,15 @@ export async function getAuthState(): Promise<AuthState> {
     return {
       user: data.user,
       profile: profileData
-        ? mapProfile(
-            profileData as Record<string, unknown>,
-          )
+        ? (() => {
+            const profile = mapProfile(
+              profileData as Record<string, unknown>,
+            );
+            if (!profile.email && data.user.email) {
+              profile.email = data.user.email;
+            }
+            return profile;
+          })()
         : null,
       loading: false,
     };

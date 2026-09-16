@@ -29,9 +29,10 @@ export default function AdminLayout() {
   const location = useLocation();
   const { profile } = useAuth();
   const title = items.find((item) => location.pathname.startsWith(item.to))?.label ?? "Administration";
-  return <div className="iyw-role-shell min-h-screen bg-slate-50 text-ink-900">
-    <DashboardSidebar brand="IyanjuWorld" items={items} mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} footerItems={[{ label: "Back to marketplace", to: "/", icon: <Store className="h-5 w-5" /> }]} />
-    <div className="flex min-h-screen flex-col lg:pl-72">
+  return <div className="iyw-role-shell flex min-h-screen min-w-0 bg-slate-50 text-ink-900">
+    <div className="w-0 shrink-0 lg:w-72"><DashboardSidebar brand="IyanjuWorld" items={items} mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} footerItems={[{ label: "Back to marketplace", to: "/", icon: <Store className="h-5 w-5" /> }]} />
+    </div>
+    <div className="flex min-h-screen min-w-0 flex-1 flex-col">
       <DashboardHeader title={title} description="IyanjuWorld administration" userName={profile?.full_name} onMenuClick={() => setMobileOpen(true)} notificationPath="/admin/messages" profilePath="/admin/settings" />
       <main className="flex-1 px-4 py-6 pb-20 sm:px-6 lg:px-8 lg:pb-6"><BackButton className="px-0 pt-0" /><Outlet /></main>
     </div>
