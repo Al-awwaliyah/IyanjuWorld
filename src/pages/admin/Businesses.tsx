@@ -275,7 +275,7 @@ export default function Businesses() {
         <div className="flex justify-end gap-2">
           <Button
             size="sm"
-            variant={business.verified ? "outline" : "default"}
+            variant={business.verified ? "outline" : "primary"}
             loading={savingId === business.id}
             onClick={() => void toggleVerification(business.id, business.verified)}
           >
