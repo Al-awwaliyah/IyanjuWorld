@@ -1,5 +1,7 @@
 import { supabase } from "@/libs/supabase";
 
+type AdminActivityType = "order" | "payment" | "business" | "rider" | "refund" | "payout" | "admin";
+
 export type AdminDashboardData = {
   totalCustomers: number;
   activeCustomers: number;
@@ -23,7 +25,7 @@ export type AdminDashboardData = {
   openRefunds: number;
   recentActivity: Array<{
     id: string;
-    type: "order" | "payment" | "business" | "rider" | "refund" | "payout" | "admin";
+    type: AdminActivityType;
     title: string;
     description: string;
     createdAt: string;
@@ -51,7 +53,10 @@ const sum = async (table: string, column: string, filters: Array<[string, string
   }
   const { data, error } = await query;
   if (error) throw error;
-  return (data ?? []).reduce((total, row) => total + (Number((row as Record<string, unknown>)[column]) || 0), 0);
+  return (data ?? []).reduce((total, row) => {
+    const value = row && typeof row === "object" ? (row as Record<string, unknown>)[column] : undefined;
+    return total + (Number(value) || 0);
+  }, 0);
 };
 
 export async function getAdminDashboard(): Promise<AdminDashboardData> {
@@ -91,7 +96,7 @@ export async function getAdminDashboard(): Promise<AdminDashboardData> {
 
   const recentActivity = (audit.data ?? []).map((row) => {
     const entityType = String(row.entity_type ?? "admin");
-    const type = entityType === "order" ? "order" : entityType === "payment_transaction" ? "payment" : entityType === "business" ? "business" : entityType === "rider" ? "rider" : entityType === "refund" ? "refund" : entityType === "payout" ? "payout" : "admin";
+    const type: AdminActivityType = entityType === "order" ? "order" : entityType === "payment_transaction" ? "payment" : entityType === "business" ? "business" : entityType === "rider" ? "rider" : entityType === "refund" ? "refund" : entityType === "payout" ? "payout" : "admin";
     const metadata = (row.metadata ?? {}) as Record<string, unknown>;
     return {
       id: row.id,
