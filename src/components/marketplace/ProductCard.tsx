@@ -1,7 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import Badge from "../ui/Badge";
+import { getAuthState } from "../../libs/auth";
+import { addToCart, getOrCreateActiveCart } from "../../libs/db";
 
 export interface ProductCardProps {
   id?: string;
@@ -33,6 +36,9 @@ function formatPrice(amount: number, currency = "NGN") {
 }
 
 export default function ProductCard(props: ProductCardProps) {
+  const navigate = useNavigate();
+  const [localAdding, setLocalAdding] = useState(false);
+  const [localMessage, setLocalMessage] = useState("");
   const source = props.product ?? props;
   const {
     product: _product,
@@ -55,6 +61,34 @@ export default function ProductCard(props: ProductCardProps) {
   } = source;
   const isOutOfStock =
     available === false || (stock !== null && stock !== undefined && stock <= 0);
+
+  async function handleCartClick() {
+    if (isOutOfStock || localAdding) return;
+
+    setLocalAdding(true);
+    setLocalMessage("");
+
+    try {
+      const auth = await getAuthState();
+      if (!auth.user || !auth.profile || auth.profile.role !== "customer") {
+        navigate("/login", { state: { from: `/products/${slug}` } });
+        return;
+      }
+
+      const cart = await getOrCreateActiveCart(auth.user.id);
+      const cartId = typeof cart === "string" ? cart : (cart as { id?: string } | null)?.id;
+      if (!cartId) throw new Error("Unable to create your shopping cart.");
+
+      await addToCart(cartId, String(id), 1);
+      setLocalMessage("Added to cart");
+      window.setTimeout(() => setLocalMessage(""), 1800);
+    } catch (error) {
+      console.error("ProductCard: add to cart failed", error);
+      setLocalMessage("Could not add to cart");
+    } finally {
+      setLocalAdding(false);
+    }
+  }
 
   const hasDiscount =
     compareAtPrice !== null &&
@@ -115,8 +149,22 @@ export default function ProductCard(props: ProductCardProps) {
             </div>
           )}
 
+          <button
+            type="button"
+            disabled={isOutOfStock || localAdding}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              void handleCartClick();
+            }}
+            aria-label={`Add ${name} to cart`}
+            className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-brand-600 shadow-md ring-1 ring-slate-200 transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <ShoppingCart className="h-4 w-4" />
+          </button>
+
           {actionIcon && (
-            <div className="absolute right-2 top-2">{actionIcon}</div>
+            <div className="absolute right-2 top-12">{actionIcon}</div>
           )}
         </div>
       </Link>
@@ -160,17 +208,20 @@ export default function ProductCard(props: ProductCardProps) {
           )}
         </div>
 
-        {onAddToCart && (
-          <button
-            type="button"
-            disabled={isOutOfStock || addingToCart}
-            aria-label={`Add ${name} to cart`}
-            onClick={onAddToCart}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-brand-500 py-2 text-xs font-semibold text-brand-600 transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400 disabled:hover:bg-transparent"
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            {addingToCart ? "Adding..." : "Add to cart"}
-          </button>
+        <button
+          type="button"
+          disabled={isOutOfStock || addingToCart || localAdding}
+          aria-label={`Add ${name} to cart`}
+          onClick={() => void (onAddToCart ? onAddToCart() : handleCartClick())}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-brand-500 py-2 text-xs font-semibold text-brand-600 transition hover:bg-brand-500 hover:text-white disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400 disabled:hover:bg-transparent"
+        >
+          <ShoppingCart className="h-3.5 w-3.5" />
+          {addingToCart || localAdding ? "Adding..." : "Add to cart"}
+        </button>
+        {localMessage && (
+          <p className={`mt-1 text-center text-[11px] font-medium ${localMessage === "Added to cart" ? "text-emerald-600" : "text-red-600"}`}>
+            {localMessage}
+          </p>
         )}
       </div>
     </article>
