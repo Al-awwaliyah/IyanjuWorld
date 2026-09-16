@@ -411,9 +411,7 @@ export async function getOrCreateActiveCart(
     error,
   } = await supabase.rpc(
     "get_or_create_active_cart",
-    {
-      p_customer_id: userId,
-    },
+    {},
   );
 
   if (error) {
@@ -503,23 +501,41 @@ export async function addToCart(
   }
 
   const {
-    data,
-    error,
+    data: existingItem,
+    error: existingError,
   } = await supabase
     .from("cart_items")
-    .upsert(
-      {
-        cart_id: cartId,
-        product_id: productId,
-        quantity,
-      },
-      {
-        onConflict:
-          "cart_id,product_id",
-      },
-    )
-    .select()
-    .single();
+    .select("id, quantity")
+    .eq("cart_id", cartId)
+    .eq("product_id", productId)
+    .maybeSingle();
+
+  if (existingError) {
+    logAppError("Failed to inspect existing cart item.", existingError);
+    throw createAppError(existingError, "VALIDATION_ERROR");
+  }
+
+  const nextQuantity = Number(existingItem?.quantity ?? 0) + quantity;
+
+  const {
+    data,
+    error,
+  } = existingItem
+    ? await supabase
+        .from("cart_items")
+        .update({ quantity: nextQuantity })
+        .eq("id", existingItem.id)
+        .select()
+        .single()
+    : await supabase
+        .from("cart_items")
+        .insert({
+          cart_id: cartId,
+          product_id: productId,
+          quantity,
+        })
+        .select()
+        .single();
 
   if (error) {
     logAppError(
@@ -531,6 +547,10 @@ export async function addToCart(
       error,
       "VALIDATION_ERROR",
     );
+  }
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("iyanjuworld:cart-updated"));
   }
 
   return data;

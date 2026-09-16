@@ -5,9 +5,11 @@ import PublicFooter from "../components/layout/PublicFooter";
 import MobileNavigation from "../components/layout/MobileNavigation";
 import BackButton from "../components/layout/BackButton";
 import { useAuth } from "../hooks/useAuth";
+import { useCart } from "../hooks/useCart";
 
 export default function PublicLayout() {
   const { isAuthenticated, profile } = useAuth();
+  const { cartCount } = useCart();
   const location = useLocation();
   const showBack = location.pathname !== "/";
 
@@ -16,6 +18,7 @@ export default function PublicLayout() {
       <PublicHeader
         isAuthenticated={isAuthenticated}
         userName={profile?.full_name}
+        cartCount={cartCount}
       />
 
       <main className="flex-1 pb-16 lg:pb-0">
@@ -24,7 +27,7 @@ export default function PublicLayout() {
       </main>
 
       <PublicFooter />
-      <MobileNavigation isAuthenticated={isAuthenticated} />
+      <MobileNavigation isAuthenticated={isAuthenticated} cartCount={cartCount} />
     </div>
   );
 }
