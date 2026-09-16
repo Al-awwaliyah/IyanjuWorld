@@ -42,6 +42,7 @@ export default function ProductCard(props: ProductCardProps) {
   const source = props.product ?? props;
   const {
     product: _product,
+    id,
     name,
     slug,
     businessName,
