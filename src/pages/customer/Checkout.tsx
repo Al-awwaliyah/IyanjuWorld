@@ -17,7 +17,16 @@ import {
   formatNaira,
   getSafeErrorMessage,
 } from "../../libs/format";
+import { getPublicFileUrl } from "../../libs/storage";
 import { supabase } from "../../libs/supabase";
+
+function resolveProductImage(value: string | null): string | null {
+  if (!value) return null;
+  const path = value.trim();
+  if (!path) return null;
+  if (/^(https?:\/\/|data:)/i.test(path)) return path;
+  return getPublicFileUrl("product-images", path);
+}
 
 interface CartItem {
   id: string;
@@ -101,6 +110,7 @@ export default function CustomerCheckout() {
           .from("carts")
           .select("id")
           .eq("customer_id", authState.user.id)
+          .eq("status", "active")
           .maybeSingle(),
 
         supabase
@@ -183,7 +193,14 @@ export default function CustomerCheckout() {
         throw itemError;
       }
 
-      setItems((itemData ?? []) as CartItem[]);
+      setItems(
+        (itemData ?? []).map((item) => ({
+          ...(item as CartItem),
+          product_image: item.product_image
+            ? resolveProductImage(item.product_image)
+            : null,
+        })),
+      );
     } catch (loadError) {
       console.error(
         "CustomerCheckout: unexpected load error",

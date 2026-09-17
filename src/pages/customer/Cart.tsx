@@ -14,7 +14,16 @@ import {
   formatNaira,
   getSafeErrorMessage,
 } from "../../libs/format";
+import { getPublicFileUrl } from "../../libs/storage";
 import { supabase } from "../../libs/supabase";
+
+function resolveProductImage(value: string | null): string | null {
+  if (!value) return null;
+  const path = value.trim();
+  if (!path) return null;
+  if (/^(https?:\/\/|data:)/i.test(path)) return path;
+  return getPublicFileUrl("product-images", path);
+}
 
 interface CartItem {
   id: string;
@@ -67,6 +76,7 @@ export default function CustomerCart() {
         .from("carts")
         .select("id")
         .eq("customer_id", authState.user.id)
+        .eq("status", "active")
         .maybeSingle();
 
       if (cartError) {
@@ -95,7 +105,14 @@ export default function CustomerCart() {
         throw itemError;
       }
 
-      setItems((itemData ?? []) as CartItem[]);
+      setItems(
+        (itemData ?? []).map((item) => ({
+          ...(item as CartItem),
+          product_image: item.product_image
+            ? resolveProductImage(item.product_image)
+            : null,
+        })),
+      );
     } catch (loadError) {
       console.error("CustomerCart: unexpected load error", loadError);
 
@@ -179,6 +196,7 @@ export default function CustomerCart() {
       }
 
       if (data) {
+        window.dispatchEvent(new CustomEvent("iyanjuworld:cart-updated"));
         setItems((currentItems) =>
           currentItems.map((currentItem) =>
             currentItem.id === item.id
