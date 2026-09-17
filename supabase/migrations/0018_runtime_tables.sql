@@ -9,7 +9,9 @@ create table if not exists public.payouts(id uuid primary key default gen_random
 create table if not exists public.audit_logs(id uuid primary key default gen_random_uuid(),actor_id uuid references auth.users(id) on delete set null,action text not null,entity_type text,entity_id uuid,metadata jsonb not null default '{}'::jsonb,created_at timestamptz not null default now());
 drop view if exists public.cart_item_details;
 
-create view public.cart_item_details as
+create view public.cart_item_details
+with (security_invoker = true)
+as
 select
   ci.id,
   ci.cart_id,
@@ -27,7 +29,9 @@ select
   ) as product_image,
   p.business_id,
   b.name as business_name,
-  p.stock_quantity as available_stock
+  p.stock_quantity as available_stock,
+  ci.created_at,
+  ci.updated_at
 from public.cart_items ci
 join public.products p
   on p.id = ci.product_id
