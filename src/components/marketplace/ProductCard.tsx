@@ -7,7 +7,7 @@ import { getAuthState } from "../../libs/auth";
 import { addToCart, getOrCreateActiveCart } from "../../libs/db";
 
 export interface ProductCardProps {
-  id?: string;
+  id: string;
   product?: ProductCardProps;
   name: string;
   slug: string;
